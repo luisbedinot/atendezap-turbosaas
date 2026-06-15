@@ -69,7 +69,7 @@ function AppLayout() {
     );
   }
   return (
-    <AppShell company={ctx.company} email={ctx.user.email} isSuperAdmin={ctx.isSuperAdmin}>
+    <AppShell company={ctx.company} membership={ctx.membership} email={ctx.user.email} isSuperAdmin={ctx.isSuperAdmin}>
       <Outlet />
     </AppShell>
   );

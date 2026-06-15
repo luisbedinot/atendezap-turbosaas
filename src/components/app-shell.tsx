@@ -1,28 +1,38 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { type ReactNode } from "react";
-import { LayoutDashboard, MessageSquareText, Bot, KanbanSquare, LogOut, Smartphone, Shield } from "lucide-react";
+import {
+  LayoutDashboard, MessageSquareText, Bot, KanbanSquare, LogOut, Smartphone, Shield,
+  Inbox, Users, BarChart3, Settings, Contact,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { brand } from "@/config/brand";
 import { TrialBanner } from "@/components/trial-banner";
 import { toast } from "sonner";
-import type { CompanyRow } from "@/lib/tenant";
+import type { CompanyRow, Membership } from "@/lib/tenant";
 
 const nav = [
   { to: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/app/conversas", label: "Conversas", icon: Inbox },
+  { to: "/app/crm", label: "CRM Kanban", icon: KanbanSquare },
+  { to: "/app/contatos", label: "Contatos", icon: Contact },
   { to: "/app/conexao", label: "Conexão", icon: Smartphone },
   { to: "/app/agente", label: "Agente IA", icon: Bot },
-  { to: "/app/kanban", label: "CRM Kanban", icon: KanbanSquare },
+  { to: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
+  { to: "/app/equipe", label: "Equipe", icon: Users, adminOnly: true },
+  { to: "/app/configuracoes", label: "Configurações", icon: Settings },
 ];
 
 export function AppShell({
   children,
   company,
+  membership,
   email,
   isSuperAdmin,
 }: {
   children: ReactNode;
   company: CompanyRow | null;
+  membership?: Membership | null;
   email?: string | null;
   isSuperAdmin?: boolean;
 }) {
@@ -36,6 +46,7 @@ export function AppShell({
   }
 
   const primary = company?.primary_color || brand.primary;
+  const isAdmin = membership?.role === "owner" || membership?.role === "admin";
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30" style={{ ["--brand" as any]: primary }}>
@@ -46,7 +57,7 @@ export function AppShell({
             {company?.logo_url ? (
               <img src={company.logo_url} alt={company.nome} className="size-8 rounded-lg object-cover" />
             ) : (
-              <div className="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-bold">
+              <div className="size-8 rounded-lg text-primary-foreground grid place-items-center font-bold" style={{ background: primary }}>
                 <MessageSquareText className="size-4" />
               </div>
             )}
@@ -56,7 +67,7 @@ export function AppShell({
             </div>
           </div>
           <nav className="flex md:flex-col gap-1 p-2 flex-1 overflow-x-auto">
-            {nav.map((item) => {
+            {nav.filter((i) => !i.adminOnly || isAdmin).map((item) => {
               const active = loc.pathname.startsWith(item.to);
               const Icon = item.icon;
               return (
@@ -65,9 +76,10 @@ export function AppShell({
                   to={item.to}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm whitespace-nowrap transition-colors ${
                     active
-                      ? "bg-primary text-primary-foreground"
+                      ? "text-primary-foreground"
                       : "text-foreground hover:bg-accent"
                   }`}
+                  style={active ? { background: primary } : undefined}
                 >
                   <Icon className="size-4" />
                   {item.label}
