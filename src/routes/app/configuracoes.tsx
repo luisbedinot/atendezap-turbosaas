@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -12,8 +12,13 @@ import { brand } from "@/config/brand";
 
 export const Route = createFileRoute("/app/configuracoes")({
   head: () => ({ meta: [{ title: `${brand.name} — Configurações` }] }),
+  beforeLoad: ({ context }: any) => {
+    const r = context?.membership?.role;
+    if (r === "atendente") throw redirect({ to: "/app/dashboard" });
+  },
   component: ConfigPage,
 });
+
 
 function ConfigPage() {
   const ctx = Route.useRouteContext();

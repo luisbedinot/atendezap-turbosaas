@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getRequest } from "@tanstack/react-start/server";
 import { createHmac } from "crypto";
 
-const SCOPES = ["https://www.googleapis.com/auth/calendar.events", "https://www.googleapis.com/auth/userinfo.email"];
+
 
 function signState(payload: string) {
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "fallback";
@@ -57,7 +57,7 @@ export const startGoogleOAuth = createServerFn({ method: "POST" })
     url.searchParams.set("access_type", "offline");
     url.searchParams.set("prompt", "consent");
     url.searchParams.set("include_granted_scopes", "true");
-    url.searchParams.set("scope", SCOPES.join(" "));
+    url.searchParams.set("scope", "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email");
     url.searchParams.set("state", state);
     return { ok: true as const, url: url.toString() };
   });
