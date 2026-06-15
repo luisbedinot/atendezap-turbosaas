@@ -19,9 +19,14 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MasterPainelRouteImport } from './routes/master/painel'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
+import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
 import { Route as AppKanbanRouteImport } from './routes/app/kanban'
+import { Route as AppEquipeRouteImport } from './routes/app/equipe'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
+import { Route as AppConversasRouteImport } from './routes/app/conversas'
+import { Route as AppContatosRouteImport } from './routes/app/contatos'
+import { Route as AppConfiguracoesRouteImport } from './routes/app/configuracoes'
 import { Route as AppConexaoRouteImport } from './routes/app/conexao'
 import { Route as AppAgenteRouteImport } from './routes/app/agente'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
@@ -76,6 +81,11 @@ const DemoDashboardRoute = DemoDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => DemoRoute,
 } as any)
+const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOnboardingRoute = AppOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -86,9 +96,29 @@ const AppKanbanRoute = AppKanbanRouteImport.update({
   path: '/kanban',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEquipeRoute = AppEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConversasRoute = AppConversasRouteImport.update({
+  id: '/conversas',
+  path: '/conversas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContatosRoute = AppContatosRouteImport.update({
+  id: '/contatos',
+  path: '/contatos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppConexaoRoute = AppConexaoRouteImport.update({
@@ -119,9 +149,14 @@ export interface FileRoutesByFullPath {
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRoute
   '/app/conexao': typeof AppConexaoRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/contatos': typeof AppContatosRoute
+  '/app/conversas': typeof AppConversasRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/equipe': typeof AppEquipeRoute
   '/app/kanban': typeof AppKanbanRoute
   '/app/onboarding': typeof AppOnboardingRoute
+  '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
@@ -137,9 +172,14 @@ export interface FileRoutesByTo {
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRoute
   '/app/conexao': typeof AppConexaoRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/contatos': typeof AppContatosRoute
+  '/app/conversas': typeof AppConversasRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/equipe': typeof AppEquipeRoute
   '/app/kanban': typeof AppKanbanRoute
   '/app/onboarding': typeof AppOnboardingRoute
+  '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
@@ -156,9 +196,14 @@ export interface FileRoutesById {
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRoute
   '/app/conexao': typeof AppConexaoRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/contatos': typeof AppContatosRoute
+  '/app/conversas': typeof AppConversasRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/equipe': typeof AppEquipeRoute
   '/app/kanban': typeof AppKanbanRoute
   '/app/onboarding': typeof AppOnboardingRoute
+  '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
@@ -176,9 +221,14 @@ export interface FileRouteTypes {
     | '/trocar-senha'
     | '/app/agente'
     | '/app/conexao'
+    | '/app/configuracoes'
+    | '/app/contatos'
+    | '/app/conversas'
     | '/app/dashboard'
+    | '/app/equipe'
     | '/app/kanban'
     | '/app/onboarding'
+    | '/app/relatorios'
     | '/demo/dashboard'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
@@ -194,9 +244,14 @@ export interface FileRouteTypes {
     | '/trocar-senha'
     | '/app/agente'
     | '/app/conexao'
+    | '/app/configuracoes'
+    | '/app/contatos'
+    | '/app/conversas'
     | '/app/dashboard'
+    | '/app/equipe'
     | '/app/kanban'
     | '/app/onboarding'
+    | '/app/relatorios'
     | '/demo/dashboard'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
@@ -212,9 +267,14 @@ export interface FileRouteTypes {
     | '/trocar-senha'
     | '/app/agente'
     | '/app/conexao'
+    | '/app/configuracoes'
+    | '/app/contatos'
+    | '/app/conversas'
     | '/app/dashboard'
+    | '/app/equipe'
     | '/app/kanban'
     | '/app/onboarding'
+    | '/app/relatorios'
     | '/demo/dashboard'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
@@ -304,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoDashboardRouteImport
       parentRoute: typeof DemoRoute
     }
+    '/app/relatorios': {
+      id: '/app/relatorios'
+      path: '/relatorios'
+      fullPath: '/app/relatorios'
+      preLoaderRoute: typeof AppRelatoriosRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/onboarding': {
       id: '/app/onboarding'
       path: '/onboarding'
@@ -318,11 +385,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKanbanRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/equipe': {
+      id: '/app/equipe'
+      path: '/equipe'
+      fullPath: '/app/equipe'
+      preLoaderRoute: typeof AppEquipeRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/dashboard': {
       id: '/app/dashboard'
       path: '/dashboard'
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/conversas': {
+      id: '/app/conversas'
+      path: '/conversas'
+      fullPath: '/app/conversas'
+      preLoaderRoute: typeof AppConversasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/contatos': {
+      id: '/app/contatos'
+      path: '/contatos'
+      fullPath: '/app/contatos'
+      preLoaderRoute: typeof AppContatosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/configuracoes': {
+      id: '/app/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/app/configuracoes'
+      preLoaderRoute: typeof AppConfiguracoesRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/conexao': {
@@ -352,17 +447,27 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAgenteRoute: typeof AppAgenteRoute
   AppConexaoRoute: typeof AppConexaoRoute
+  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
+  AppContatosRoute: typeof AppContatosRoute
+  AppConversasRoute: typeof AppConversasRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppEquipeRoute: typeof AppEquipeRoute
   AppKanbanRoute: typeof AppKanbanRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
+  AppRelatoriosRoute: typeof AppRelatoriosRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAgenteRoute: AppAgenteRoute,
   AppConexaoRoute: AppConexaoRoute,
+  AppConfiguracoesRoute: AppConfiguracoesRoute,
+  AppContatosRoute: AppContatosRoute,
+  AppConversasRoute: AppConversasRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppEquipeRoute: AppEquipeRoute,
   AppKanbanRoute: AppKanbanRoute,
   AppOnboardingRoute: AppOnboardingRoute,
+  AppRelatoriosRoute: AppRelatoriosRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -402,13 +507,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

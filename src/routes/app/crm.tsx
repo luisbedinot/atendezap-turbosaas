@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, Pencil, GripVertical } from "lucide-react";
 import { brand } from "@/config/brand";
 
-export const Route = createFileRoute("/app/kanban")({
+export const Route = createFileRoute("/app/crm")({
   head: () => ({ meta: [{ title: `${brand.name} — CRM Kanban` }] }),
   component: KanbanPage,
 });
