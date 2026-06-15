@@ -14,7 +14,168 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agent_config: {
+        Row: {
+          estilo_comunicacao: string
+          nao_pode_fazer: string
+          nome_agente: string
+          nome_empresa: string
+          palavra_despausar: string
+          palavra_pausar: string
+          papel_objetivo: string
+          pode_fazer: string
+          produtos_servicos: string
+          sobre_empresa: string
+          telefone_transferencia: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          estilo_comunicacao?: string
+          nao_pode_fazer?: string
+          nome_agente?: string
+          nome_empresa?: string
+          palavra_despausar?: string
+          palavra_pausar?: string
+          papel_objetivo?: string
+          pode_fazer?: string
+          produtos_servicos?: string
+          sobre_empresa?: string
+          telefone_transferencia?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          estilo_comunicacao?: string
+          nao_pode_fazer?: string
+          nome_agente?: string
+          nome_empresa?: string
+          palavra_despausar?: string
+          palavra_pausar?: string
+          papel_objetivo?: string
+          pode_fazer?: string
+          produtos_servicos?: string
+          sobre_empresa?: string
+          telefone_transferencia?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contact_pause: {
+        Row: {
+          numero: string
+          pausado: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          numero: string
+          pausado?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          numero?: string
+          pausado?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      crm_cards: {
+        Row: {
+          id: string
+          nome: string | null
+          numero: string
+          observacao: string | null
+          status: string
+          ultima_em: string
+          ultima_mensagem: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          nome?: string | null
+          numero: string
+          observacao?: string | null
+          status?: string
+          ultima_em?: string
+          ultima_mensagem?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          nome?: string | null
+          numero?: string
+          observacao?: string | null
+          status?: string
+          ultima_em?: string
+          ultima_mensagem?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mensagens: {
+        Row: {
+          autor: string
+          contato_nome: string | null
+          created_at: string
+          direcao: string
+          id: string
+          numero: string
+          texto: string
+          user_id: string
+        }
+        Insert: {
+          autor: string
+          contato_nome?: string | null
+          created_at?: string
+          direcao: string
+          id?: string
+          numero: string
+          texto: string
+          user_id: string
+        }
+        Update: {
+          autor?: string
+          contato_nome?: string | null
+          created_at?: string
+          direcao?: string
+          id?: string
+          numero?: string
+          texto?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_instances: {
+        Row: {
+          instance_name: string
+          numero: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          instance_name: string
+          numero?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          instance_name?: string
+          numero?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
