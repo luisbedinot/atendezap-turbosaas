@@ -147,19 +147,23 @@ export const testAiReply = createServerFn({ method: "POST" })
     const companyId = await resolveCompanyId(supabase, userId);
     const { lovableAiChat } = await import("./lovable-ai.server");
     const { buildSystemPrompt, parseAiOutput } = await import("./ai-prompt");
-    const { data: cfg } = await supabase
-      .from("agent_config")
-      .select("*")
-      .eq("company_id", companyId)
-      .maybeSingle();
+    const [{ data: cfg }, { data: stagesRows }, { data: prodRows }] = await Promise.all([
+      supabase.from("agent_config").select("*").eq("company_id", companyId).maybeSingle(),
+      supabase.from("crm_stage").select("nome, tipo, ordem").eq("company_id", companyId).order("ordem", { ascending: true }),
+      supabase.from("produto").select("nome, preco, descricao, ordem").eq("company_id", companyId).eq("ativo", true).order("ordem", { ascending: true }),
+    ]);
+    const stages = (stagesRows ?? []).map((s: any) => ({ nome: s.nome, tipo: s.tipo }));
+    const produtos = (prodRows ?? []).map((p: any) => ({ nome: p.nome, preco: p.preco, descricao: p.descricao }));
     const system = buildSystemPrompt(cfg ?? {}, {
       responderEmPartes: cfg?.responder_em_partes ?? true,
+      stages,
+      produtos,
     });
     const raw = await lovableAiChat([
       { role: "system", content: system },
       { role: "user", content: data.message },
     ]);
-    const { parts, stage } = parseAiOutput(raw);
+    const { parts, stage } = parseAiOutput(raw, stages);
     return { reply: parts.join("\n\n"), parts, stage, system };
   });
 

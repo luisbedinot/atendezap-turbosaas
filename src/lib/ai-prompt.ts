@@ -1,4 +1,16 @@
+export interface ProdutoBrief {
+  nome: string;
+  preco?: number | string | null;
+  descricao?: string | null;
+}
+
+export interface StageBrief {
+  nome: string;
+  tipo?: "normal" | "ganho" | "perda";
+}
+
 export interface AgentConfig {
+  // Identidade
   nome_agente: string;
   nome_empresa: string;
   papel_objetivo: string;
@@ -10,22 +22,150 @@ export interface AgentConfig {
   telefone_transferencia: string;
   palavra_pausar: string;
   palavra_despausar: string;
+
+  // Buffer / partes
   segundos_buffer?: number;
   responder_em_partes?: boolean;
+
+  // Negócio (novos)
+  segmento?: string;
+  descricao_negocio?: string;
+  diferenciais?: string;
+  publico_alvo?: string;
+  regiao_horario?: string;
+  ofertas?: string;
+  cupom?: string;
+  como_vender?: string;
+  objecoes?: string;
+  formas_pagamento?: string;
+  ticket_medio?: string;
+  faq?: string;
+  politicas?: string;
+  posvenda_msg?: string;
+  pedir_avaliacao?: boolean;
+  reativar_cliente?: boolean;
+
+  // Personalidade
+  tom?: number;            // 0-100
+  formalidade?: number;    // 0-100
+  usar_emojis?: boolean;
+  tamanho_resposta?: string; // 'curtas' | 'medias' | 'longas'
+  apresentacao?: string;
+
+  // Agendamento
+  agendamento_ativo?: boolean;
+  servicos_agendaveis?: string;
+  duracao_padrao?: string;
+  horarios_disponiveis?: string;
+  antecedencia_min?: string;
 }
 
 export const PART_SEPARATOR = "|||";
 
-export function buildSystemPrompt(c: Partial<AgentConfig>, opts?: { responderEmPartes?: boolean; estagioAtual?: string; resumoContato?: string }): string {
+const DEFAULT_STAGES: StageBrief[] = [
+  { nome: "Conversas", tipo: "normal" },
+  { nome: "Negociando", tipo: "normal" },
+  { nome: "Ganho", tipo: "ganho" },
+  { nome: "Perda", tipo: "perda" },
+];
+
+function describeTom(tom?: number) {
+  const n = typeof tom === "number" ? tom : 70;
+  if (n <= 25) return "tom mais sério e contido";
+  if (n <= 55) return "tom equilibrado, atencioso";
+  if (n <= 80) return "tom caloroso e simpático";
+  return "tom muito caloroso, próximo, quase de amigo";
+}
+
+function describeFormalidade(f?: number) {
+  const n = typeof f === "number" ? f : 40;
+  if (n <= 25) return "linguagem informal (você, oi, beleza)";
+  if (n <= 55) return "linguagem semi-formal (você, com cordialidade)";
+  if (n <= 80) return "linguagem formal (senhor/senhora, prezado)";
+  return "linguagem muito formal (cerimoniosa)";
+}
+
+function describeTamanho(t?: string) {
+  switch ((t || "curtas").toLowerCase()) {
+    case "longas":
+      return "respostas mais longas e explicativas quando fizer sentido";
+    case "medias":
+    case "médias":
+      return "respostas de tamanho médio";
+    default:
+      return "respostas curtas, no estilo WhatsApp";
+  }
+}
+
+export function buildSystemPrompt(
+  c: Partial<AgentConfig>,
+  opts?: {
+    responderEmPartes?: boolean;
+    estagioAtual?: string;
+    resumoContato?: string;
+    produtos?: ProdutoBrief[];
+    stages?: StageBrief[];
+  },
+): string {
   const partes = opts?.responderEmPartes ?? c.responder_em_partes ?? true;
+  const stages = (opts?.stages && opts.stages.length > 0) ? opts.stages : DEFAULT_STAGES;
+  const produtos = opts?.produtos ?? [];
+
+  const personalidade = [
+    describeTom(c.tom),
+    describeFormalidade(c.formalidade),
+    describeTamanho(c.tamanho_resposta),
+    c.usar_emojis === false ? "sem usar emojis" : "pode usar 1 emoji ocasional quando combinar",
+  ].join("; ");
+
+  const produtosBloco = produtos.length
+    ? "PRODUTOS / SERVIÇOS (catálogo real — use SOMENTE estes preços/itens):\n" +
+      produtos
+        .map((p) => {
+          const preco = p.preco !== undefined && p.preco !== null && p.preco !== "" ? ` — R$ ${p.preco}` : "";
+          const desc = p.descricao ? ` (${p.descricao})` : "";
+          return `• ${p.nome}${preco}${desc}`;
+        })
+        .join("\n")
+    : "";
+
+  const stageNames = stages.map((s) => s.nome).join(" | ");
+  const stagesFinaisNomes = stages.filter((s) => s.tipo === "ganho" || s.tipo === "perda").map((s) => s.nome);
+
   const blocos = [
     `Você é ${c.nome_agente || "um atendente virtual"}, atendendo no WhatsApp da empresa ${c.nome_empresa || "(empresa)"}.`,
+    c.apresentacao ? `Como se apresenta na primeira mensagem: ${c.apresentacao}` : "",
     `Objetivo: ${c.papel_objetivo || "atender clientes com cordialidade, descobrir o que precisam e ajudar a fechar a venda."}`,
-    `Estilo de comunicação: ${c.estilo_comunicacao || "humano, simpático, consultivo e direto."}`,
+    `Personalidade: ${personalidade}.`,
+    c.estilo_comunicacao ? `Estilo de comunicação extra: ${c.estilo_comunicacao}` : "",
+    c.segmento ? `Segmento da empresa: ${c.segmento}.` : "",
     c.sobre_empresa ? `Sobre a empresa:\n${c.sobre_empresa}` : "",
-    c.produtos_servicos ? `Produtos/serviços:\n${c.produtos_servicos}` : "",
+    c.descricao_negocio ? `Descrição do negócio:\n${c.descricao_negocio}` : "",
+    c.diferenciais ? `Diferenciais:\n${c.diferenciais}` : "",
+    c.publico_alvo ? `Público-alvo: ${c.publico_alvo}` : "",
+    c.regiao_horario ? `Região / horário de atendimento: ${c.regiao_horario}` : "",
+    c.produtos_servicos ? `Produtos/serviços (descrição livre):\n${c.produtos_servicos}` : "",
+    produtosBloco,
+    c.ofertas ? `OFERTAS ATIVAS:\n${c.ofertas}` : "",
+    c.cupom ? `Cupom disponível: ${c.cupom} (só ofereça quando fizer sentido pra fechar)` : "",
+    c.formas_pagamento ? `Formas de pagamento aceitas: ${c.formas_pagamento}` : "",
+    c.ticket_medio ? `Ticket médio de referência: ${c.ticket_medio}` : "",
+    c.como_vender ? `COMO VENDER (passo a passo de vendas da empresa):\n${c.como_vender}` : "",
+    c.objecoes ? `OBJEÇÕES COMUNS E COMO RESPONDER:\n${c.objecoes}` : "",
+    c.faq ? `FAQ:\n${c.faq}` : "",
+    c.politicas ? `POLÍTICAS (troca/cancelamento/garantia):\n${c.politicas}` : "",
+    c.posvenda_msg ? `Mensagem padrão de pós-venda: ${c.posvenda_msg}` : "",
+    c.pedir_avaliacao ? "Quando uma venda for concluída, peça uma avaliação de forma natural." : "",
+    c.reativar_cliente ? "Pode reativar clientes inativos com mensagens leves e relevantes." : "",
     c.pode_fazer ? `O QUE VOCÊ PODE FAZER:\n${c.pode_fazer}` : "",
     c.nao_pode_fazer ? `O QUE VOCÊ NÃO PODE FAZER:\n${c.nao_pode_fazer}` : "",
+    c.agendamento_ativo
+      ? `AGENDAMENTO ATIVO: você pode propor horários para ${c.servicos_agendaveis || "os serviços agendáveis"}. ` +
+        `Duração padrão: ${c.duracao_padrao || "30 min"}. ` +
+        `Janelas disponíveis: ${c.horarios_disponiveis || "(não informado)"}. ` +
+        `Antecedência mínima: ${c.antecedencia_min || "2 horas"}. ` +
+        `Sempre confirme nome e o melhor horário antes de fechar o agendamento.`
+      : "",
     c.telefone_transferencia
       ? `Se o cliente pedir atendimento humano, reclamar de algo sensível, ou precisar de algo fora do seu escopo, oriente a falar com ${c.telefone_transferencia} e diga que vai transferir.`
       : "Se o cliente pedir atendimento humano ou for algo sensível, diga educadamente que vai chamar alguém do time.",
@@ -43,7 +183,7 @@ export function buildSystemPrompt(c: Partial<AgentConfig>, opts?: { responderEmP
 ESTILO DE MENSAGEM (WhatsApp humano):
 - Português do Brasil, tom próximo, sem ser formal demais e sem ser infantil.
 - Mensagens CURTAS, frases naturais, como gente digita no WhatsApp. Nada de textão.
-- Sem markdown pesado, sem listas com bullets, sem emojis em excesso (um, no máximo, e só quando combinar).
+- Sem markdown pesado, sem listas com bullets, sem emojis em excesso.
 - Não repita o nome do cliente em toda mensagem. Não repita o que ele acabou de dizer.
 - Não soe como robô ("Como posso ajudá-lo hoje?"). Soe como um atendente real e atencioso.`,
   ];
@@ -62,23 +202,37 @@ Se uma frase só já resolve, use UMA parte e pronto (sem o marcador). Nunca mai
 
   blocos.push(
     `AO FINAL DA RESPOSTA, em uma nova linha, escreva exatamente:
-[ESTAGIO: conversas|negociando|ganho|perda]
-Escolha 1: "negociando" se o cliente demonstrou interesse claro / pediu preço, condição, prazo, proposta. "ganho" se confirmou compra/contratação. "perda" se recusou ou disse que não quer. "conversas" no resto. Esse marcador é interno, NÃO aparece pro cliente.`,
+[ESTAGIO: ${stageNames}]
+Escolha 1 entre as etapas reais do CRM da empresa listadas acima. ` +
+      (stagesFinaisNomes.length
+        ? `Use uma etapa final (${stagesFinaisNomes.join(" / ")}) APENAS se o cliente confirmou (ganho) ou recusou claramente (perda). `
+        : "") +
+      `Esse marcador é interno, NÃO aparece pro cliente.`,
   );
 
   return blocos.filter(Boolean).join("\n\n");
 }
 
-export function parseAiOutput(raw: string): { parts: string[]; stage: "conversas" | "negociando" | "ganho" | "perda" } {
-  let stage: "conversas" | "negociando" | "ganho" | "perda" = "conversas";
+export function parseAiOutput(
+  raw: string,
+  stages?: StageBrief[],
+): { parts: string[]; stage: string | null } {
   let text = raw || "";
-  const stageMatch = text.match(/\[\s*ESTAGIO\s*:\s*([a-zçãéíóú]+)\s*\]/i);
+  let stage: string | null = null;
+  const stageMatch = text.match(/\[\s*ESTAGIO\s*:\s*([^\]]+)\]/i);
   if (stageMatch) {
-    const w = stageMatch[1].toLowerCase();
-    if (w.startsWith("ganho")) stage = "ganho";
-    else if (w.startsWith("perda")) stage = "perda";
-    else if (w.startsWith("negoc")) stage = "negociando";
-    else stage = "conversas";
+    const candidate = stageMatch[1].trim().toLowerCase();
+    if (stages && stages.length) {
+      const found = stages.find((s) => s.nome.toLowerCase() === candidate);
+      if (found) stage = found.nome;
+      else {
+        // tenta começar com o nome
+        const starts = stages.find((s) => candidate.startsWith(s.nome.toLowerCase()));
+        if (starts) stage = starts.nome;
+      }
+    } else {
+      stage = stageMatch[1].trim();
+    }
     text = text.replace(stageMatch[0], "").trim();
   }
   const parts = text
@@ -92,6 +246,6 @@ export function parseAiOutput(raw: string): { parts: string[]; stage: "conversas
 export function classifyStagePromptInstruction(): string {
   return (
     "Você é um classificador. Dado o histórico curto de mensagens entre um vendedor e um lead pelo WhatsApp, " +
-    "responda APENAS com UMA palavra do conjunto: conversas | negociando | ganho | perda."
+    "responda APENAS com UMA palavra correspondente ao nome de uma etapa do CRM."
   );
 }
