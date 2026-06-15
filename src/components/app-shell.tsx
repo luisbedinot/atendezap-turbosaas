@@ -15,9 +15,9 @@ type NavItem = {
   to: string;
   label: string;
   icon: any;
-  adminOnly?: boolean;
+  adminOnly?: boolean; // hides for atendente
   tag?: string;
-  badge?: boolean; // unread badge slot
+  badge?: boolean;
 };
 
 const sections: { label: string; items: NavItem[] }[] = [
@@ -27,20 +27,21 @@ const sections: { label: string; items: NavItem[] }[] = [
       { to: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/app/conversas", label: "Conversas", icon: Inbox, badge: true },
       { to: "/app/crm", label: "CRM Kanban", icon: KanbanSquare },
-      { to: "/app/agente", label: "Agente IA", icon: Bot, tag: "IA" },
+      { to: "/app/agente", label: "Agente IA", icon: Bot, tag: "IA", adminOnly: true },
     ],
   },
   {
     label: "Gestão",
     items: [
       { to: "/app/contatos", label: "Contatos", icon: Contact },
-      { to: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
+      { to: "/app/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
       { to: "/app/conexao", label: "Conexão", icon: Smartphone },
       { to: "/app/equipe", label: "Equipe", icon: Users, adminOnly: true },
-      { to: "/app/configuracoes", label: "Configurações", icon: Settings },
+      { to: "/app/configuracoes", label: "Configurações", icon: Settings, adminOnly: true },
     ],
   },
 ];
+
 
 export function AppShell({
   children,
