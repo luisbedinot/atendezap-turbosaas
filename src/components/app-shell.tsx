@@ -89,10 +89,20 @@ export function AppShell({
           signOut={signOut}
         />
         <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
-          <div className="hidden md:flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 text-[13px] text-muted-foreground font-medium">
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <div className="hidden md:flex items-center gap-2 text-[13.5px] text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-[color:var(--panel)] border border-[color:var(--hairline)]">
               <span className="size-1.5 rounded-full bg-[color:var(--brand)] shadow-[0_0_10px_var(--brand)]" />
-              Plataforma ativa
+              Agente conectado
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <ThemeToggle />
+              <div
+                className="size-9 rounded-full grid place-items-center text-[13px] font-bold text-[color:var(--brand-text)] ring-1 ring-[color:var(--hairline-strong)]"
+                style={{ background: "var(--brand-soft)" }}
+                title={email || ""}
+              >
+                {(userName || "U").slice(0, 1).toUpperCase()}
+              </div>
             </div>
           </div>
           {children}
