@@ -160,7 +160,7 @@ function Header({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }
       className="sticky top-0 z-50 backdrop-blur-xl"
       style={{ background: "rgba(4,16,10,0.55)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <div className="mx-auto max-w-7xl px-5 md:px-8 h-16 flex items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8 h-16 flex items-center justify-between gap-3">
         <a href="/" className="flex items-center gap-2.5">
           <span className="grid h-9 w-9 place-items-center rounded-xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
             <Zap className="size-4 text-black" strokeWidth={2.6} />
