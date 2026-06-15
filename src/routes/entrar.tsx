@@ -76,7 +76,7 @@ function EntrarPage() {
 
       <div className="relative w-full max-w-md panel p-8 glow-brand">
         <div className="flex items-center gap-3 mb-6">
-          <div className="size-11 rounded-xl grid place-items-center bg-gradient-brand text-[#062012] shadow-md">
+          <div className="size-11 rounded-xl grid place-items-center bg-gradient-brand text-primary-foreground shadow-md">
             <MessageSquareText className="size-5" />
           </div>
           <div>
@@ -93,7 +93,7 @@ function EntrarPage() {
             <form onSubmit={handleLogin} className="space-y-3">
               <Field id="le" label="E-mail" type="email" value={email} onChange={setEmail} />
               <Field id="lp" label="Senha" type="password" value={password} onChange={setPassword} />
-              <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-[#062012] hover:opacity-90 font-semibold">
+              <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold">
                 {loading ? "Entrando…" : "Entrar"}
               </Button>
               <div className="text-right">
@@ -105,7 +105,7 @@ function EntrarPage() {
             <form onSubmit={handleSignup} className="space-y-3">
               <Field id="se" label="E-mail" type="email" value={email} onChange={setEmail} />
               <Field id="sp" label="Senha (mín. 6)" type="password" value={password} onChange={setPassword} />
-              <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-[#062012] hover:opacity-90 font-semibold">
+              <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold">
                 {loading ? "Criando…" : "Criar conta"}
               </Button>
             </form>

@@ -135,7 +135,7 @@ function ConversasDemo() {
                 />
                 <button
                   type="submit"
-                  className="size-10 rounded-full grid place-items-center text-[#04140B] bg-gradient-to-br from-[#00E676] to-[#25D366] hover:brightness-110 transition"
+                  className="size-10 rounded-full grid place-items-center text-primary-foreground bg-gradient-to-br from-[#00E676] to-[#25D366] hover:brightness-110 transition"
                   aria-label="Enviar"
                 >
                   <Send className="size-4" />
@@ -194,7 +194,7 @@ function Bubble({ m }: { m: DemoMsg }) {
       <div
         className={`max-w-[78%] sm:max-w-[62%] px-3.5 py-2.5 text-[13px] ${
           isOut
-            ? "bg-gradient-to-br from-[#1f9d57] to-[#25D366] text-[#04140B] rounded-2xl rounded-br-md font-medium"
+            ? "bg-gradient-to-br from-[#1f9d57] to-[#25D366] text-primary-foreground rounded-2xl rounded-br-md font-medium"
             : "bg-[#15241c] text-foreground rounded-2xl rounded-bl-md"
         }`}
       >

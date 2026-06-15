@@ -102,7 +102,7 @@ function AgenteDemo() {
               {testReply.map((p, i) => (
                 <div key={i} className="flex justify-start gap-2 items-end">
                   <InitialsAvatar name="IA" size={24} forceGradient="linear-gradient(135deg,#A3E635,#25D366)" />
-                  <div className="max-w-[78%] bg-gradient-to-br from-[#1f9d57] to-[#25D366] text-[#04140B] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-[13px] font-medium">
+                  <div className="max-w-[78%] bg-gradient-to-br from-[#1f9d57] to-[#25D366] text-primary-foreground rounded-2xl rounded-bl-md px-3.5 py-2.5 text-[13px] font-medium">
                     <span className="block text-[9.5px] font-bold opacity-80 mb-1 uppercase tracking-wider">⚡ Agente IA</span>
                     {p}
                   </div>
@@ -120,7 +120,7 @@ function AgenteDemo() {
               <button
                 onClick={runTest}
                 disabled={testing}
-                className="size-10 shrink-0 rounded-full grid place-items-center text-[#04140B] bg-gradient-to-br from-[#00E676] to-[#25D366] disabled:opacity-50"
+                className="size-10 shrink-0 rounded-full grid place-items-center text-primary-foreground bg-gradient-to-br from-[#00E676] to-[#25D366] disabled:opacity-50"
               >
                 {testing ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
               </button>
