@@ -623,9 +623,9 @@ function Faq() {
 /* ===================== FINAL CTA ===================== */
 function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
   return (
-    <section className="px-5 md:px-8 py-20">
+    <section className="px-4 sm:px-5 md:px-8 py-16 md:py-20">
       <div
-        className="mx-auto max-w-6xl rounded-3xl p-10 md:p-16 text-center relative overflow-hidden reveal"
+        className="mx-auto max-w-6xl rounded-3xl p-6 sm:p-10 md:p-16 text-center relative overflow-hidden reveal"
         data-reveal
         style={{
           background: "linear-gradient(135deg,#0c3a23,#0a1a13)",
@@ -635,21 +635,21 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void
       >
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 size-[500px] rounded-full opacity-40 blur-3xl" style={{ background: "radial-gradient(circle,#25D366,transparent 60%)" }} />
         <div className="relative">
-          <h2 className="font-display text-4xl md:text-6xl leading-tight">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-6xl leading-tight">
             Pare de perder venda no <span className="text-grad">"oi, sumiu"</span>.
           </h2>
-          <p className="mt-5 text-white/70 max-w-xl mx-auto text-lg">
+          <p className="mt-5 text-white/70 max-w-xl mx-auto text-base sm:text-lg">
             14 dias grátis. Sem cartão. Liga em 2 minutos. Você vai ver os leads sendo respondidos na hora.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row flex-wrap justify-center gap-3">
             <button
               onClick={() => onCta("/entrar")}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-xl text-black font-bold text-lg btn-glow"
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl text-black font-bold text-base sm:text-lg btn-glow"
               style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
             >
               Começar agora, de graça <ArrowRight className="size-5" />
             </button>
-            <button onClick={() => onCta("/demo/dashboard")} className="inline-flex items-center gap-2 px-7 py-4 rounded-xl glass-strong text-white hover:bg-white/10">
+            <button onClick={() => onCta("/demo/dashboard")} className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl glass-strong text-white hover:bg-white/10">
               <Play className="size-4" /> Ver demonstração
             </button>
           </div>
