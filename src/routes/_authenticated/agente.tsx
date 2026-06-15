@@ -1,0 +1,169 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { Bot, Loader2, Save, Sparkles } from "lucide-react";
+import { brand } from "@/config/brand";
+import { buildSystemPrompt } from "@/lib/ai-prompt";
+import { testAiReply } from "@/lib/evolution.functions";
+
+export const Route = createFileRoute("/_authenticated/agente")({
+  head: () => ({ meta: [{ title: `${brand.name} — Agente IA` }] }),
+  component: AgentePage,
+});
+
+const DEFAULTS = {
+  nome_agente: "Atendente Virtual",
+  nome_empresa: "",
+  papel_objetivo: "Atender clientes, tirar dúvidas e ajudar a fechar vendas.",
+  estilo_comunicacao: "Cordial, profissional e objetivo. Usa emojis com moderação.",
+  sobre_empresa: "",
+  produtos_servicos: "",
+  pode_fazer: "",
+  nao_pode_fazer: "",
+  telefone_transferencia: "",
+  palavra_pausar: "/pausar",
+  palavra_despausar: "/despausar",
+};
+
+function AgentePage() {
+  const test = useServerFn(testAiReply);
+  const [cfg, setCfg] = useState(DEFAULTS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [testMsg, setTestMsg] = useState("Oi, vocês entregam aqui na minha região?");
+  const [testReply, setTestReply] = useState<string>("");
+  const [testing, setTesting] = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data } = await supabase
+        .from("agent_config")
+        .select("*")
+        .eq("user_id", u.user.id)
+        .maybeSingle();
+      if (data) setCfg({ ...DEFAULTS, ...data } as any);
+      setLoading(false);
+    })();
+  }, []);
+
+  function update<K extends keyof typeof DEFAULTS>(k: K, v: string) {
+    setCfg((prev) => ({ ...prev, [k]: v }));
+  }
+
+  async function save() {
+    setSaving(true);
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) return;
+    const { error } = await supabase
+      .from("agent_config")
+      .upsert({ user_id: u.user.id, ...cfg }, { onConflict: "user_id" });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Configuração salva");
+  }
+
+  async function runTest() {
+    setTesting(true);
+    setTestReply("");
+    try {
+      const r = await test({ data: { message: testMsg } });
+      setTestReply(r.reply);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha no teste");
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  if (loading) {
+    return <div className="grid place-items-center h-40 text-muted-foreground"><Loader2 className="animate-spin" /></div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Agente IA</h1>
+        <p className="text-sm text-muted-foreground">
+          Configure como sua IA conversa com os clientes no WhatsApp.
+        </p>
+      </div>
+
+      <Card className="p-5 space-y-4">
+        <div className="grid md:grid-cols-2 gap-4">
+          <Field label="Nome do agente" value={cfg.nome_agente} onChange={(v) => update("nome_agente", v)} />
+          <Field label="Nome da empresa" value={cfg.nome_empresa} onChange={(v) => update("nome_empresa", v)} />
+        </div>
+        <Area label="Papel e objetivo" value={cfg.papel_objetivo} onChange={(v) => update("papel_objetivo", v)} />
+        <Area label="Estilo de comunicação" value={cfg.estilo_comunicacao} onChange={(v) => update("estilo_comunicacao", v)} />
+        <Area label="Sobre a empresa" value={cfg.sobre_empresa} onChange={(v) => update("sobre_empresa", v)} rows={3} />
+        <Area label="Produtos / serviços" value={cfg.produtos_servicos} onChange={(v) => update("produtos_servicos", v)} rows={3} />
+        <div className="grid md:grid-cols-2 gap-4">
+          <Area label="O que PODE fazer" value={cfg.pode_fazer} onChange={(v) => update("pode_fazer", v)} rows={3} />
+          <Area label="O que NÃO pode fazer" value={cfg.nao_pode_fazer} onChange={(v) => update("nao_pode_fazer", v)} rows={3} />
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          <Field label="Telefone para transferência" value={cfg.telefone_transferencia} onChange={(v) => update("telefone_transferencia", v)} />
+          <Field label="Palavra para pausar IA" value={cfg.palavra_pausar} onChange={(v) => update("palavra_pausar", v)} />
+          <Field label="Palavra para despausar IA" value={cfg.palavra_despausar} onChange={(v) => update("palavra_despausar", v)} />
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={save} disabled={saving}>
+            {saving ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Save className="size-4 mr-1.5" />}
+            Salvar
+          </Button>
+        </div>
+      </Card>
+
+      <Card className="p-5">
+        <h2 className="font-semibold mb-1 flex items-center gap-2"><Bot className="size-4" /> Pré-visualização do prompt</h2>
+        <p className="text-xs text-muted-foreground mb-3">É exatamente isso que a IA recebe como instrução base.</p>
+        <pre className="text-xs bg-muted/60 rounded-md p-3 whitespace-pre-wrap font-mono max-h-72 overflow-auto">
+{buildSystemPrompt(cfg)}
+        </pre>
+      </Card>
+
+      <Card className="p-5 space-y-3">
+        <h2 className="font-semibold flex items-center gap-2"><Sparkles className="size-4" /> Testar resposta da IA</h2>
+        <Textarea value={testMsg} onChange={(e) => setTestMsg(e.target.value)} rows={2} />
+        <div className="flex justify-end">
+          <Button onClick={runTest} disabled={testing}>
+            {testing ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Sparkles className="size-4 mr-1.5" />}
+            Testar
+          </Button>
+        </div>
+        {testReply && (
+          <div className="rounded-md border bg-primary/5 p-3 text-sm whitespace-pre-wrap">
+            <div className="text-xs text-muted-foreground mb-1">Resposta da IA</div>
+            {testReply}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+function Area({ label, value, onChange, rows = 2 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} />
+    </div>
+  );
+}
