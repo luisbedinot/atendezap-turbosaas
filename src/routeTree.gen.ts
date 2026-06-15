@@ -21,9 +21,14 @@ import { Route as MasterPainelRouteImport } from './routes/master/painel'
 import { Route as MasterNovaEmpresaRouteImport } from './routes/master/nova-empresa'
 import { Route as MasterEmpresasRouteImport } from './routes/master/empresas'
 import { Route as MasterConfiguracoesRouteImport } from './routes/master/configuracoes'
+import { Route as DemoRelatoriosRouteImport } from './routes/demo/relatorios'
+import { Route as DemoEquipeRouteImport } from './routes/demo/equipe'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
 import { Route as DemoCrmRouteImport } from './routes/demo/crm'
 import { Route as DemoConversasRouteImport } from './routes/demo/conversas'
+import { Route as DemoContatosRouteImport } from './routes/demo/contatos'
+import { Route as DemoConfiguracoesRouteImport } from './routes/demo/configuracoes'
+import { Route as DemoConexaoRouteImport } from './routes/demo/conexao'
 import { Route as DemoAgenteRouteImport } from './routes/demo/agente'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
@@ -98,6 +103,16 @@ const MasterConfiguracoesRoute = MasterConfiguracoesRouteImport.update({
   path: '/configuracoes',
   getParentRoute: () => MasterRoute,
 } as any)
+const DemoRelatoriosRoute = DemoRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoEquipeRoute = DemoEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => DemoRoute,
+} as any)
 const DemoDashboardRoute = DemoDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -111,6 +126,21 @@ const DemoCrmRoute = DemoCrmRouteImport.update({
 const DemoConversasRoute = DemoConversasRouteImport.update({
   id: '/conversas',
   path: '/conversas',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoContatosRoute = DemoContatosRouteImport.update({
+  id: '/contatos',
+  path: '/contatos',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoConfiguracoesRoute = DemoConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoConexaoRoute = DemoConexaoRouteImport.update({
+  id: '/conexao',
+  path: '/conexao',
   getParentRoute: () => DemoRoute,
 } as any)
 const DemoAgenteRoute = DemoAgenteRouteImport.update({
@@ -200,9 +230,14 @@ export interface FileRoutesByFullPath {
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/agente': typeof DemoAgenteRoute
+  '/demo/conexao': typeof DemoConexaoRoute
+  '/demo/configuracoes': typeof DemoConfiguracoesRoute
+  '/demo/contatos': typeof DemoContatosRoute
   '/demo/conversas': typeof DemoConversasRoute
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
@@ -230,9 +265,14 @@ export interface FileRoutesByTo {
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/agente': typeof DemoAgenteRoute
+  '/demo/conexao': typeof DemoConexaoRoute
+  '/demo/configuracoes': typeof DemoConfiguracoesRoute
+  '/demo/contatos': typeof DemoContatosRoute
   '/demo/conversas': typeof DemoConversasRoute
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
@@ -261,9 +301,14 @@ export interface FileRoutesById {
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/agente': typeof DemoAgenteRoute
+  '/demo/conexao': typeof DemoConexaoRoute
+  '/demo/configuracoes': typeof DemoConfiguracoesRoute
+  '/demo/contatos': typeof DemoContatosRoute
   '/demo/conversas': typeof DemoConversasRoute
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
@@ -293,9 +338,14 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/agente'
+    | '/demo/conexao'
+    | '/demo/configuracoes'
+    | '/demo/contatos'
     | '/demo/conversas'
     | '/demo/crm'
     | '/demo/dashboard'
+    | '/demo/equipe'
+    | '/demo/relatorios'
     | '/master/configuracoes'
     | '/master/empresas'
     | '/master/nova-empresa'
@@ -323,9 +373,14 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/agente'
+    | '/demo/conexao'
+    | '/demo/configuracoes'
+    | '/demo/contatos'
     | '/demo/conversas'
     | '/demo/crm'
     | '/demo/dashboard'
+    | '/demo/equipe'
+    | '/demo/relatorios'
     | '/master/configuracoes'
     | '/master/empresas'
     | '/master/nova-empresa'
@@ -353,9 +408,14 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/agente'
+    | '/demo/conexao'
+    | '/demo/configuracoes'
+    | '/demo/contatos'
     | '/demo/conversas'
     | '/demo/crm'
     | '/demo/dashboard'
+    | '/demo/equipe'
+    | '/demo/relatorios'
     | '/master/configuracoes'
     | '/master/empresas'
     | '/master/nova-empresa'
@@ -463,6 +523,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasterConfiguracoesRouteImport
       parentRoute: typeof MasterRoute
     }
+    '/demo/relatorios': {
+      id: '/demo/relatorios'
+      path: '/relatorios'
+      fullPath: '/demo/relatorios'
+      preLoaderRoute: typeof DemoRelatoriosRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/equipe': {
+      id: '/demo/equipe'
+      path: '/equipe'
+      fullPath: '/demo/equipe'
+      preLoaderRoute: typeof DemoEquipeRouteImport
+      parentRoute: typeof DemoRoute
+    }
     '/demo/dashboard': {
       id: '/demo/dashboard'
       path: '/dashboard'
@@ -482,6 +556,27 @@ declare module '@tanstack/react-router' {
       path: '/conversas'
       fullPath: '/demo/conversas'
       preLoaderRoute: typeof DemoConversasRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/contatos': {
+      id: '/demo/contatos'
+      path: '/contatos'
+      fullPath: '/demo/contatos'
+      preLoaderRoute: typeof DemoContatosRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/configuracoes': {
+      id: '/demo/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/demo/configuracoes'
+      preLoaderRoute: typeof DemoConfiguracoesRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/conexao': {
+      id: '/demo/conexao'
+      path: '/conexao'
+      fullPath: '/demo/conexao'
+      preLoaderRoute: typeof DemoConexaoRouteImport
       parentRoute: typeof DemoRoute
     }
     '/demo/agente': {
@@ -608,16 +703,26 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface DemoRouteChildren {
   DemoAgenteRoute: typeof DemoAgenteRoute
+  DemoConexaoRoute: typeof DemoConexaoRoute
+  DemoConfiguracoesRoute: typeof DemoConfiguracoesRoute
+  DemoContatosRoute: typeof DemoContatosRoute
   DemoConversasRoute: typeof DemoConversasRoute
   DemoCrmRoute: typeof DemoCrmRoute
   DemoDashboardRoute: typeof DemoDashboardRoute
+  DemoEquipeRoute: typeof DemoEquipeRoute
+  DemoRelatoriosRoute: typeof DemoRelatoriosRoute
 }
 
 const DemoRouteChildren: DemoRouteChildren = {
   DemoAgenteRoute: DemoAgenteRoute,
+  DemoConexaoRoute: DemoConexaoRoute,
+  DemoConfiguracoesRoute: DemoConfiguracoesRoute,
+  DemoContatosRoute: DemoContatosRoute,
   DemoConversasRoute: DemoConversasRoute,
   DemoCrmRoute: DemoCrmRoute,
   DemoDashboardRoute: DemoDashboardRoute,
+  DemoEquipeRoute: DemoEquipeRoute,
+  DemoRelatoriosRoute: DemoRelatoriosRoute,
 }
 
 const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
@@ -654,13 +759,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
