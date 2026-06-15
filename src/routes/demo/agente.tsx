@@ -81,7 +81,7 @@ function AgenteDemo() {
                 <div className="text-sm font-semibold">Responder em partes (humanizado)</div>
                 <div className="text-[11px] text-muted-foreground">Ligado — divide em 1–3 bolhas curtas</div>
               </div>
-              <Switch checked readOnly />
+              <Switch checked onCheckedChange={() => {}} />
             </div>
           </Section>
         </div>
