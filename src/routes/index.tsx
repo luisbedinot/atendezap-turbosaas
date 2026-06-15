@@ -697,7 +697,6 @@ function SectionTitle({ eyebrow, title, center }: { eyebrow: string; title: Reac
 }
 
 function useScrollReveal() {
-  const observed = useRef<Set<Element>>(new Set());
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
@@ -708,22 +707,14 @@ function useScrollReveal() {
           }
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      { threshold: 0.08, rootMargin: "0px 0px -10% 0px" },
     );
-    const seen = observed.current;
-    const refresh = () => {
-      document.querySelectorAll<HTMLElement>("[data-reveal], .reveal").forEach((el) => {
-        if (!seen.has(el)) {
-          seen.add(el);
-          el.classList.add("reveal");
-          io.observe(el);
-        }
-      });
-    };
-    refresh();
-    const mo = new MutationObserver(refresh);
-    mo.observe(document.body, { childList: true, subtree: true });
-    return () => { io.disconnect(); mo.disconnect(); };
+    // single pass — todos os elementos já estão no markup ao montar
+    document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
+      el.classList.add("reveal");
+      io.observe(el);
+    });
+    return () => io.disconnect();
   }, []);
 }
 
