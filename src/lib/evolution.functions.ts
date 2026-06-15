@@ -139,7 +139,46 @@ export const disconnectWhatsapp = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const testAiReply = createServerFn({ method: "POST" })
+export const sendWhatsappText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { numero: string; texto: string; contatoNome?: string | null }) => d)
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const companyId = await resolveCompanyId(supabase, userId);
+    const { data: inst } = await supabase
+      .from("whatsapp_instances").select("instance_name,status").eq("company_id", companyId).maybeSingle();
+    if (!inst?.instance_name) throw new Error("WhatsApp não conectado");
+    const { evoSendText } = await import("./evolution.server");
+    try { await evoSendText(inst.instance_name, data.numero, data.texto); }
+    catch (e: any) { throw new Error(`Falha ao enviar: ${e?.message ?? e}`); }
+    const { error } = await supabase.from("mensagens").insert({
+      company_id: companyId, user_id: userId, numero: data.numero,
+      contato_nome: data.contatoNome ?? null,
+      direcao: "saida", autor: "humano", texto: data.texto,
+    });
+    if (error) throw new Error(error.message);
+    // Pause IA on this contact (humano assumed)
+    await supabase.from("contact_pause").upsert(
+      { company_id: companyId, user_id: userId, numero: data.numero, pausado: true },
+      { onConflict: "company_id,numero" },
+    );
+    return { ok: true };
+  });
+
+export const setContactIaActive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { numero: string; ativa: boolean }) => d)
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const companyId = await resolveCompanyId(supabase, userId);
+    const { error } = await supabase.from("contact_pause").upsert(
+      { company_id: companyId, user_id: userId, numero: data.numero, pausado: !data.ativa },
+      { onConflict: "company_id,numero" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { message: string }) => d)
   .handler(async ({ context, data }) => {
