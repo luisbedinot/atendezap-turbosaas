@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { getRequest } from "@tanstack/react-start/server";
-import { createHmac } from "crypto";
+import { createHmac } from "node:crypto";
 
 
 
@@ -27,7 +26,8 @@ export function verifyState(state: string): { companyId: string } | null {
   }
 }
 
-function buildOrigin() {
+async function buildOrigin() {
+  const { getRequest } = await import("@tanstack/react-start/server");
   const req = getRequest();
   const u = new URL(req.url);
   return `${u.protocol}//${u.host}`;
@@ -46,7 +46,7 @@ export const startGoogleOAuth = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true }).limit(1).maybeSingle();
     if (!cu) return { ok: false as const, error: "Sem empresa." };
 
-    const origin = buildOrigin();
+    const origin = await buildOrigin();
     const redirectUri = `${origin}/api/public/google-callback`;
     const payload = Buffer.from(JSON.stringify({ companyId: cu.company_id, t: Date.now() })).toString("base64url");
     const state = signState(payload);
