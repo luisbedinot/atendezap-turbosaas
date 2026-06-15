@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Bot, Loader2, Save, Sparkles } from "lucide-react";
 import { brand } from "@/config/brand";
@@ -21,16 +22,19 @@ export const Route = createFileRoute("/app/agente")({
 const DEFAULTS = {
   nome_agente: "Atendente Virtual",
   nome_empresa: "",
-  papel_objetivo: "Atender clientes, tirar dúvidas e ajudar a fechar vendas.",
-  estilo_comunicacao: "Cordial, profissional e objetivo.",
+  papel_objetivo: "Atender clientes, descobrir o que precisam, recomendar com sentido e ajudar a fechar a venda.",
+  estilo_comunicacao: "Humano, simpático, consultivo e direto. Mensagens curtas, como gente digita no WhatsApp.",
   sobre_empresa: "",
   produtos_servicos: "",
   pode_fazer: "",
-  nao_pode_fazer: "",
+  nao_pode_fazer: "Inventar preço, prazo ou política que não está no prompt. Prometer o que não foi confirmado.",
   telefone_transferencia: "",
   palavra_pausar: "/pausar",
   palavra_despausar: "/despausar",
+  segundos_buffer: 8,
+  responder_em_partes: true,
 };
+
 
 function AgentePage() {
   const ctx = Route.useRouteContext();
