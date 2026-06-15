@@ -25,6 +25,7 @@ export const startGoogleOAuth = createServerFn({ method: "POST" })
     const origin = await buildOrigin();
     const redirectUri = `${origin}/api/public/google-callback`;
     const payload = Buffer.from(JSON.stringify({ companyId: cu.company_id, t: Date.now() })).toString("base64url");
+    const { signState } = await import("@/lib/google.server");
     const state = signState(payload);
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("client_id", clientId);
