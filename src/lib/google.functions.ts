@@ -9,13 +9,6 @@ async function buildOrigin() {
 }
 
 
-async function buildOrigin() {
-  const { getRequest } = await import("@tanstack/react-start/server");
-  const req = getRequest();
-  const u = new URL(req.url);
-  return `${u.protocol}//${u.host}`;
-}
-
 export const startGoogleOAuth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
