@@ -9,9 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrocarSenhaRouteImport } from './routes/trocar-senha'
+import { Route as ResetSenhaRouteImport } from './routes/reset-senha'
+import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
+import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
 
+const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
+  id: '/trocar-senha',
+  path: '/trocar-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetSenhaRoute = ResetSenhaRouteImport.update({
+  id: '/reset-senha',
+  path: '/reset-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
+  id: '/esqueci-senha',
+  path: '/esqueci-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -26,32 +50,95 @@ const ApiPublicWhatsappWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/entrar': typeof EntrarRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/reset-senha': typeof ResetSenhaRoute
+  '/trocar-senha': typeof TrocarSenhaRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/entrar': typeof EntrarRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/reset-senha': typeof ResetSenhaRoute
+  '/trocar-senha': typeof TrocarSenhaRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/entrar': typeof EntrarRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/reset-senha': typeof ResetSenhaRoute
+  '/trocar-senha': typeof TrocarSenhaRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/whatsapp-webhook'
+  fullPaths:
+    | '/'
+    | '/entrar'
+    | '/esqueci-senha'
+    | '/reset-senha'
+    | '/trocar-senha'
+    | '/api/public/whatsapp-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/whatsapp-webhook'
-  id: '__root__' | '/' | '/api/public/whatsapp-webhook'
+  to:
+    | '/'
+    | '/entrar'
+    | '/esqueci-senha'
+    | '/reset-senha'
+    | '/trocar-senha'
+    | '/api/public/whatsapp-webhook'
+  id:
+    | '__root__'
+    | '/'
+    | '/entrar'
+    | '/esqueci-senha'
+    | '/reset-senha'
+    | '/trocar-senha'
+    | '/api/public/whatsapp-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EntrarRoute: typeof EntrarRoute
+  EsqueciSenhaRoute: typeof EsqueciSenhaRoute
+  ResetSenhaRoute: typeof ResetSenhaRoute
+  TrocarSenhaRoute: typeof TrocarSenhaRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trocar-senha': {
+      id: '/trocar-senha'
+      path: '/trocar-senha'
+      fullPath: '/trocar-senha'
+      preLoaderRoute: typeof TrocarSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-senha': {
+      id: '/reset-senha'
+      path: '/reset-senha'
+      fullPath: '/reset-senha'
+      preLoaderRoute: typeof ResetSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esqueci-senha': {
+      id: '/esqueci-senha'
+      path: '/esqueci-senha'
+      fullPath: '/esqueci-senha'
+      preLoaderRoute: typeof EsqueciSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -71,6 +158,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EntrarRoute: EntrarRoute,
+  EsqueciSenhaRoute: EsqueciSenhaRoute,
+  ResetSenhaRoute: ResetSenhaRoute,
+  TrocarSenhaRoute: TrocarSenhaRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
 }
 export const routeTree = rootRouteImport
