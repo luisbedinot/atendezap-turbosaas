@@ -20,6 +20,10 @@ import { InitialsAvatar } from "@/components/ui/initials-avatar";
 
 export const Route = createFileRoute("/app/agente")({
   head: () => ({ meta: [{ title: `${brand.name} — Agente IA` }] }),
+  beforeLoad: ({ context }: any) => {
+    const r = context?.membership?.role;
+    if (r === "atendente") throw redirect({ to: "/app/dashboard" });
+  },
   component: AgentePage,
 });
 
