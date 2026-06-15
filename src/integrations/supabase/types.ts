@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       agent_config: {
         Row: {
+          company_id: string
           estilo_comunicacao: string
           nao_pode_fazer: string
           nome_agente: string
@@ -31,6 +32,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id: string
           estilo_comunicacao?: string
           nao_pode_fazer?: string
           nome_agente?: string
@@ -46,6 +48,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string
           estilo_comunicacao?: string
           nao_pode_fazer?: string
           nome_agente?: string
@@ -62,20 +65,127 @@ export type Database = {
         }
         Relationships: []
       }
+      app_config: {
+        Row: {
+          id: boolean
+          super_admin_emails: string[]
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          super_admin_emails?: string[]
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          super_admin_emails?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      company: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          logo_url: string | null
+          nome: string
+          primary_color: string
+          slug: string
+          status_cobranca: string
+          telefone: string | null
+          trial_ate: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          logo_url?: string | null
+          nome: string
+          primary_color?: string
+          slug: string
+          status_cobranca?: string
+          telefone?: string | null
+          trial_ate?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          logo_url?: string | null
+          nome?: string
+          primary_color?: string
+          slug?: string
+          status_cobranca?: string
+          telefone?: string | null
+          trial_ate?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      company_user: {
+        Row: {
+          ativo: boolean
+          company_id: string
+          convite_token: string | null
+          created_at: string
+          forcar_troca_senha: boolean
+          id: string
+          role: Database["public"]["Enums"]["tenant_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          company_id: string
+          convite_token?: string | null
+          created_at?: string
+          forcar_troca_senha?: boolean
+          id?: string
+          role?: Database["public"]["Enums"]["tenant_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean
+          company_id?: string
+          convite_token?: string | null
+          created_at?: string
+          forcar_troca_senha?: boolean
+          id?: string
+          role?: Database["public"]["Enums"]["tenant_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_user_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_pause: {
         Row: {
+          company_id: string
           numero: string
           pausado: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
+          company_id: string
           numero: string
           pausado?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
+          company_id?: string
           numero?: string
           pausado?: boolean
           updated_at?: string
@@ -85,6 +195,7 @@ export type Database = {
       }
       crm_cards: {
         Row: {
+          company_id: string
           id: string
           nome: string | null
           numero: string
@@ -96,6 +207,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id: string
           id?: string
           nome?: string | null
           numero: string
@@ -107,6 +219,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string
           id?: string
           nome?: string | null
           numero?: string
@@ -122,6 +235,7 @@ export type Database = {
       mensagens: {
         Row: {
           autor: string
+          company_id: string
           contato_nome: string | null
           created_at: string
           direcao: string
@@ -132,6 +246,7 @@ export type Database = {
         }
         Insert: {
           autor: string
+          company_id: string
           contato_nome?: string | null
           created_at?: string
           direcao: string
@@ -142,6 +257,7 @@ export type Database = {
         }
         Update: {
           autor?: string
+          company_id?: string
           contato_nome?: string | null
           created_at?: string
           direcao?: string
@@ -152,8 +268,54 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          nome: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          nome?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          nome?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       whatsapp_instances: {
         Row: {
+          company_id: string
           instance_name: string
           numero: string | null
           status: string
@@ -161,6 +323,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id: string
           instance_name: string
           numero?: string | null
           status?: string
@@ -168,6 +331,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string
           instance_name?: string
           numero?: string | null
           status?: string
@@ -181,10 +345,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      claim_super_admin_if_empty: { Args: never; Returns: undefined }
+      current_company_id: { Args: never; Returns: string }
+      has_company_access: { Args: { _company_id: string }; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "super_admin"
+      tenant_role: "owner" | "admin" | "atendente"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -311,6 +479,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["super_admin"],
+      tenant_role: ["owner", "admin", "atendente"],
+    },
   },
 } as const
