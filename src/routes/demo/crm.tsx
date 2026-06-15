@@ -1,52 +1,85 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card } from "@/components/ui/card";
+import { useMemo } from "react";
+import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { brand } from "@/config/brand";
-import { demoCards } from "@/lib/demo-data";
+import { Sparkles } from "lucide-react";
+import { demoCards, type DemoCard } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/demo/crm")({
   head: () => ({ meta: [{ title: `${brand.name} — CRM (demo)` }] }),
   component: CrmDemo,
 });
 
-const COLUMNS = [
-  { id: "conversas", label: "Conversas", accent: "bg-blue-500" },
-  { id: "negociando", label: "Negociando", accent: "bg-amber-500" },
-  { id: "ganho", label: "Ganho", accent: "bg-primary" },
-  { id: "perda", label: "Perda", accent: "bg-rose-500" },
-] as const;
+type Status = "conversas" | "negociando" | "ganho" | "perda";
+const COLUMNS: { id: Status; label: string; color: string }[] = [
+  { id: "conversas", label: "Conversas", color: "#22D3EE" },
+  { id: "negociando", label: "Negociando", color: "#FFB020" },
+  { id: "ganho", label: "Ganho", color: "#25D366" },
+  { id: "perda", label: "Perda", color: "#FF5A5A" },
+];
 
 function CrmDemo() {
+  const byStatus = useMemo(() => {
+    const m: Record<Status, DemoCard[]> = { conversas: [], negociando: [], ganho: [], perda: [] };
+    demoCards.forEach((c) => m[c.status].push(c));
+    return m;
+  }, []);
+
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">CRM Kanban</h1>
-        <p className="text-sm text-muted-foreground">A IA também move automaticamente entre as colunas — exemplo.</p>
-      </div>
-      <div className="grid md:grid-cols-4 gap-4">
-        {COLUMNS.map((col) => {
-          const cards = demoCards.filter((c) => c.status === col.id);
-          return (
-            <div key={col.id} className="rounded-xl border bg-card p-3">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <div className="flex items-center gap-2">
-                  <span className={`size-2 rounded-full ${col.accent}`} />
-                  <h3 className="font-semibold text-sm">{col.label}</h3>
-                </div>
-                <span className="text-xs text-muted-foreground">{cards.length}</span>
-              </div>
-              <div className="space-y-2 min-h-24">
-                {cards.map((c) => (
-                  <Card key={c.id} className="p-3">
-                    <div className="font-medium text-sm truncate">{c.nome}</div>
-                    <div className="text-xs text-muted-foreground truncate">{c.numero}</div>
-                    <div className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{c.ultima_mensagem}</div>
-                    <div className="text-[10px] text-muted-foreground mt-1.5">{c.ultima_em.toLocaleString("pt-BR")}</div>
-                  </Card>
-                ))}
-              </div>
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl font-bold">CRM Kanban</h1>
+          <p className="text-xs text-muted-foreground">A IA também move automaticamente entre as colunas — exemplo.</p>
+        </div>
+      </header>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {COLUMNS.map((col) => (
+          <div key={col.id} className="rounded-2xl border border-white/8 bg-[var(--panel)] p-3.5 min-h-[420px]">
+            <div className="flex items-center gap-2 mb-3.5">
+              <span className="size-2.5 rounded-full" style={{ background: col.color, boxShadow: `0 0 8px ${col.color}` }} />
+              <b className="font-display text-[13.5px]">{col.label}</b>
+              <span className="ml-auto text-[11px] text-muted-foreground bg-white/[0.06] px-2 py-0.5 rounded-full">{byStatus[col.id].length}</span>
             </div>
-          );
-        })}
+            <div className="space-y-2.5">
+              {byStatus[col.id].map((c) => <CardBody key={c.id} card={c} />)}
+              {byStatus[col.id].length === 0 && (
+                <div className="text-[11px] text-muted-foreground text-center py-6 border border-dashed border-white/8 rounded-xl">vazio</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CardBody({ card }: { card: DemoCard }) {
+  return (
+    <div className="rounded-xl border border-white/8 bg-[var(--panel-2)] p-3 transition-all hover:border-white/15">
+      <div className="flex items-center gap-2.5">
+        <InitialsAvatar name={card.nome || card.numero} size={34} />
+        <div className="min-w-0 flex-1">
+          <div className="text-[13px] font-semibold truncate">{card.nome}</div>
+          <div className="text-[10.5px] text-[var(--dim,#5f7a6d)] font-mono truncate">{card.numero}</div>
+        </div>
+      </div>
+      {card.ultima_mensagem && (
+        <p className="text-muted-foreground text-[12px] mt-2 line-clamp-2">{card.ultima_mensagem}</p>
+      )}
+      <div className="flex items-center gap-2 mt-2.5">
+        {card.valor != null && (
+          <span className="font-display font-bold text-[13px] text-[#A3E635]">
+            R$ {Number(card.valor).toLocaleString("pt-BR")}
+          </span>
+        )}
+        <span className="text-[9.5px] font-bold text-[#00E676] bg-[rgba(37,211,102,.12)] px-1.5 py-0.5 rounded-md flex items-center gap-1">
+          <Sparkles className="size-2.5" /> IA
+        </span>
+        <span className="ml-auto text-[10.5px] text-[var(--dim,#5f7a6d)]">
+          {card.ultima_em.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} {card.ultima_em.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+        </span>
       </div>
     </div>
   );
