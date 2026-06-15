@@ -32,10 +32,13 @@ const QUICK_REPLIES = [
   "Posso te enviar uma proposta?",
 ];
 
+type StageWithTipo = Stage & { tipo?: string };
+
 function ConversasPage() {
   const ctx = Route.useRouteContext();
   const companyId = ctx.company?.id;
   const userId = ctx.user.id;
+
 
   const sendFn = useServerFn(sendWhatsappText);
   const toggleIaFn = useServerFn(setContactIaActive);
