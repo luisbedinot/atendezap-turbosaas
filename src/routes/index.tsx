@@ -302,8 +302,8 @@ function PhoneMock() {
         </div>
       </div>
 
-      {/* floating CRM card */}
-      <div className="absolute -left-6 sm:-left-16 bottom-20 glass-strong rounded-2xl p-3.5 w-[230px] shadow-2xl animate-float" style={{ animationDelay: "1.5s" }}>
+      {/* floating CRM card — escondido em telas muito pequenas pra não estourar */}
+      <div className="hidden sm:block absolute -left-10 sm:-left-16 bottom-20 glass-strong rounded-2xl p-3.5 w-[220px] shadow-2xl animate-float" style={{ animationDelay: "1.5s" }}>
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-white/50 font-semibold">
           <KanbanSquare className="size-3 text-[#25D366]" />
           CRM atualizado
@@ -321,7 +321,7 @@ function PhoneMock() {
       </div>
 
       {/* floating badge top */}
-      <div className="absolute -right-4 sm:-right-10 top-12 glass-strong rounded-xl px-3 py-2 flex items-center gap-2 shadow-2xl animate-float" style={{ animationDelay: "3s" }}>
+      <div className="hidden sm:flex absolute -right-6 sm:-right-10 top-12 glass-strong rounded-xl px-3 py-2 items-center gap-2 shadow-2xl animate-float" style={{ animationDelay: "3s" }}>
         <span className="size-2 rounded-full bg-[#25D366] dot-pulse relative" />
         <span className="text-xs font-medium">Lead respondido</span>
       </div>
