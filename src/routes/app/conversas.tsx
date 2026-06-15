@@ -102,18 +102,18 @@ function ConversasPage() {
   async function pause() {
     if (!companyId || !active) return;
     const { error } = await supabase.from("contact_pause").upsert(
-      { company_id: companyId, numero: active, paused_until: new Date(Date.now() + 60 * 60 * 1000).toISOString(), reason: "manual" },
+      { company_id: companyId, user_id: ctx.user.id, numero: active, pausado: true },
       { onConflict: "company_id,numero" },
     );
     if (error) return toast.error(error.message);
-    toast.success("IA pausada por 1h neste contato");
+    toast.success("IA pausada neste contato");
   }
 
   async function sendMsg() {
     if (!composer.trim() || !active || !companyId) return;
     const txt = composer.trim(); setComposer("");
     const { error } = await supabase.from("mensagens").insert({
-      company_id: companyId, numero: active, contato_nome: activeConv?.nome ?? null,
+      company_id: companyId, user_id: ctx.user.id, numero: active, contato_nome: activeConv?.nome ?? null,
       direcao: "saida", autor: "humano", texto: txt,
     });
     if (error) return toast.error(error.message);
