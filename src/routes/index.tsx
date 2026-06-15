@@ -253,7 +253,7 @@ function PhoneMock() {
       />
       {/* phone */}
       <div
-        className="relative w-[300px] sm:w-[340px] h-[640px] rounded-[2.5rem] p-3 shadow-2xl"
+        className="relative w-[270px] sm:w-[320px] md:w-[340px] h-[560px] sm:h-[620px] md:h-[640px] rounded-[2.5rem] p-3 shadow-2xl"
         style={{ background: "linear-gradient(180deg,#1a1f1d,#0b0f0d)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         <div
