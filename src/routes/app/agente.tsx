@@ -56,9 +56,10 @@ function AgentePage() {
     })();
   }, [companyId]);
 
-  function update<K extends keyof typeof DEFAULTS>(k: K, v: string) {
+  function update<K extends keyof typeof DEFAULTS>(k: K, v: (typeof DEFAULTS)[K]) {
     setCfg((p) => ({ ...p, [k]: v }));
   }
+
 
   async function save() {
     if (!companyId) return;
