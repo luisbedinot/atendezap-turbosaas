@@ -1,0 +1,111 @@
+// Wrapper server-only para a Evolution API v2.
+// Lê secrets em runtime; nunca expor ao client.
+
+function env() {
+  const url = process.env.EVOLUTION_API_URL;
+  const key = process.env.EVOLUTION_API_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "Secrets EVOLUTION_API_URL e/ou EVOLUTION_API_KEY não configurados. Adicione no Lovable Cloud (Settings > Secrets).",
+    );
+  }
+  return { url: url.replace(/\/+$/, ""), key };
+}
+
+async function evo<T = any>(
+  path: string,
+  init: RequestInit & { json?: any } = {},
+): Promise<T> {
+  const { url, key } = env();
+  const headers: Record<string, string> = {
+    apikey: key,
+    "Content-Type": "application/json",
+    ...(init.headers as Record<string, string> | undefined),
+  };
+  const res = await fetch(`${url}${path}`, {
+    ...init,
+    headers,
+    body: init.json !== undefined ? JSON.stringify(init.json) : init.body,
+  });
+  const text = await res.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { raw: text };
+  }
+  if (!res.ok) {
+    const msg = data?.message || data?.error || text || `HTTP ${res.status}`;
+    throw new Error(`Evolution API: ${msg}`);
+  }
+  return data as T;
+}
+
+export async function evoCreateInstance(instanceName: string, webhookUrl?: string) {
+  // Evolution v2: POST /instance/create
+  const body: any = {
+    instanceName,
+    integration: "WHATSAPP-BAILEYS",
+    qrcode: true,
+  };
+  if (webhookUrl) {
+    body.webhook = {
+      url: webhookUrl,
+      byEvents: false,
+      base64: false,
+      events: ["MESSAGES_UPSERT"],
+    };
+  }
+  return evo(`/instance/create`, { method: "POST", json: body });
+}
+
+export async function evoConnect(instanceName: string): Promise<{ base64?: string; code?: string; pairingCode?: string }> {
+  // GET /instance/connect/{instance} → { base64, code, pairingCode }
+  return evo(`/instance/connect/${encodeURIComponent(instanceName)}`, { method: "GET" });
+}
+
+export async function evoState(instanceName: string): Promise<{ instance?: { state?: string }; state?: string }> {
+  return evo(`/instance/connectionState/${encodeURIComponent(instanceName)}`, { method: "GET" });
+}
+
+export async function evoSetWebhook(instanceName: string, webhookUrl: string) {
+  return evo(`/webhook/set/${encodeURIComponent(instanceName)}`, {
+    method: "POST",
+    json: {
+      webhook: {
+        enabled: true,
+        url: webhookUrl,
+        byEvents: false,
+        base64: false,
+        events: ["MESSAGES_UPSERT"],
+      },
+    },
+  });
+}
+
+export async function evoSendText(instanceName: string, number: string, text: string) {
+  return evo(`/message/sendText/${encodeURIComponent(instanceName)}`, {
+    method: "POST",
+    json: { number, text },
+  });
+}
+
+export async function evoLogout(instanceName: string) {
+  return evo(`/instance/logout/${encodeURIComponent(instanceName)}`, { method: "DELETE" });
+}
+
+export async function evoDelete(instanceName: string) {
+  return evo(`/instance/delete/${encodeURIComponent(instanceName)}`, { method: "DELETE" });
+}
+
+export async function evoFetchNumberFromInstance(instanceName: string): Promise<string | null> {
+  try {
+    const data: any = await evo(`/instance/fetchInstances?instanceName=${encodeURIComponent(instanceName)}`, {
+      method: "GET",
+    });
+    const inst = Array.isArray(data) ? data[0] : data?.[0] ?? data;
+    return inst?.instance?.owner || inst?.owner || inst?.number || null;
+  } catch {
+    return null;
+  }
+}
