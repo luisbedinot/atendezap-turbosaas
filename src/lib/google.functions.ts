@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getRequest } from "@tanstack/react-start/server";
 import { createHmac } from "crypto";
 
-const SCOPES = ["https://www.googleapis.com/auth/calendar.events", "https://www.googleapis.com/auth/userinfo.email"];
+
 
 function signState(payload: string) {
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "fallback";
