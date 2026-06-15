@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { brand } from "@/config/brand";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Zap,
   Play,
@@ -63,19 +63,19 @@ function Landing() {
         fontFamily: "'Inter', system-ui, sans-serif",
       }}
     >
-      {/* radial glows */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {/* radial glows — absolute (não fixed) e mais leves no mobile pra fluidez */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1400px] z-0 overflow-hidden">
         <div
-          className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-40 blur-3xl"
+          className="hidden md:block absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-40 blur-3xl"
           style={{ background: "radial-gradient(circle, #25D366 0%, transparent 60%)" }}
         />
         <div
-          className="absolute top-[20%] -right-40 h-[700px] w-[700px] rounded-full opacity-25 blur-3xl"
+          className="hidden md:block absolute top-[20%] -right-40 h-[700px] w-[700px] rounded-full opacity-25 blur-3xl"
           style={{ background: "radial-gradient(circle, #06b6d4 0%, transparent 65%)" }}
         />
         <div
-          className="absolute bottom-0 left-1/3 h-[500px] w-[500px] rounded-full opacity-20 blur-3xl"
-          style={{ background: "radial-gradient(circle, #84cc16 0%, transparent 60%)" }}
+          className="md:hidden absolute -top-32 left-1/2 -translate-x-1/2 h-[420px] w-[420px] rounded-full opacity-30 blur-2xl"
+          style={{ background: "radial-gradient(circle, #25D366 0%, transparent 60%)" }}
         />
       </div>
 
@@ -94,6 +94,7 @@ function Landing() {
       </div>
 
       <style>{`
+        html { scroll-behavior: smooth; }
         .font-display { font-family: 'Sora', 'Inter', system-ui, sans-serif; font-weight: 800; letter-spacing: -0.02em; }
         .text-grad {
           background: linear-gradient(95deg, #25D366 0%, #a3e635 45%, #22d3ee 100%);
@@ -102,21 +103,21 @@ function Landing() {
           color: transparent;
         }
         .btn-glow {
-          box-shadow: 0 10px 40px -10px rgba(37,211,102,0.7), 0 0 0 1px rgba(37,211,102,0.4) inset;
+          box-shadow: 0 10px 30px -12px rgba(37,211,102,0.55), 0 0 0 1px rgba(37,211,102,0.35) inset;
         }
         .glass {
           background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
           border: 1px solid rgba(255,255,255,0.10);
-          backdrop-filter: blur(14px);
         }
         .glass-strong {
           background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
           border: 1px solid rgba(255,255,255,0.14);
-          backdrop-filter: blur(18px);
         }
-        .dot-pulse {
-          position: relative;
+        @media (min-width: 768px) {
+          .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+          .glass-strong { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
         }
+        .dot-pulse { position: relative; }
         .dot-pulse::after {
           content: '';
           position: absolute; inset: 0;
@@ -133,9 +134,14 @@ function Landing() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
         }
-        .animate-float { animation: float-y 6s ease-in-out infinite; }
-        .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+        .animate-float { animation: float-y 6s ease-in-out infinite; will-change: transform; }
+        @media (max-width: 640px) { .animate-float { animation: none; } }
+        .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; will-change: opacity, transform; }
         .reveal.in { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+          .reveal { opacity: 1; transform: none; transition: none; }
+          .animate-float { animation: none; }
+        }
         .grid-bg {
           background-image:
             linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
@@ -154,7 +160,7 @@ function Header({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }
       className="sticky top-0 z-50 backdrop-blur-xl"
       style={{ background: "rgba(4,16,10,0.55)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <div className="mx-auto max-w-7xl px-5 md:px-8 h-16 flex items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8 h-16 flex items-center justify-between gap-3">
         <a href="/" className="flex items-center gap-2.5">
           <span className="grid h-9 w-9 place-items-center rounded-xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
             <Zap className="size-4 text-black" strokeWidth={2.6} />
@@ -187,28 +193,28 @@ function Header({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }
 /* ===================== HERO ===================== */
 function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
   return (
-    <section className="relative px-5 md:px-8 pt-16 md:pt-24 pb-20">
+    <section className="relative px-4 sm:px-6 md:px-8 pt-10 md:pt-24 pb-16 md:pb-20">
       <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40" />
-      <div className="mx-auto max-w-7xl grid lg:grid-cols-2 gap-14 items-center relative">
-        <div>
+      <div className="mx-auto max-w-7xl grid lg:grid-cols-2 gap-10 md:gap-14 items-center relative">
+        <div className="text-center lg:text-left">
           <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full glass">
             <span className="relative inline-block size-2 rounded-full bg-[#25D366] dot-pulse" />
             <span className="text-white/80 font-medium">WhatsApp + IA + CRM no automático</span>
           </div>
 
-          <h1 className="font-display text-[clamp(2.4rem,6vw,4.6rem)] leading-[1.02] mt-6">
+          <h1 className="font-display text-[clamp(2rem,7vw,4.6rem)] leading-[1.05] mt-5">
             Sua IA atende o WhatsApp <span className="text-grad">24h</span> e organiza o CRM <span className="text-grad">sozinha</span>.
           </h1>
 
-          <p className="mt-6 text-lg text-white/65 max-w-xl leading-relaxed">
+          <p className="mt-5 text-base sm:text-lg text-white/65 max-w-xl mx-auto lg:mx-0 leading-relaxed">
             Conecte seu número, treine o agente em uma tela e veja cada lead ser respondido na hora,
             qualificado e movido no funil — sem você levantar o dedo.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
             <button
               onClick={() => onCta("/entrar")}
-              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl text-black font-semibold btn-glow"
+              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-black font-semibold btn-glow"
               style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
             >
               Começar grátis (14 dias)
@@ -216,13 +222,13 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) 
             </button>
             <button
               onClick={() => onCta("/demo/dashboard")}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass-strong text-white/90 hover:bg-white/10 transition"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl glass-strong text-white/90 hover:bg-white/10 transition"
             >
               <Play className="size-4" /> Ver demonstração
             </button>
           </div>
 
-          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/55">
+          <ul className="mt-6 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/55">
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Sem cartão</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Conecta em 2 minutos</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Cancele quando quiser</li>
@@ -247,7 +253,7 @@ function PhoneMock() {
       />
       {/* phone */}
       <div
-        className="relative w-[300px] sm:w-[340px] h-[640px] rounded-[2.5rem] p-3 shadow-2xl"
+        className="relative w-[270px] sm:w-[320px] md:w-[340px] h-[560px] sm:h-[620px] md:h-[640px] rounded-[2.5rem] p-3 shadow-2xl"
         style={{ background: "linear-gradient(180deg,#1a1f1d,#0b0f0d)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         <div
@@ -296,8 +302,8 @@ function PhoneMock() {
         </div>
       </div>
 
-      {/* floating CRM card */}
-      <div className="absolute -left-6 sm:-left-16 bottom-20 glass-strong rounded-2xl p-3.5 w-[230px] shadow-2xl animate-float" style={{ animationDelay: "1.5s" }}>
+      {/* floating CRM card — escondido em telas muito pequenas pra não estourar */}
+      <div className="hidden sm:block absolute -left-10 sm:-left-16 bottom-20 glass-strong rounded-2xl p-3.5 w-[220px] shadow-2xl animate-float" style={{ animationDelay: "1.5s" }}>
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-white/50 font-semibold">
           <KanbanSquare className="size-3 text-[#25D366]" />
           CRM atualizado
@@ -315,7 +321,7 @@ function PhoneMock() {
       </div>
 
       {/* floating badge top */}
-      <div className="absolute -right-4 sm:-right-10 top-12 glass-strong rounded-xl px-3 py-2 flex items-center gap-2 shadow-2xl animate-float" style={{ animationDelay: "3s" }}>
+      <div className="hidden sm:flex absolute -right-6 sm:-right-10 top-12 glass-strong rounded-xl px-3 py-2 items-center gap-2 shadow-2xl animate-float" style={{ animationDelay: "3s" }}>
         <span className="size-2 rounded-full bg-[#25D366] dot-pulse relative" />
         <span className="text-xs font-medium">Lead respondido</span>
       </div>
@@ -617,9 +623,9 @@ function Faq() {
 /* ===================== FINAL CTA ===================== */
 function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
   return (
-    <section className="px-5 md:px-8 py-20">
+    <section className="px-4 sm:px-5 md:px-8 py-16 md:py-20">
       <div
-        className="mx-auto max-w-6xl rounded-3xl p-10 md:p-16 text-center relative overflow-hidden reveal"
+        className="mx-auto max-w-6xl rounded-3xl p-6 sm:p-10 md:p-16 text-center relative overflow-hidden reveal"
         data-reveal
         style={{
           background: "linear-gradient(135deg,#0c3a23,#0a1a13)",
@@ -629,21 +635,21 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void
       >
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 size-[500px] rounded-full opacity-40 blur-3xl" style={{ background: "radial-gradient(circle,#25D366,transparent 60%)" }} />
         <div className="relative">
-          <h2 className="font-display text-4xl md:text-6xl leading-tight">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-6xl leading-tight">
             Pare de perder venda no <span className="text-grad">"oi, sumiu"</span>.
           </h2>
-          <p className="mt-5 text-white/70 max-w-xl mx-auto text-lg">
+          <p className="mt-5 text-white/70 max-w-xl mx-auto text-base sm:text-lg">
             14 dias grátis. Sem cartão. Liga em 2 minutos. Você vai ver os leads sendo respondidos na hora.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row flex-wrap justify-center gap-3">
             <button
               onClick={() => onCta("/entrar")}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-xl text-black font-bold text-lg btn-glow"
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl text-black font-bold text-base sm:text-lg btn-glow"
               style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
             >
               Começar agora, de graça <ArrowRight className="size-5" />
             </button>
-            <button onClick={() => onCta("/demo/dashboard")} className="inline-flex items-center gap-2 px-7 py-4 rounded-xl glass-strong text-white hover:bg-white/10">
+            <button onClick={() => onCta("/demo/dashboard")} className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl glass-strong text-white hover:bg-white/10">
               <Play className="size-4" /> Ver demonstração
             </button>
           </div>
@@ -691,7 +697,6 @@ function SectionTitle({ eyebrow, title, center }: { eyebrow: string; title: Reac
 }
 
 function useScrollReveal() {
-  const observed = useRef<Set<Element>>(new Set());
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
@@ -702,22 +707,14 @@ function useScrollReveal() {
           }
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      { threshold: 0.08, rootMargin: "0px 0px -10% 0px" },
     );
-    const seen = observed.current;
-    const refresh = () => {
-      document.querySelectorAll<HTMLElement>("[data-reveal], .reveal").forEach((el) => {
-        if (!seen.has(el)) {
-          seen.add(el);
-          el.classList.add("reveal");
-          io.observe(el);
-        }
-      });
-    };
-    refresh();
-    const mo = new MutationObserver(refresh);
-    mo.observe(document.body, { childList: true, subtree: true });
-    return () => { io.disconnect(); mo.disconnect(); };
+    // single pass — todos os elementos já estão no markup ao montar
+    document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
+      el.classList.add("reveal");
+      io.observe(el);
+    });
+    return () => io.disconnect();
   }, []);
 }
 
