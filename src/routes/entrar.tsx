@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { MessageSquareText } from "lucide-react";
@@ -33,7 +32,6 @@ function EntrarPage() {
   async function routeAfterLogin() {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    // super admin?
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
     if (roles?.some((r) => r.role === "super_admin")) {
       navigate({ to: "/master/painel", replace: true });
@@ -72,19 +70,22 @@ function EntrarPage() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center p-4 bg-gradient-to-br from-primary/10 via-background to-background">
-      <Card className="w-full max-w-md p-6 shadow-xl">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="size-10 rounded-xl bg-primary text-primary-foreground grid place-items-center">
+    <div className="min-h-screen grid place-items-center p-4 relative overflow-hidden bg-background">
+      <div aria-hidden className="pointer-events-none absolute -top-32 -left-32 size-[600px] rounded-full opacity-30 blur-3xl" style={{ background: "radial-gradient(circle, #25D366 0%, transparent 60%)" }} />
+      <div aria-hidden className="pointer-events-none absolute -bottom-40 -right-32 size-[600px] rounded-full opacity-20 blur-3xl" style={{ background: "radial-gradient(circle, #22D3EE 0%, transparent 60%)" }} />
+
+      <div className="relative w-full max-w-md panel p-8 glow-brand">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="size-11 rounded-xl grid place-items-center bg-gradient-brand text-[#062012] shadow-md">
             <MessageSquareText className="size-5" />
           </div>
           <div>
-            <div className="font-bold text-lg">{brand.name}</div>
+            <div className="font-display font-bold text-xl text-gradient-brand">{brand.name}</div>
             <div className="text-xs text-muted-foreground">{brand.tagline}</div>
           </div>
         </div>
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-          <TabsList className="grid grid-cols-2 mb-4">
+          <TabsList className="grid grid-cols-2 mb-5 bg-white/[0.03] border border-white/5">
             <TabsTrigger value="login">Entrar</TabsTrigger>
             <TabsTrigger value="signup">Criar conta</TabsTrigger>
           </TabsList>
@@ -92,9 +93,11 @@ function EntrarPage() {
             <form onSubmit={handleLogin} className="space-y-3">
               <Field id="le" label="E-mail" type="email" value={email} onChange={setEmail} />
               <Field id="lp" label="Senha" type="password" value={password} onChange={setPassword} />
-              <Button type="submit" disabled={loading} className="w-full">{loading ? "Entrando…" : "Entrar"}</Button>
+              <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-[#062012] hover:opacity-90 font-semibold">
+                {loading ? "Entrando…" : "Entrar"}
+              </Button>
               <div className="text-right">
-                <Link to="/esqueci-senha" className="text-xs text-muted-foreground hover:underline">Esqueci minha senha</Link>
+                <Link to="/esqueci-senha" className="text-xs text-muted-foreground hover:text-foreground">Esqueci minha senha</Link>
               </div>
             </form>
           </TabsContent>
@@ -102,11 +105,13 @@ function EntrarPage() {
             <form onSubmit={handleSignup} className="space-y-3">
               <Field id="se" label="E-mail" type="email" value={email} onChange={setEmail} />
               <Field id="sp" label="Senha (mín. 6)" type="password" value={password} onChange={setPassword} />
-              <Button type="submit" disabled={loading} className="w-full">{loading ? "Criando…" : "Criar conta"}</Button>
+              <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-[#062012] hover:opacity-90 font-semibold">
+                {loading ? "Criando…" : "Criar conta"}
+              </Button>
             </form>
           </TabsContent>
         </Tabs>
-      </Card>
+      </div>
     </div>
   );
 }

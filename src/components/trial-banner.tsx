@@ -8,13 +8,13 @@ export function TrialBanner({ company }: { company: CompanyRow }) {
 
   return (
     <div
-      className={`px-4 py-2 text-sm flex items-center gap-2 border-b ${
+      className={`px-4 py-2 text-sm flex items-center gap-2 border-b border-white/5 ${
         urgent
-          ? "bg-amber-50 text-amber-900 border-amber-200"
-          : "bg-primary/5 text-foreground border-primary/15"
+          ? "bg-amber-500/10 text-amber-200"
+          : "bg-[color:var(--brand)]/10 text-foreground"
       }`}
     >
-      {urgent ? <AlertTriangle className="size-4" /> : <Sparkles className="size-4 text-primary" />}
+      {urgent ? <AlertTriangle className="size-4" /> : <Sparkles className="size-4 text-[color:var(--brand)]" />}
       <span>
         {days > 0
           ? <>Você está no <b>período de teste</b>. Restam <b>{days} {days === 1 ? "dia" : "dias"}</b>.</>

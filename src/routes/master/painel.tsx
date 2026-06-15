@@ -49,11 +49,11 @@ function Painel() {
         <h2 className="font-semibold mb-3">Crescimento de empresas (12 meses)</h2>
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={data.series}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis dataKey="mes" fontSize={11} />
-            <YAxis fontSize={11} allowDecimals={false} />
-            <Tooltip />
-            <Line type="monotone" dataKey="total" stroke="#DC2626" strokeWidth={2} dot={{ r: 3 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.06)" />
+            <XAxis dataKey="mes" fontSize={11} stroke="#8AA89A" />
+            <YAxis fontSize={11} allowDecimals={false} stroke="#8AA89A" />
+            <Tooltip contentStyle={{ background: "#13211A", border: "1px solid rgba(255,255,255,.08)", borderRadius: 12, color: "#EAF6EF" }} />
+            <Line type="monotone" dataKey="total" stroke="#FF5A5A" strokeWidth={2} dot={{ r: 3, fill: "#FF5A5A" }} />
           </LineChart>
         </ResponsiveContainer>
       </Card>
