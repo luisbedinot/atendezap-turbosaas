@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Bot, Loader2, Save, Sparkles } from "lucide-react";
 import { brand } from "@/config/brand";
@@ -21,16 +22,19 @@ export const Route = createFileRoute("/app/agente")({
 const DEFAULTS = {
   nome_agente: "Atendente Virtual",
   nome_empresa: "",
-  papel_objetivo: "Atender clientes, tirar dúvidas e ajudar a fechar vendas.",
-  estilo_comunicacao: "Cordial, profissional e objetivo.",
+  papel_objetivo: "Atender clientes, descobrir o que precisam, recomendar com sentido e ajudar a fechar a venda.",
+  estilo_comunicacao: "Humano, simpático, consultivo e direto. Mensagens curtas, como gente digita no WhatsApp.",
   sobre_empresa: "",
   produtos_servicos: "",
   pode_fazer: "",
-  nao_pode_fazer: "",
+  nao_pode_fazer: "Inventar preço, prazo ou política que não está no prompt. Prometer o que não foi confirmado.",
   telefone_transferencia: "",
   palavra_pausar: "/pausar",
   palavra_despausar: "/despausar",
+  segundos_buffer: 8,
+  responder_em_partes: true,
 };
+
 
 function AgentePage() {
   const ctx = Route.useRouteContext();
@@ -52,9 +56,10 @@ function AgentePage() {
     })();
   }, [companyId]);
 
-  function update<K extends keyof typeof DEFAULTS>(k: K, v: string) {
+  function update<K extends keyof typeof DEFAULTS>(k: K, v: (typeof DEFAULTS)[K]) {
     setCfg((p) => ({ ...p, [k]: v }));
   }
+
 
   async function save() {
     if (!companyId) return;
@@ -103,6 +108,35 @@ function AgentePage() {
           <Field label="Palavra para pausar" value={cfg.palavra_pausar} onChange={(v) => update("palavra_pausar", v)} />
           <Field label="Palavra para despausar" value={cfg.palavra_despausar} onChange={(v) => update("palavra_despausar", v)} />
         </div>
+
+        <div className="grid md:grid-cols-2 gap-4 pt-2 border-t">
+          <div className="space-y-1.5">
+            <Label>Segundos de espera (buffer)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={20}
+              value={cfg.segundos_buffer}
+              onChange={(e) => update("segundos_buffer", Math.max(0, Math.min(20, Number(e.target.value) || 0)))}
+            />
+            <p className="text-xs text-muted-foreground">
+              A IA aguarda esses segundos antes de responder, juntando as mensagens caso a pessoa ainda esteja digitando. Padrão: 8s.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Responder em partes (humanizado)</Label>
+            <div className="flex items-center gap-3 h-10">
+              <Switch
+                checked={!!cfg.responder_em_partes}
+                onCheckedChange={(v) => update("responder_em_partes", v)}
+              />
+              <span className="text-sm text-muted-foreground">
+                {cfg.responder_em_partes ? "Ligado — responde em 1–3 bolhas curtas" : "Desligado — uma mensagem só"}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div className="flex justify-end">
           <Button onClick={save} disabled={saving}>
             {saving ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Save className="size-4 mr-1.5" />}
@@ -115,7 +149,7 @@ function AgentePage() {
         <h2 className="font-semibold mb-1 flex items-center gap-2"><Bot className="size-4" /> Prompt gerado</h2>
         <p className="text-xs text-muted-foreground mb-3">É exatamente isso que a IA recebe.</p>
         <pre className="text-xs bg-muted/60 rounded-md p-3 whitespace-pre-wrap font-mono max-h-72 overflow-auto">
-{buildSystemPrompt(cfg)}
+{buildSystemPrompt(cfg, { responderEmPartes: cfg.responder_em_partes })}
         </pre>
       </Card>
 

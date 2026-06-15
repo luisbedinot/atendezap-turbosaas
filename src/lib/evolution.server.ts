@@ -90,6 +90,17 @@ export async function evoSendText(instanceName: string, number: string, text: st
   });
 }
 
+export async function evoSendPresence(instanceName: string, number: string, presence: "composing" | "paused" | "available", delayMs = 1500) {
+  try {
+    await evo(`/chat/sendPresence/${encodeURIComponent(instanceName)}`, {
+      method: "POST",
+      json: { number, presence, delay: delayMs },
+    });
+  } catch {
+    // best-effort
+  }
+}
+
 export async function evoLogout(instanceName: string) {
   return evo(`/instance/logout/${encodeURIComponent(instanceName)}`, { method: "DELETE" });
 }

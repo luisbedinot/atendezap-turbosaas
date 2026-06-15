@@ -26,6 +26,8 @@ export type Database = {
           papel_objetivo: string
           pode_fazer: string
           produtos_servicos: string
+          responder_em_partes: boolean
+          segundos_buffer: number
           sobre_empresa: string
           telefone_transferencia: string
           updated_at: string
@@ -42,6 +44,8 @@ export type Database = {
           papel_objetivo?: string
           pode_fazer?: string
           produtos_servicos?: string
+          responder_em_partes?: boolean
+          segundos_buffer?: number
           sobre_empresa?: string
           telefone_transferencia?: string
           updated_at?: string
@@ -58,6 +62,8 @@ export type Database = {
           papel_objetivo?: string
           pode_fazer?: string
           produtos_servicos?: string
+          responder_em_partes?: boolean
+          segundos_buffer?: number
           sobre_empresa?: string
           telefone_transferencia?: string
           updated_at?: string

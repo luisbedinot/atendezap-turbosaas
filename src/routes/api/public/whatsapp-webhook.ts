@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// Webhook PÚBLICO chamado pelo Evolution API quando chega uma mensagem.
-// Identifica o dono (company) via instance_name.
 export const Route = createFileRoute("/api/public/whatsapp-webhook")({
   server: {
     handlers: {
@@ -9,9 +7,9 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
         try {
           const payload: any = await request.json().catch(() => ({}));
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-          const { evoSendText } = await import("@/lib/evolution.server");
+          const { evoSendText, evoSendPresence } = await import("@/lib/evolution.server");
           const { lovableAiChat } = await import("@/lib/lovable-ai.server");
-          const { buildSystemPrompt, classifyStagePromptInstruction } = await import("@/lib/ai-prompt");
+          const { buildSystemPrompt, parseAiOutput } = await import("@/lib/ai-prompt");
 
           const event: string | undefined = payload?.event;
           const instanceName: string | undefined =
@@ -50,21 +48,30 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const companyId = (inst as any).company_id as string;
           const userId = (inst as any).user_id as string;
 
-          await supabaseAdmin.from("mensagens").insert({
-            company_id: companyId,
-            user_id: userId,
-            numero: number,
-            contato_nome: pushName ?? null,
-            direcao: "entrada",
-            autor: "contato",
-            texto: text,
-          });
+          // grava a mensagem que chegou
+          const insertedAt = new Date().toISOString();
+          const { data: inserted } = await supabaseAdmin
+            .from("mensagens")
+            .insert({
+              company_id: companyId,
+              user_id: userId,
+              numero: number,
+              contato_nome: pushName ?? null,
+              direcao: "entrada",
+              autor: "contato",
+              texto: text,
+              created_at: insertedAt,
+            })
+            .select("id, created_at")
+            .maybeSingle();
+          const myCreatedAt = inserted?.created_at || insertedAt;
 
           const { data: cfg } = await supabaseAdmin
             .from("agent_config")
             .select("*")
             .eq("company_id", companyId)
             .maybeSingle();
+
           const palavraPausar = (cfg?.palavra_pausar || "/pausar").toLowerCase().trim();
           const palavraDespausar = (cfg?.palavra_despausar || "/despausar").toLowerCase().trim();
           const lower = text.toLowerCase().trim();
@@ -92,18 +99,70 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             return new Response("paused-contact", { status: 200 });
           }
 
-          const { data: hist } = await supabaseAdmin
+          // BUFFER — aguarda mais mensagens do mesmo contato
+          const bufferSec = Math.max(0, Math.min(20, Number(cfg?.segundos_buffer ?? 8)));
+          if (bufferSec > 0) {
+            await new Promise((r) => setTimeout(r, bufferSec * 1000));
+          }
+
+          // se já chegou uma mensagem mais nova do contato DEPOIS desta, abandona — a mais nova responde
+          const { data: newer } = await supabaseAdmin
+            .from("mensagens")
+            .select("id, created_at")
+            .eq("company_id", companyId)
+            .eq("numero", number)
+            .eq("direcao", "entrada")
+            .gt("created_at", myCreatedAt)
+            .limit(1);
+          if (newer && newer.length > 0) {
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text);
+            return new Response("superseded", { status: 200 });
+          }
+
+          // se um humano (atendente) respondeu manualmente nos últimos 90s, não atropela
+          const { data: humanRecent } = await supabaseAdmin
+            .from("mensagens")
+            .select("id, created_at, autor")
+            .eq("company_id", companyId)
+            .eq("numero", number)
+            .eq("direcao", "saida")
+            .eq("autor", "humano")
+            .gte("created_at", new Date(Date.now() - 90_000).toISOString())
+            .limit(1);
+          if (humanRecent && humanRecent.length > 0) {
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text);
+            return new Response("human-active", { status: 200 });
+          }
+
+          // carrega histórico (~25 últimas) em ordem cronológica
+          const { data: histDesc } = await supabaseAdmin
             .from("mensagens")
             .select("autor,direcao,texto,created_at")
             .eq("company_id", companyId)
             .eq("numero", number)
             .order("created_at", { ascending: false })
-            .limit(8);
-          const historico = (hist ?? []).slice().reverse();
+            .limit(25);
+          const historico = (histDesc ?? []).slice().reverse();
 
-          const system = buildSystemPrompt(cfg ?? {});
-          const messages = [
-            { role: "system" as const, content: system },
+          // estágio atual do CRM
+          const { data: cardRow } = await supabaseAdmin
+            .from("crm_cards")
+            .select("status, nome")
+            .eq("company_id", companyId)
+            .eq("numero", number)
+            .maybeSingle();
+          const estagioAtual = cardRow?.status || "conversas";
+          const resumoContato = `${cardRow?.nome || pushName || "Contato"} (${number}), ${historico.length} mensagens trocadas`;
+
+          const responderEmPartes = cfg?.responder_em_partes ?? true;
+          const system = buildSystemPrompt(cfg ?? {}, {
+            responderEmPartes,
+            estagioAtual,
+            resumoContato,
+          });
+
+          const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+            { role: "system", content: system },
             ...historico.map((m) => ({
               role: (m.direcao === "entrada" ? "user" : "assistant") as "user" | "assistant",
               content: m.texto,
@@ -113,16 +172,24 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             messages.push({ role: "user", content: text });
           }
 
-          let reply = "";
+          let rawReply = "";
           try {
-            reply = await lovableAiChat(messages);
+            rawReply = await lovableAiChat(messages);
           } catch (e: any) {
             console.error("[ai]", e?.message);
           }
 
-          if (reply) {
+          const { parts, stage } = parseAiOutput(rawReply);
+          const finalParts = responderEmPartes ? parts : [parts.join(" ")];
+
+          for (let i = 0; i < finalParts.length; i++) {
+            const part = finalParts[i];
+            if (!part) continue;
             try {
-              await evoSendText(instanceName, number, reply);
+              const typingMs = Math.min(3000, 1200 + Math.floor(part.length * 35));
+              await evoSendPresence(instanceName, number, "composing", typingMs);
+              await new Promise((r) => setTimeout(r, typingMs));
+              await evoSendText(instanceName, number, part);
               await supabaseAdmin.from("mensagens").insert({
                 company_id: companyId,
                 user_id: userId,
@@ -130,38 +197,25 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
                 contato_nome: pushName ?? null,
                 direcao: "saida",
                 autor: "ia",
-                texto: reply,
+                texto: part,
               });
+              if (i < finalParts.length - 1) {
+                await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 800)));
+              }
             } catch (e: any) {
               console.error("[send]", e?.message);
             }
           }
 
-          let stage: "conversas" | "negociando" | "ganho" | "perda" = "conversas";
-          try {
-            const cls = await lovableAiChat(
-              [
-                { role: "system", content: classifyStagePromptInstruction() },
-                {
-                  role: "user",
-                  content: historico
-                    .map((m) => `${m.direcao === "entrada" ? "Cliente" : "Atendente"}: ${m.texto}`)
-                    .concat(reply ? [`Atendente: ${reply}`] : [])
-                    .join("\n"),
-                },
-              ],
-              "google/gemini-2.5-flash-lite",
-            );
-            const w = cls.toLowerCase().replace(/[^a-záéíóúãõ]/g, "");
-            if (w.includes("ganho")) stage = "ganho";
-            else if (w.includes("perda")) stage = "perda";
-            else if (w.includes("negoc")) stage = "negociando";
-            else stage = "conversas";
-          } catch (e: any) {
-            console.warn("[classify]", e?.message);
-          }
-
-          await upsertCard(supabaseAdmin, companyId, userId, number, pushName, reply || text, stage);
+          await upsertCard(
+            supabaseAdmin,
+            companyId,
+            userId,
+            number,
+            pushName,
+            finalParts[finalParts.length - 1] || text,
+            stage,
+          );
 
           return new Response("ok", { status: 200 });
         } catch (e: any) {

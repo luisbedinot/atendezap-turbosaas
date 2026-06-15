@@ -146,16 +146,20 @@ export const testAiReply = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const companyId = await resolveCompanyId(supabase, userId);
     const { lovableAiChat } = await import("./lovable-ai.server");
-    const { buildSystemPrompt } = await import("./ai-prompt");
+    const { buildSystemPrompt, parseAiOutput } = await import("./ai-prompt");
     const { data: cfg } = await supabase
       .from("agent_config")
       .select("*")
       .eq("company_id", companyId)
       .maybeSingle();
-    const system = buildSystemPrompt(cfg ?? {});
-    const reply = await lovableAiChat([
+    const system = buildSystemPrompt(cfg ?? {}, {
+      responderEmPartes: cfg?.responder_em_partes ?? true,
+    });
+    const raw = await lovableAiChat([
       { role: "system", content: system },
       { role: "user", content: data.message },
     ]);
-    return { reply, system };
+    const { parts, stage } = parseAiOutput(raw);
+    return { reply: parts.join("\n\n"), parts, stage, system };
   });
+
