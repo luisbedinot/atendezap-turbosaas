@@ -2,12 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getRequest } from "@tanstack/react-start/server";
 
-function deriveInstanceName(userId: string) {
-  return `atendezap_${userId.replace(/-/g, "").slice(0, 16)}`;
+function deriveInstanceName(companyId: string) {
+  return `atendezap_${companyId.replace(/-/g, "").slice(0, 16)}`;
 }
 
 function buildWebhookUrl() {
-  // Usa o host da requisição atual (preview/produção lovable.app ou custom domain).
   try {
     const req = getRequest();
     const url = new URL(req.url);
@@ -17,10 +16,25 @@ function buildWebhookUrl() {
   }
 }
 
+async function resolveCompanyId(supabase: any, userId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from("company_user")
+    .select("company_id")
+    .eq("user_id", userId)
+    .eq("ativo", true)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Você ainda não possui uma empresa. Finalize o onboarding.");
+  return data.company_id as string;
+}
+
 export const connectWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const companyId = await resolveCompanyId(supabase, userId);
     const {
       evoCreateInstance,
       evoConnect,
@@ -28,42 +42,32 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
       evoState,
     } = await import("./evolution.server");
 
-    const instanceName = deriveInstanceName(userId);
+    const instanceName = deriveInstanceName(companyId);
     const webhookUrl = buildWebhookUrl();
 
-    // upsert da linha
     await supabase
       .from("whatsapp_instances")
       .upsert(
-        { user_id: userId, instance_name: instanceName, status: "connecting" },
-        { onConflict: "user_id" },
+        { company_id: companyId, user_id: userId, instance_name: instanceName, status: "connecting" },
+        { onConflict: "company_id" },
       );
 
-    // tenta criar (idempotente: se já existir, ignora)
     try {
       await evoCreateInstance(instanceName, webhookUrl);
     } catch (e: any) {
       const msg = String(e?.message || "");
-      if (!/exists|already/i.test(msg)) {
-        // se o erro não é "já existe", reemite
-        // mas continuamos pra tentar reconectar
-        console.warn("[evolution.create]", msg);
-      }
+      if (!/exists|already/i.test(msg)) console.warn("[evolution.create]", msg);
     }
 
-    // garante webhook configurado
     if (webhookUrl) {
       try { await evoSetWebhook(instanceName, webhookUrl); } catch (e) { console.warn("[evolution.setWebhook]", e); }
     }
 
-    // tenta gerar QR
     let qrBase64: string | null = null;
     try {
       const qr = await evoConnect(instanceName);
       qrBase64 = qr?.base64 ?? null;
-    } catch (e) {
-      console.warn("[evolution.connect]", e);
-    }
+    } catch (e) { console.warn("[evolution.connect]", e); }
 
     let state: string | undefined;
     try {
@@ -78,22 +82,21 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const companyId = await resolveCompanyId(supabase, userId);
     const { evoState, evoFetchNumberFromInstance, evoSetWebhook } = await import("./evolution.server");
 
     const { data: row } = await supabase
       .from("whatsapp_instances")
       .select("instance_name,status")
-      .eq("user_id", userId)
+      .eq("company_id", companyId)
       .maybeSingle();
-    if (!row) return { status: "disconnected", state: null };
+    if (!row) return { status: "disconnected", state: null, numero: null };
 
     let state: string | null = null;
     try {
       const s = await evoState(row.instance_name);
       state = s?.instance?.state || (s as any)?.state || null;
-    } catch (e) {
-      console.warn("[evolution.state]", e);
-    }
+    } catch (e) { console.warn("[evolution.state]", e); }
 
     const newStatus =
       state === "open" ? "connected" : state === "connecting" ? "connecting" : "disconnected";
@@ -101,7 +104,6 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
     let numero: string | null = null;
     if (newStatus === "connected") {
       numero = await evoFetchNumberFromInstance(row.instance_name);
-      // Garante webhook (caso a instância tenha sido recriada)
       const webhookUrl = buildWebhookUrl();
       if (webhookUrl) {
         try { await evoSetWebhook(row.instance_name, webhookUrl); } catch {}
@@ -111,7 +113,7 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
     await supabase
       .from("whatsapp_instances")
       .update({ status: newStatus, ...(numero ? { numero } : {}) })
-      .eq("user_id", userId);
+      .eq("company_id", companyId);
 
     return { status: newStatus, state, numero };
   });
@@ -120,18 +122,19 @@ export const disconnectWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const companyId = await resolveCompanyId(supabase, userId);
     const { evoLogout } = await import("./evolution.server");
     const { data: row } = await supabase
       .from("whatsapp_instances")
       .select("instance_name")
-      .eq("user_id", userId)
+      .eq("company_id", companyId)
       .maybeSingle();
     if (row) {
       try { await evoLogout(row.instance_name); } catch (e) { console.warn("[evolution.logout]", e); }
       await supabase
         .from("whatsapp_instances")
         .update({ status: "disconnected" })
-        .eq("user_id", userId);
+        .eq("company_id", companyId);
     }
     return { ok: true };
   });
@@ -141,12 +144,13 @@ export const testAiReply = createServerFn({ method: "POST" })
   .inputValidator((d: { message: string }) => d)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
+    const companyId = await resolveCompanyId(supabase, userId);
     const { lovableAiChat } = await import("./lovable-ai.server");
     const { buildSystemPrompt } = await import("./ai-prompt");
     const { data: cfg } = await supabase
       .from("agent_config")
       .select("*")
-      .eq("user_id", userId)
+      .eq("company_id", companyId)
       .maybeSingle();
     const system = buildSystemPrompt(cfg ?? {});
     const reply = await lovableAiChat([
