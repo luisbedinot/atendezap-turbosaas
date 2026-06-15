@@ -193,25 +193,25 @@ function Header({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }
 /* ===================== HERO ===================== */
 function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
   return (
-    <section className="relative px-5 md:px-8 pt-16 md:pt-24 pb-20">
+    <section className="relative px-4 sm:px-6 md:px-8 pt-10 md:pt-24 pb-16 md:pb-20">
       <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40" />
-      <div className="mx-auto max-w-7xl grid lg:grid-cols-2 gap-14 items-center relative">
-        <div>
+      <div className="mx-auto max-w-7xl grid lg:grid-cols-2 gap-10 md:gap-14 items-center relative">
+        <div className="text-center lg:text-left">
           <div className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full glass">
             <span className="relative inline-block size-2 rounded-full bg-[#25D366] dot-pulse" />
             <span className="text-white/80 font-medium">WhatsApp + IA + CRM no automático</span>
           </div>
 
-          <h1 className="font-display text-[clamp(2.4rem,6vw,4.6rem)] leading-[1.02] mt-6">
+          <h1 className="font-display text-[clamp(2rem,7vw,4.6rem)] leading-[1.05] mt-5">
             Sua IA atende o WhatsApp <span className="text-grad">24h</span> e organiza o CRM <span className="text-grad">sozinha</span>.
           </h1>
 
-          <p className="mt-6 text-lg text-white/65 max-w-xl leading-relaxed">
+          <p className="mt-5 text-base sm:text-lg text-white/65 max-w-xl mx-auto lg:mx-0 leading-relaxed">
             Conecte seu número, treine o agente em uma tela e veja cada lead ser respondido na hora,
             qualificado e movido no funil — sem você levantar o dedo.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
             <button
               onClick={() => onCta("/entrar")}
               className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl text-black font-semibold btn-glow"
