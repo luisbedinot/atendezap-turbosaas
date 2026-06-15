@@ -55,14 +55,15 @@ export type DemoCard = {
   id: string; numero: string; nome: string;
   status: "conversas" | "negociando" | "ganho" | "perda";
   ultima_mensagem: string; ultima_em: Date;
+  valor?: number; observacao?: string;
 };
 
 export const demoCards: DemoCard[] = [
-  { id: "c1", numero: seedContatos[0].numero, nome: seedContatos[0].nome, status: "negociando", ultima_mensagem: "Pode mandar 1kg, fechado!", ultima_em: m(10) },
-  { id: "c2", numero: seedContatos[1].numero, nome: seedContatos[1].nome, status: "ganho", ultima_mensagem: "Confirmadíssimo. Estará pronto às 9h.", ultima_em: m(160) },
+  { id: "c1", numero: seedContatos[0].numero, nome: seedContatos[0].nome, status: "negociando", ultima_mensagem: "Pode mandar 1kg, fechado!", ultima_em: m(10), valor: 36, observacao: "Cliente recorrente da Vila Mariana." },
+  { id: "c2", numero: seedContatos[1].numero, nome: seedContatos[1].nome, status: "ganho", ultima_mensagem: "Confirmadíssimo. Estará pronto às 9h.", ultima_em: m(160), valor: 480, observacao: "Pedido corporativo para 30 pessoas." },
   { id: "c3", numero: seedContatos[2].numero, nome: seedContatos[2].nome, status: "conversas", ultima_mensagem: "Vou pensar e te aviso.", ultima_em: m(290) },
-  { id: "c4", numero: seedContatos[3].numero, nome: seedContatos[3].nome, status: "perda", ultima_mensagem: "Ah que pena, valeu.", ultima_em: m(1430) },
-  { id: "c5", numero: seedContatos[4].numero, nome: seedContatos[4].nome, status: "negociando", ultima_mensagem: "Quero, me passa as condições.", ultima_em: m(60) },
+  { id: "c4", numero: seedContatos[3].numero, nome: seedContatos[3].nome, status: "perda", ultima_mensagem: "Ah que pena, valeu.", ultima_em: m(1430), observacao: "Procurava bolo vegano (não temos)." },
+  { id: "c5", numero: seedContatos[4].numero, nome: seedContatos[4].nome, status: "negociando", ultima_mensagem: "Quero, me passa as condições.", ultima_em: m(60), valor: 220, observacao: "Pedido recorrente toda terça — 10% desconto." },
   { id: "c6", numero: seedContatos[5].numero, nome: seedContatos[5].nome, status: "conversas", ultima_mensagem: "Aceita Pix?", ultima_em: m(25) },
   { id: "c7", numero: seedContatos[6].numero, nome: seedContatos[6].nome, status: "conversas", ultima_mensagem: "Vocês fazem encomenda de aniversário?", ultima_em: m(15) },
 ];
