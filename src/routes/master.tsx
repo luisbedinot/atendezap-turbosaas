@@ -24,39 +24,60 @@ const nav = [
   { to: "/master/configuracoes", label: "Configurações", icon: Settings },
 ];
 
+const RED = "#FF5A5A";
+
 function MasterLayout() {
   const loc = useLocation();
   return (
-    <div className="min-h-screen flex flex-col md:flex-row" style={{ ["--brand" as any]: "#DC2626" }}>
-      <aside className="md:w-60 md:min-h-screen border-r bg-[oklch(0.16_0.02_250)] text-white flex md:flex-col">
-        <div className="px-5 py-4 border-b border-white/10 flex items-center gap-2">
-          <div className="size-8 rounded-lg bg-destructive grid place-items-center"><Shield className="size-4" /></div>
-          <div>
-            <div className="font-semibold">Master</div>
-            <div className="text-[10px] text-white/60">{brand.name}</div>
+    <div className="min-h-screen flex flex-col md:flex-row bg-background text-foreground">
+      <aside className="md:w-64 md:min-h-screen md:border-r md:border-white/5 bg-[color:var(--sidebar-bg)] flex md:flex-col">
+        <div className="px-5 py-5 flex items-center gap-3 md:border-b md:border-white/5">
+          <div
+            className="size-10 rounded-xl grid place-items-center text-white shadow-md"
+            style={{ background: `linear-gradient(135deg, ${RED}, #B91C1C)` }}
+          >
+            <Shield className="size-5" />
+          </div>
+          <div className="min-w-0">
+            <div className="font-display font-bold tracking-tight" style={{ color: RED }}>Master</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{brand.name}</div>
           </div>
         </div>
-        <nav className="p-2 flex md:flex-col gap-1 flex-1 overflow-x-auto">
+        <nav className="p-3 flex md:flex-col gap-1 flex-1 overflow-x-auto">
           {nav.map((it) => {
             const active = loc.pathname.startsWith(it.to);
             const Icon = it.icon;
             return (
-              <Link key={it.to} to={it.to}
-                className={`px-3 py-2 rounded-md text-sm flex items-center gap-2 whitespace-nowrap ${active ? "bg-destructive text-white" : "hover:bg-white/10"}`}>
-                <Icon className="size-4" /> {it.label}
+              <Link
+                key={it.to}
+                to={it.to}
+                className={`relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm whitespace-nowrap transition-all ${
+                  active ? "text-foreground bg-white/[0.04]" : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
+                }`}
+              >
+                {active && (
+                  <span
+                    className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r"
+                    style={{ background: RED, boxShadow: `0 0 12px ${RED}` }}
+                  />
+                )}
+                <Icon className="size-4" style={active ? { color: RED } : undefined} />
+                {it.label}
               </Link>
             );
           })}
-          <Link to="/app/dashboard" className="px-3 py-2 rounded-md text-sm hover:bg-white/10 mt-2 border-t border-white/10 pt-3">← Voltar ao app</Link>
+          <Link to="/app/dashboard" className="mt-3 pt-3 border-t border-white/5 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground">
+            ← Voltar ao app
+          </Link>
         </nav>
-        <div className="p-3 border-t border-white/10 hidden md:block">
-          <Button variant="outline" size="sm" className="w-full bg-transparent text-white border-white/20 hover:bg-white/10"
+        <div className="p-3 border-t border-white/5 hidden md:block">
+          <Button variant="outline" size="sm" className="w-full border-white/10 bg-white/[0.02] hover:bg-white/[0.06]"
             onClick={async () => { await supabase.auth.signOut(); window.location.href = "/entrar"; }}>
             <LogOut className="size-4 mr-2" /> Sair
           </Button>
         </div>
       </aside>
-      <main className="flex-1 p-4 md:p-8 bg-background"><Outlet /></main>
+      <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto"><Outlet /></main>
     </div>
   );
 }
