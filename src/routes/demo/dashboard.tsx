@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bot, KanbanSquare, MessageSquareText, Smartphone } from "lucide-react";
 import { brand } from "@/config/brand";
+import { Bot, MessageCircle, Target, Trophy } from "lucide-react";
 import { demoStats, demoMensagens } from "@/lib/demo-data";
+import { KpiCard } from "@/components/dashboard/kpi-card";
+import { MiniAreaChart, type AreaPoint } from "@/components/dashboard/mini-area-chart";
+import { AgentStatusCard } from "@/components/dashboard/agent-status-card";
+import { MessageTimeline } from "@/components/dashboard/message-timeline";
 
 export const Route = createFileRoute("/demo/dashboard")({
   head: () => ({ meta: [{ title: `${brand.name} — Demonstração` }] }),
@@ -11,47 +13,42 @@ export const Route = createFileRoute("/demo/dashboard")({
 });
 
 function DemoDashboard() {
+  const series: AreaPoint[] = Array.from({ length: 14 }, (_, i) => ({
+    label: String(i),
+    a: 12 + Math.round(Math.sin(i * 0.6) * 6 + i * 0.8),
+    b: 8 + Math.round(Math.sin(i * 0.7) * 5 + i * 0.6),
+  }));
   const last = [...demoMensagens].sort((a, b) => +b.quando - +a.quando).slice(0, 8);
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Visão geral do seu atendimento.</p>
+    <div className="space-y-5">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl font-bold">Dashboard</h1>
+          <p className="text-xs text-muted-foreground">Demonstração — dados ilustrativos</p>
         </div>
-        <Badge variant="outline" className="gap-2 py-1.5 px-3"><span className="size-2 rounded-full bg-primary" /> Conectado</Badge>
+        <div className="flex items-center gap-2 bg-[rgba(37,211,102,.12)] border border-[rgba(37,211,102,.30)] text-[#bff5d4] text-[12.5px] font-semibold px-3 py-1.5 rounded-full">
+          <span className="size-2 rounded-full bg-[#00E676]" /> Agente conectado
+        </div>
+      </header>
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+        <KpiCard accent icon={<MessageCircle className="size-4" />} label="Conversas hoje" value={28} trend="+18% vs ontem" />
+        <KpiCard icon={<Bot className="size-4" />} label="Respondidas pela IA" value={24} trend="86% no automático" />
+        <KpiCard icon={<Target className="size-4" />} label="Em negociação" value={demoStats.negociando} trend="+3 esta semana" />
+        <KpiCard icon={<Trophy className="size-4" />} label="Fechados (mês)" value="R$ 4.2k" trend="+32%" />
       </div>
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <Stat icon={<MessageSquareText className="size-4" />} label="Conversas" value={demoStats.conversas} />
-        <Stat icon={<Bot className="size-4" />} label="Em negociação" value={demoStats.negociando} />
-        <Stat icon={<KanbanSquare className="size-4" />} label="Ganhos" value={demoStats.ganho} accent />
-        <Stat icon={<Smartphone className="size-4" />} label="Perdas" value={demoStats.perda} />
+      <div className="grid lg:grid-cols-[1.6fr_1fr] gap-4">
+        <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5">
+          <h3 className="font-display text-[15px] font-semibold">Atendimentos · 14 dias</h3>
+          <p className="text-xs text-muted-foreground mb-3">recebidas vs respondidas pela IA</p>
+          <MiniAreaChart data={series} />
+        </div>
+        <AgentStatusCard status="connected" numero="+55 11 99999-0000" tempoMedio="3,2s" taxaQualificacao="62%" />
       </div>
-      <Card className="p-5">
-        <h2 className="font-semibold mb-3">Últimas mensagens</h2>
-        <ul className="divide-y">
-          {last.map((m) => (
-            <li key={m.id} className="py-2.5 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-sm font-medium truncate">
-                  {m.nome} <span className="text-muted-foreground">· {m.direcao === "entrada" ? "recebida" : m.autor === "ia" ? "IA" : "humano"}</span>
-                </div>
-                <div className="text-sm text-muted-foreground truncate">{m.texto}</div>
-              </div>
-              <div className="text-xs text-muted-foreground whitespace-nowrap">{m.quando.toLocaleString("pt-BR")}</div>
-            </li>
-          ))}
-        </ul>
-      </Card>
+      <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5">
+        <h3 className="font-display text-[15px] font-semibold">Últimas mensagens</h3>
+        <p className="text-xs text-muted-foreground mb-2">atividade recente</p>
+        <MessageTimeline items={last.map((m) => ({ id: m.id, nome: m.nome, autor: m.autor, texto: m.texto, quando: m.quando }))} />
+      </div>
     </div>
-  );
-}
-
-function Stat({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: number; accent?: boolean }) {
-  return (
-    <Card className={`p-4 ${accent ? "border-primary/30 bg-primary/5" : ""}`}>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">{icon}{label}</div>
-      <div className="text-2xl font-bold mt-1">{value}</div>
-    </Card>
   );
 }
