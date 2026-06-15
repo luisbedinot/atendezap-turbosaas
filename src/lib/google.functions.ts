@@ -1,30 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createHmac } from "node:crypto";
-
-
-
-function signState(payload: string) {
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "fallback";
-  const sig = createHmac("sha256", secret).update(payload).digest("hex").slice(0, 16);
-  return `${payload}.${sig}`;
-}
-
-export function verifyState(state: string): { companyId: string } | null {
-  const parts = state.split(".");
-  if (parts.length !== 2) return null;
-  const [payload, sig] = parts;
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "fallback";
-  const expected = createHmac("sha256", secret).update(payload).digest("hex").slice(0, 16);
-  if (sig !== expected) return null;
-  try {
-    const obj = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    if (!obj.companyId) return null;
-    return { companyId: obj.companyId as string };
-  } catch {
-    return null;
-  }
-}
 
 async function buildOrigin() {
   const { getRequest } = await import("@tanstack/react-start/server");
@@ -32,6 +7,7 @@ async function buildOrigin() {
   const u = new URL(req.url);
   return `${u.protocol}//${u.host}`;
 }
+
 
 export const startGoogleOAuth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -49,6 +25,7 @@ export const startGoogleOAuth = createServerFn({ method: "POST" })
     const origin = await buildOrigin();
     const redirectUri = `${origin}/api/public/google-callback`;
     const payload = Buffer.from(JSON.stringify({ companyId: cu.company_id, t: Date.now() })).toString("base64url");
+    const { signState } = await import("@/lib/google.server");
     const state = signState(payload);
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("client_id", clientId);
