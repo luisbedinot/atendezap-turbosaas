@@ -63,19 +63,19 @@ function Landing() {
         fontFamily: "'Inter', system-ui, sans-serif",
       }}
     >
-      {/* radial glows */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {/* radial glows — absolute (não fixed) e mais leves no mobile pra fluidez */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1400px] z-0 overflow-hidden">
         <div
-          className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-40 blur-3xl"
+          className="hidden md:block absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-40 blur-3xl"
           style={{ background: "radial-gradient(circle, #25D366 0%, transparent 60%)" }}
         />
         <div
-          className="absolute top-[20%] -right-40 h-[700px] w-[700px] rounded-full opacity-25 blur-3xl"
+          className="hidden md:block absolute top-[20%] -right-40 h-[700px] w-[700px] rounded-full opacity-25 blur-3xl"
           style={{ background: "radial-gradient(circle, #06b6d4 0%, transparent 65%)" }}
         />
         <div
-          className="absolute bottom-0 left-1/3 h-[500px] w-[500px] rounded-full opacity-20 blur-3xl"
-          style={{ background: "radial-gradient(circle, #84cc16 0%, transparent 60%)" }}
+          className="md:hidden absolute -top-32 left-1/2 -translate-x-1/2 h-[420px] w-[420px] rounded-full opacity-30 blur-2xl"
+          style={{ background: "radial-gradient(circle, #25D366 0%, transparent 60%)" }}
         />
       </div>
 
@@ -94,6 +94,7 @@ function Landing() {
       </div>
 
       <style>{`
+        html { scroll-behavior: smooth; }
         .font-display { font-family: 'Sora', 'Inter', system-ui, sans-serif; font-weight: 800; letter-spacing: -0.02em; }
         .text-grad {
           background: linear-gradient(95deg, #25D366 0%, #a3e635 45%, #22d3ee 100%);
@@ -102,21 +103,21 @@ function Landing() {
           color: transparent;
         }
         .btn-glow {
-          box-shadow: 0 10px 40px -10px rgba(37,211,102,0.7), 0 0 0 1px rgba(37,211,102,0.4) inset;
+          box-shadow: 0 10px 30px -12px rgba(37,211,102,0.55), 0 0 0 1px rgba(37,211,102,0.35) inset;
         }
         .glass {
           background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
           border: 1px solid rgba(255,255,255,0.10);
-          backdrop-filter: blur(14px);
         }
         .glass-strong {
           background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
           border: 1px solid rgba(255,255,255,0.14);
-          backdrop-filter: blur(18px);
         }
-        .dot-pulse {
-          position: relative;
+        @media (min-width: 768px) {
+          .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+          .glass-strong { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
         }
+        .dot-pulse { position: relative; }
         .dot-pulse::after {
           content: '';
           position: absolute; inset: 0;
@@ -133,9 +134,14 @@ function Landing() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
         }
-        .animate-float { animation: float-y 6s ease-in-out infinite; }
-        .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+        .animate-float { animation: float-y 6s ease-in-out infinite; will-change: transform; }
+        @media (max-width: 640px) { .animate-float { animation: none; } }
+        .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; will-change: opacity, transform; }
         .reveal.in { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+          .reveal { opacity: 1; transform: none; transition: none; }
+          .animate-float { animation: none; }
+        }
         .grid-bg {
           background-image:
             linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
