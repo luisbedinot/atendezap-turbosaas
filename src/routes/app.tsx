@@ -9,6 +9,7 @@ type Ctx = {
   company: CompanyRow | null;
   membership: Membership | null;
   isSuperAdmin: boolean;
+  impersonating: boolean;
 };
 
 export const Route = createFileRoute("/app")({
@@ -17,23 +18,41 @@ export const Route = createFileRoute("/app")({
     const { data: u, error } = await supabase.auth.getUser();
     if (error || !u.user) throw redirect({ to: "/entrar" });
 
-    const [{ data: cu }, { data: roles }] = await Promise.all([
-      supabase
-        .from("company_user")
-        .select("company_id, role, forcar_troca_senha, ativo, created_at, company:company(*)")
-        .eq("user_id", u.user.id)
-        .eq("ativo", true)
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", u.user.id),
-    ]);
-
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
     const isSuperAdmin = (roles ?? []).some((r: any) => r.role === "super_admin");
 
+    // Impersonação (super admin entrando como empresa via /master/empresas)
+    let impersonateId: string | null = null;
+    if (isSuperAdmin) {
+      try { impersonateId = sessionStorage.getItem("master_impersonate_company"); } catch {}
+    }
+
+    if (impersonateId) {
+      const { data: comp } = await supabase.from("company").select("*").eq("id", impersonateId).maybeSingle();
+      if (comp) {
+        return {
+          user: { id: u.user.id, email: u.user.email },
+          company: comp as any as CompanyRow,
+          membership: { company_id: comp.id, role: "owner", forcar_troca_senha: false },
+          isSuperAdmin,
+          impersonating: true,
+        };
+      }
+    }
+
+    const { data: cu } = await supabase
+      .from("company_user")
+      .select("company_id, role, forcar_troca_senha, ativo, created_at, company:company(*)")
+      .eq("user_id", u.user.id)
+      .eq("ativo", true)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
     if (!cu) {
+      if (isSuperAdmin) throw redirect({ to: "/master/painel" });
       if (location.pathname !== "/app/onboarding") throw redirect({ to: "/app/onboarding" });
-      return { user: { id: u.user.id, email: u.user.email }, company: null, membership: null, isSuperAdmin };
+      return { user: { id: u.user.id, email: u.user.email }, company: null, membership: null, isSuperAdmin, impersonating: false };
     }
 
     if (cu.forcar_troca_senha && location.pathname !== "/trocar-senha") {
@@ -45,6 +64,7 @@ export const Route = createFileRoute("/app")({
       company: (cu.company as any) as CompanyRow,
       membership: { company_id: cu.company_id, role: cu.role as any, forcar_troca_senha: cu.forcar_troca_senha },
       isSuperAdmin,
+      impersonating: false,
     };
   },
   component: AppLayout,
@@ -52,7 +72,7 @@ export const Route = createFileRoute("/app")({
 
 function AppLayout() {
   const ctx = Route.useRouteContext();
-  if (ctx.company?.status_cobranca === "suspenso") {
+  if (ctx.company?.status_cobranca === "suspenso" && !ctx.impersonating) {
     return (
       <div className="min-h-screen grid place-items-center p-6 bg-background">
         <div className="max-w-md text-center space-y-3">
@@ -69,8 +89,19 @@ function AppLayout() {
     );
   }
   return (
-    <AppShell company={ctx.company} membership={ctx.membership} email={ctx.user.email} isSuperAdmin={ctx.isSuperAdmin}>
-      <Outlet />
-    </AppShell>
+    <>
+      {ctx.impersonating && (
+        <div className="bg-destructive text-destructive-foreground text-sm px-4 py-2 flex items-center justify-between">
+          <span>🛡️ Você está visualizando como <b>{ctx.company?.nome}</b> (impersonação).</span>
+          <Button size="sm" variant="outline" className="h-7 bg-transparent border-white/30 text-white hover:bg-white/10"
+            onClick={() => { sessionStorage.removeItem("master_impersonate_company"); window.location.href = "/master/empresas"; }}>
+            Sair da impersonação
+          </Button>
+        </div>
+      )}
+      <AppShell company={ctx.company} membership={ctx.membership} email={ctx.user.email} isSuperAdmin={ctx.isSuperAdmin}>
+        <Outlet />
+      </AppShell>
+    </>
   );
 }

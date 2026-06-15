@@ -18,7 +18,13 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MasterPainelRouteImport } from './routes/master/painel'
+import { Route as MasterNovaEmpresaRouteImport } from './routes/master/nova-empresa'
+import { Route as MasterEmpresasRouteImport } from './routes/master/empresas'
+import { Route as MasterConfiguracoesRouteImport } from './routes/master/configuracoes'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
+import { Route as DemoCrmRouteImport } from './routes/demo/crm'
+import { Route as DemoConversasRouteImport } from './routes/demo/conversas'
+import { Route as DemoAgenteRouteImport } from './routes/demo/agente'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
 import { Route as AppEquipeRouteImport } from './routes/app/equipe'
@@ -76,9 +82,39 @@ const MasterPainelRoute = MasterPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => MasterRoute,
 } as any)
+const MasterNovaEmpresaRoute = MasterNovaEmpresaRouteImport.update({
+  id: '/nova-empresa',
+  path: '/nova-empresa',
+  getParentRoute: () => MasterRoute,
+} as any)
+const MasterEmpresasRoute = MasterEmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => MasterRoute,
+} as any)
+const MasterConfiguracoesRoute = MasterConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => MasterRoute,
+} as any)
 const DemoDashboardRoute = DemoDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoCrmRoute = DemoCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoConversasRoute = DemoConversasRouteImport.update({
+  id: '/conversas',
+  path: '/conversas',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoAgenteRoute = DemoAgenteRouteImport.update({
+  id: '/agente',
+  path: '/agente',
   getParentRoute: () => DemoRoute,
 } as any)
 const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
@@ -157,7 +193,13 @@ export interface FileRoutesByFullPath {
   '/app/equipe': typeof AppEquipeRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
+  '/demo/agente': typeof DemoAgenteRoute
+  '/demo/conversas': typeof DemoConversasRoute
+  '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/configuracoes': typeof MasterConfiguracoesRoute
+  '/master/empresas': typeof MasterEmpresasRoute
+  '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
@@ -180,7 +222,13 @@ export interface FileRoutesByTo {
   '/app/equipe': typeof AppEquipeRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
+  '/demo/agente': typeof DemoAgenteRoute
+  '/demo/conversas': typeof DemoConversasRoute
+  '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/configuracoes': typeof MasterConfiguracoesRoute
+  '/master/empresas': typeof MasterEmpresasRoute
+  '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
@@ -204,7 +252,13 @@ export interface FileRoutesById {
   '/app/equipe': typeof AppEquipeRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
+  '/demo/agente': typeof DemoAgenteRoute
+  '/demo/conversas': typeof DemoConversasRoute
+  '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/configuracoes': typeof MasterConfiguracoesRoute
+  '/master/empresas': typeof MasterEmpresasRoute
+  '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
@@ -229,7 +283,13 @@ export interface FileRouteTypes {
     | '/app/equipe'
     | '/app/onboarding'
     | '/app/relatorios'
+    | '/demo/agente'
+    | '/demo/conversas'
+    | '/demo/crm'
     | '/demo/dashboard'
+    | '/master/configuracoes'
+    | '/master/empresas'
+    | '/master/nova-empresa'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -252,7 +312,13 @@ export interface FileRouteTypes {
     | '/app/equipe'
     | '/app/onboarding'
     | '/app/relatorios'
+    | '/demo/agente'
+    | '/demo/conversas'
+    | '/demo/crm'
     | '/demo/dashboard'
+    | '/master/configuracoes'
+    | '/master/empresas'
+    | '/master/nova-empresa'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
   id:
@@ -275,7 +341,13 @@ export interface FileRouteTypes {
     | '/app/equipe'
     | '/app/onboarding'
     | '/app/relatorios'
+    | '/demo/agente'
+    | '/demo/conversas'
+    | '/demo/crm'
     | '/demo/dashboard'
+    | '/master/configuracoes'
+    | '/master/empresas'
+    | '/master/nova-empresa'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
   fileRoutesById: FileRoutesById
@@ -357,11 +429,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MasterPainelRouteImport
       parentRoute: typeof MasterRoute
     }
+    '/master/nova-empresa': {
+      id: '/master/nova-empresa'
+      path: '/nova-empresa'
+      fullPath: '/master/nova-empresa'
+      preLoaderRoute: typeof MasterNovaEmpresaRouteImport
+      parentRoute: typeof MasterRoute
+    }
+    '/master/empresas': {
+      id: '/master/empresas'
+      path: '/empresas'
+      fullPath: '/master/empresas'
+      preLoaderRoute: typeof MasterEmpresasRouteImport
+      parentRoute: typeof MasterRoute
+    }
+    '/master/configuracoes': {
+      id: '/master/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/master/configuracoes'
+      preLoaderRoute: typeof MasterConfiguracoesRouteImport
+      parentRoute: typeof MasterRoute
+    }
     '/demo/dashboard': {
       id: '/demo/dashboard'
       path: '/dashboard'
       fullPath: '/demo/dashboard'
       preLoaderRoute: typeof DemoDashboardRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/crm': {
+      id: '/demo/crm'
+      path: '/crm'
+      fullPath: '/demo/crm'
+      preLoaderRoute: typeof DemoCrmRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/conversas': {
+      id: '/demo/conversas'
+      path: '/conversas'
+      fullPath: '/demo/conversas'
+      preLoaderRoute: typeof DemoConversasRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/agente': {
+      id: '/demo/agente'
+      path: '/agente'
+      fullPath: '/demo/agente'
+      preLoaderRoute: typeof DemoAgenteRouteImport
       parentRoute: typeof DemoRoute
     }
     '/app/relatorios': {
@@ -473,20 +587,32 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface DemoRouteChildren {
+  DemoAgenteRoute: typeof DemoAgenteRoute
+  DemoConversasRoute: typeof DemoConversasRoute
+  DemoCrmRoute: typeof DemoCrmRoute
   DemoDashboardRoute: typeof DemoDashboardRoute
 }
 
 const DemoRouteChildren: DemoRouteChildren = {
+  DemoAgenteRoute: DemoAgenteRoute,
+  DemoConversasRoute: DemoConversasRoute,
+  DemoCrmRoute: DemoCrmRoute,
   DemoDashboardRoute: DemoDashboardRoute,
 }
 
 const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
 
 interface MasterRouteChildren {
+  MasterConfiguracoesRoute: typeof MasterConfiguracoesRoute
+  MasterEmpresasRoute: typeof MasterEmpresasRoute
+  MasterNovaEmpresaRoute: typeof MasterNovaEmpresaRoute
   MasterPainelRoute: typeof MasterPainelRoute
 }
 
 const MasterRouteChildren: MasterRouteChildren = {
+  MasterConfiguracoesRoute: MasterConfiguracoesRoute,
+  MasterEmpresasRoute: MasterEmpresasRoute,
+  MasterNovaEmpresaRoute: MasterNovaEmpresaRoute,
   MasterPainelRoute: MasterPainelRoute,
 }
 
