@@ -7,6 +7,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { brand } from "@/config/brand";
 import { TrialBanner } from "@/components/trial-banner";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 import type { CompanyRow, Membership } from "@/lib/tenant";
 
