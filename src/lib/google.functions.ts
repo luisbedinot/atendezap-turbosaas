@@ -46,7 +46,7 @@ export const startGoogleOAuth = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true }).limit(1).maybeSingle();
     if (!cu) return { ok: false as const, error: "Sem empresa." };
 
-    const origin = buildOrigin();
+    const origin = await buildOrigin();
     const redirectUri = `${origin}/api/public/google-callback`;
     const payload = Buffer.from(JSON.stringify({ companyId: cu.company_id, t: Date.now() })).toString("base64url");
     const state = signState(payload);
