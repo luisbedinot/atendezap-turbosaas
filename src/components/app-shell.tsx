@@ -117,22 +117,22 @@ function Sidebar({
 }: any) {
   const initials = (company?.nome || brand.name).slice(0, 2).toUpperCase();
   return (
-    <aside className="md:w-[260px] md:min-h-screen md:border-r md:border-white/5 bg-[color:var(--sidebar-bg)] flex md:flex-col">
+    <aside className="md:w-[260px] md:min-h-screen md:border-r md:border-[color:var(--hairline)] bg-[color:var(--sidebar-bg)] flex md:flex-col">
       {/* brand */}
-      <div className="px-5 py-5 flex items-center gap-3 md:border-b md:border-white/5">
+      <div className="px-5 py-5 flex items-center gap-3 md:border-b md:border-[color:var(--hairline)]">
         {company?.logo_url ? (
-          <img src={company.logo_url} alt={company.nome} className="size-10 rounded-xl object-cover ring-1 ring-white/10" />
+          <img src={company.logo_url} alt={company.nome} className="size-10 rounded-xl object-cover ring-1 ring-[color:var(--hairline)]" />
         ) : (
           <div
-            className="size-10 rounded-xl grid place-items-center text-[#04140B] shadow-md ring-1 ring-white/10"
-            style={{ background: `linear-gradient(135deg, ${primary}, #A3E635 70%, #22D3EE)` }}
+            className="size-10 rounded-xl grid place-items-center text-white shadow-md ring-1 ring-[color:var(--hairline)]"
+            style={{ background: `linear-gradient(135deg, ${primary}, var(--brand-strong))` }}
           >
             <Zap className="size-5" strokeWidth={2.5} />
           </div>
         )}
         <div className="min-w-0">
           <div className="font-display font-extrabold tracking-tight truncate text-[16px]">{brand.name}</div>
-          <div className="text-[11px] text-muted-foreground truncate -mt-0.5">{company?.nome || "Sua empresa"}</div>
+          <div className="text-[11.5px] text-muted-foreground truncate -mt-0.5">{company?.nome || "Sua empresa"}</div>
         </div>
       </div>
 
@@ -140,7 +140,7 @@ function Sidebar({
       <nav className="p-3 flex-1 overflow-x-auto md:overflow-y-auto space-y-5">
         {sections.map((sec) => (
           <div key={sec.label}>
-            <div className="hidden md:block px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+            <div className="hidden md:block px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
               {sec.label}
             </div>
             <div className="flex md:flex-col gap-1">
@@ -153,16 +153,16 @@ function Sidebar({
       </nav>
 
       {/* footer user block */}
-      <div className="hidden md:block p-3 border-t border-white/5">
+      <div className="hidden md:block p-3 border-t border-[color:var(--hairline)]">
         {isSuperAdmin && (
-          <Link to="/master/painel" className="mb-2 flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium text-destructive hover:bg-white/[0.04]">
+          <Link to="/master/painel" className="mb-2 flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium text-destructive hover:bg-[color:var(--panel-2)]">
             <Shield className="size-4" /> Painel Master
           </Link>
         )}
-        <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-white/[0.03] border border-white/5">
+        <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-[color:var(--panel-2)] border border-[color:var(--hairline)]">
           <div
-            className="size-9 rounded-full grid place-items-center text-[13px] font-bold text-[#9af0bd] ring-1 ring-[rgba(37,211,102,.25)] shrink-0"
-            style={{ background: "rgba(37,211,102,.15)" }}
+            className="size-9 rounded-full grid place-items-center text-[13px] font-bold text-[color:var(--brand-text)] ring-1 ring-[color:var(--hairline-strong)] shrink-0"
+            style={{ background: "var(--brand-soft)" }}
           >
             {(userName || "U").slice(0, 1).toUpperCase()}
           </div>
@@ -170,7 +170,7 @@ function Sidebar({
             <div className="text-[13.5px] font-semibold truncate">{userName}</div>
             <div className="text-[11px] text-muted-foreground truncate" title={email || ""}>{roleLabel}</div>
           </div>
-          <button onClick={signOut} title="Sair" className="size-8 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/[0.06]">
+          <button onClick={signOut} title="Sair" className="size-8 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-[color:var(--panel)]">
             <LogOut className="size-4" />
           </button>
         </div>
@@ -186,10 +186,17 @@ function NavLink({ item, active, primary }: { item: NavItem; active: boolean; pr
       to={item.to}
       className={`relative flex items-center gap-3 px-3 py-[11px] rounded-lg text-[14.5px] font-medium whitespace-nowrap transition-all ${
         active
-          ? "text-foreground bg-[rgba(37,211,102,.10)]"
-          : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
+          ? "text-foreground"
+          : "text-muted-foreground hover:text-foreground hover:bg-[color:var(--panel-2)]"
       }`}
-      style={active ? { boxShadow: `inset 0 0 0 1px rgba(37,211,102,.15), 0 0 22px -8px ${primary}` } : undefined}
+      style={
+        active
+          ? {
+              background: "var(--brand-soft)",
+              boxShadow: `inset 0 0 0 1px var(--brand-soft-strong), 0 0 22px -10px ${primary}`,
+            }
+          : undefined
+      }
     >
       {active && (
         <span
@@ -200,7 +207,14 @@ function NavLink({ item, active, primary }: { item: NavItem; active: boolean; pr
       <Icon className="size-[18px] shrink-0" style={active ? { color: primary } : undefined} />
       <span className="flex-1 truncate">{item.label}</span>
       {item.tag && (
-        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[rgba(37,211,102,.15)] text-[#9af0bd] ring-1 ring-[rgba(37,211,102,.25)]">
+        <span
+          className="text-[10px] font-bold px-1.5 py-0.5 rounded ring-1"
+          style={{
+            background: "var(--brand-soft)",
+            color: "var(--brand-text)",
+            borderColor: "var(--brand-soft-strong)",
+          }}
+        >
           {item.tag}
         </span>
       )}
