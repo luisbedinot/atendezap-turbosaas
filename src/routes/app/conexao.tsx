@@ -9,7 +9,7 @@ import { Loader2, RefreshCw, Power, QrCode } from "lucide-react";
 import { brand } from "@/config/brand";
 import { connectWhatsapp, checkWhatsappStatus, disconnectWhatsapp } from "@/lib/evolution.functions";
 
-export const Route = createFileRoute("/_authenticated/conexao")({
+export const Route = createFileRoute("/app/conexao")({
   head: () => ({ meta: [{ title: `${brand.name} — Conexão` }] }),
   component: ConexaoPage,
 });
@@ -27,16 +27,12 @@ function ConexaoPage() {
 
   useEffect(() => {
     void doCheck();
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
   function startPolling() {
     if (pollRef.current) clearInterval(pollRef.current);
-    pollRef.current = setInterval(() => {
-      void doCheck(true);
-    }, 5000);
+    pollRef.current = setInterval(() => { void doCheck(true); }, 5000);
   }
   function stopPolling() {
     if (pollRef.current) clearInterval(pollRef.current);
@@ -48,71 +44,43 @@ function ConexaoPage() {
       const r = await check();
       setStatus(r.status);
       setNumero(r.numero ?? null);
-      if (r.status === "connected") {
-        setQr(null);
-        stopPolling();
-        if (!silent) toast.success("WhatsApp conectado!");
-      }
-    } catch (e: any) {
-      if (!silent) toast.error(e?.message || "Erro ao consultar status");
-    }
+      if (r.status === "connected") { setQr(null); stopPolling(); if (!silent) toast.success("WhatsApp conectado!"); }
+    } catch (e: any) { if (!silent) toast.error(e?.message || "Erro ao consultar status"); }
   }
 
   async function doConnect() {
-    setLoading(true);
-    setQr(null);
+    setLoading(true); setQr(null);
     try {
       const r = await connect();
       setQr(r.qrBase64 ?? null);
       setStatus(r.state === "open" ? "connected" : "connecting");
-      if (r.state === "open") {
-        toast.success("Já está conectado!");
-      } else if (r.qrBase64) {
-        toast.message("QR Code gerado. Escaneie no WhatsApp.");
-        startPolling();
-      } else {
-        toast.message("Instância criada. Buscando QR…");
-        startPolling();
-      }
-    } catch (e: any) {
-      toast.error(e?.message || "Falha ao conectar");
-    } finally {
-      setLoading(false);
-    }
+      if (r.state === "open") toast.success("Já está conectado!");
+      else if (r.qrBase64) { toast.message("QR Code gerado. Escaneie no WhatsApp."); startPolling(); }
+      else { toast.message("Instância criada. Buscando QR…"); startPolling(); }
+    } catch (e: any) { toast.error(e?.message || "Falha ao conectar"); }
+    finally { setLoading(false); }
   }
 
   async function doDisconnect() {
     setLoading(true);
     try {
       await disconnect();
-      setStatus("disconnected");
-      setNumero(null);
-      setQr(null);
-      stopPolling();
+      setStatus("disconnected"); setNumero(null); setQr(null); stopPolling();
       toast.success("Desconectado");
-    } catch (e: any) {
-      toast.error(e?.message || "Falha ao desconectar");
-    } finally {
-      setLoading(false);
-    }
+    } catch (e: any) { toast.error(e?.message || "Falha ao desconectar"); }
+    finally { setLoading(false); }
   }
 
   const statusBadge =
-    status === "connected" ? (
-      <Badge className="bg-primary">Conectado</Badge>
-    ) : status === "connecting" ? (
-      <Badge variant="secondary" className="bg-amber-500/15 text-amber-700">Conectando…</Badge>
-    ) : (
-      <Badge variant="outline">Desconectado</Badge>
-    );
+    status === "connected" ? <Badge className="bg-primary">Conectado</Badge>
+    : status === "connecting" ? <Badge variant="secondary" className="bg-amber-500/15 text-amber-700">Conectando…</Badge>
+    : <Badge variant="outline">Desconectado</Badge>;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Conexão WhatsApp</h1>
-        <p className="text-sm text-muted-foreground">
-          Conecte sua linha do WhatsApp via Evolution API (servidor que você configurou).
-        </p>
+        <p className="text-sm text-muted-foreground">Conecte sua linha via Evolution API.</p>
       </div>
 
       <Card className="p-6">
@@ -149,30 +117,19 @@ function ConexaoPage() {
             <div className="space-y-3 text-sm">
               <h3 className="font-semibold text-base">Como escanear</h3>
               <ol className="list-decimal pl-5 space-y-1.5 text-muted-foreground">
-                <li>Abra o WhatsApp no seu celular.</li>
-                <li>Toque em <b>Mais opções</b> (ou <b>Configurações</b>) → <b>Aparelhos conectados</b>.</li>
+                <li>Abra o WhatsApp no celular.</li>
+                <li>Toque em <b>Aparelhos conectados</b>.</li>
                 <li>Toque em <b>Conectar um aparelho</b>.</li>
-                <li>Aponte o celular para esta tela e escaneie o QR Code.</li>
+                <li>Aponte para esta tela.</li>
               </ol>
-              <p className="text-xs text-muted-foreground">Estamos verificando a conexão a cada 5 segundos.</p>
+              <p className="text-xs text-muted-foreground">Verificando a cada 5 s.</p>
             </div>
           </div>
         ) : status === "connected" ? (
-          <div className="text-sm text-muted-foreground">
-            Tudo certo! As mensagens recebidas serão respondidas automaticamente pelo agente IA.
-          </div>
+          <div className="text-sm text-muted-foreground">Tudo certo! As mensagens serão respondidas automaticamente.</div>
         ) : (
-          <div className="text-sm text-muted-foreground">
-            Clique em <b>Conectar WhatsApp</b> para gerar o QR Code.
-          </div>
+          <div className="text-sm text-muted-foreground">Clique em <b>Conectar WhatsApp</b> para gerar o QR Code.</div>
         )}
-      </Card>
-
-      <Card className="p-5 text-sm text-muted-foreground">
-        <h3 className="font-semibold text-foreground mb-1">Sobre a integração</h3>
-        Esta conexão usa um servidor Evolution API que você configurou (self-hosted). Você precisa ter os
-        secrets <code className="px-1 rounded bg-muted">EVOLUTION_API_URL</code> e
-        {" "}<code className="px-1 rounded bg-muted">EVOLUTION_API_KEY</code> definidos no Lovable Cloud.
       </Card>
     </div>
   );

@@ -13,7 +13,7 @@ import { brand } from "@/config/brand";
 import { buildSystemPrompt } from "@/lib/ai-prompt";
 import { testAiReply } from "@/lib/evolution.functions";
 
-export const Route = createFileRoute("/_authenticated/agente")({
+export const Route = createFileRoute("/app/agente")({
   head: () => ({ meta: [{ title: `${brand.name} — Agente IA` }] }),
   component: AgentePage,
 });
@@ -22,7 +22,7 @@ const DEFAULTS = {
   nome_agente: "Atendente Virtual",
   nome_empresa: "",
   papel_objetivo: "Atender clientes, tirar dúvidas e ajudar a fechar vendas.",
-  estilo_comunicacao: "Cordial, profissional e objetivo. Usa emojis com moderação.",
+  estilo_comunicacao: "Cordial, profissional e objetivo.",
   sobre_empresa: "",
   produtos_servicos: "",
   pode_fazer: "",
@@ -33,6 +33,8 @@ const DEFAULTS = {
 };
 
 function AgentePage() {
+  const ctx = Route.useRouteContext();
+  const companyId = ctx.company?.id;
   const test = useServerFn(testAiReply);
   const [cfg, setCfg] = useState(DEFAULTS);
   const [loading, setLoading] = useState(true);
@@ -42,59 +44,45 @@ function AgentePage() {
   const [testing, setTesting] = useState(false);
 
   useEffect(() => {
+    if (!companyId) return;
     void (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
-      const { data } = await supabase
-        .from("agent_config")
-        .select("*")
-        .eq("user_id", u.user.id)
-        .maybeSingle();
+      const { data } = await supabase.from("agent_config").select("*").eq("company_id", companyId).maybeSingle();
       if (data) setCfg({ ...DEFAULTS, ...data } as any);
       setLoading(false);
     })();
-  }, []);
+  }, [companyId]);
 
   function update<K extends keyof typeof DEFAULTS>(k: K, v: string) {
-    setCfg((prev) => ({ ...prev, [k]: v }));
+    setCfg((p) => ({ ...p, [k]: v }));
   }
 
   async function save() {
+    if (!companyId) return;
     setSaving(true);
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
     const { error } = await supabase
       .from("agent_config")
-      .upsert({ user_id: u.user.id, ...cfg }, { onConflict: "user_id" });
+      .upsert({ company_id: companyId, user_id: ctx.user.id, ...cfg }, { onConflict: "company_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Configuração salva");
   }
 
   async function runTest() {
-    setTesting(true);
-    setTestReply("");
+    setTesting(true); setTestReply("");
     try {
       const r = await test({ data: { message: testMsg } });
       setTestReply(r.reply);
-    } catch (e: any) {
-      toast.error(e?.message || "Falha no teste");
-    } finally {
-      setTesting(false);
-    }
+    } catch (e: any) { toast.error(e?.message || "Falha no teste"); }
+    finally { setTesting(false); }
   }
 
-  if (loading) {
-    return <div className="grid place-items-center h-40 text-muted-foreground"><Loader2 className="animate-spin" /></div>;
-  }
+  if (loading) return <div className="grid place-items-center h-40 text-muted-foreground"><Loader2 className="animate-spin" /></div>;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Agente IA</h1>
-        <p className="text-sm text-muted-foreground">
-          Configure como sua IA conversa com os clientes no WhatsApp.
-        </p>
+        <p className="text-sm text-muted-foreground">Configure como sua IA conversa.</p>
       </div>
 
       <Card className="p-5 space-y-4">
@@ -111,9 +99,9 @@ function AgentePage() {
           <Area label="O que NÃO pode fazer" value={cfg.nao_pode_fazer} onChange={(v) => update("nao_pode_fazer", v)} rows={3} />
         </div>
         <div className="grid md:grid-cols-3 gap-4">
-          <Field label="Telefone para transferência" value={cfg.telefone_transferencia} onChange={(v) => update("telefone_transferencia", v)} />
-          <Field label="Palavra para pausar IA" value={cfg.palavra_pausar} onChange={(v) => update("palavra_pausar", v)} />
-          <Field label="Palavra para despausar IA" value={cfg.palavra_despausar} onChange={(v) => update("palavra_despausar", v)} />
+          <Field label="Telefone p/ transferência" value={cfg.telefone_transferencia} onChange={(v) => update("telefone_transferencia", v)} />
+          <Field label="Palavra para pausar" value={cfg.palavra_pausar} onChange={(v) => update("palavra_pausar", v)} />
+          <Field label="Palavra para despausar" value={cfg.palavra_despausar} onChange={(v) => update("palavra_despausar", v)} />
         </div>
         <div className="flex justify-end">
           <Button onClick={save} disabled={saving}>
@@ -124,15 +112,15 @@ function AgentePage() {
       </Card>
 
       <Card className="p-5">
-        <h2 className="font-semibold mb-1 flex items-center gap-2"><Bot className="size-4" /> Pré-visualização do prompt</h2>
-        <p className="text-xs text-muted-foreground mb-3">É exatamente isso que a IA recebe como instrução base.</p>
+        <h2 className="font-semibold mb-1 flex items-center gap-2"><Bot className="size-4" /> Prompt gerado</h2>
+        <p className="text-xs text-muted-foreground mb-3">É exatamente isso que a IA recebe.</p>
         <pre className="text-xs bg-muted/60 rounded-md p-3 whitespace-pre-wrap font-mono max-h-72 overflow-auto">
 {buildSystemPrompt(cfg)}
         </pre>
       </Card>
 
       <Card className="p-5 space-y-3">
-        <h2 className="font-semibold flex items-center gap-2"><Sparkles className="size-4" /> Testar resposta da IA</h2>
+        <h2 className="font-semibold flex items-center gap-2"><Sparkles className="size-4" /> Testar resposta</h2>
         <Textarea value={testMsg} onChange={(e) => setTestMsg(e.target.value)} rows={2} />
         <div className="flex justify-end">
           <Button onClick={runTest} disabled={testing}>
@@ -152,18 +140,8 @@ function AgentePage() {
 }
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} />
-    </div>
-  );
+  return <div className="space-y-1.5"><Label>{label}</Label><Input value={value} onChange={(e) => onChange(e.target.value)} /></div>;
 }
 function Area({ label, value, onChange, rows = 2 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
-  return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      <Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} />
-    </div>
-  );
+  return <div className="space-y-1.5"><Label>{label}</Label><Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} /></div>;
 }

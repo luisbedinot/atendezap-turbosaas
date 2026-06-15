@@ -1,6 +1,6 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,49 +11,63 @@ import { toast } from "sonner";
 import { MessageSquareText } from "lucide-react";
 import { brand } from "@/config/brand";
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute("/entrar")({
   ssr: false,
-  head: () => ({
-    meta: [
-      { title: `${brand.name} — Entrar` },
-      { name: "description", content: `Acesse sua conta no ${brand.name}.` },
-    ],
-  }),
+  head: () => ({ meta: [{ title: `${brand.name} — Entrar` }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/dashboard" });
+    if (data.user) throw redirect({ to: "/app/dashboard" });
   },
-  component: AuthPage,
+  component: EntrarPage,
 });
 
-function AuthPage() {
+const schema = z.object({ email: z.string().email("E-mail inválido"), password: z.string().min(6, "Mínimo 6 caracteres") });
+
+function EntrarPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function routeAfterLogin() {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) return;
+    // super admin?
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
+    if (roles?.some((r) => r.role === "super_admin")) {
+      navigate({ to: "/master/painel", replace: true });
+      return;
+    }
+    const { data: cu } = await supabase.from("company_user").select("company_id").eq("user_id", u.user.id).eq("ativo", true).maybeSingle();
+    navigate({ to: cu ? "/app/dashboard" : "/app/onboarding", replace: true });
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    const v = schema.safeParse({ email, password });
+    if (!v.success) return toast.error(v.error.issues[0].message);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Bem-vindo!");
-    navigate({ to: "/dashboard", replace: true });
+    await routeAfterLogin();
   }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
+    const v = schema.safeParse({ email, password });
+    if (!v.success) return toast.error(v.error.issues[0].message);
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin + "/dashboard" },
+      options: { emailRedirectTo: window.location.origin + "/app/dashboard" },
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Conta criada! Você já pode entrar.");
+    toast.success("Conta criada! Faça login.");
     setTab("login");
   }
 
@@ -72,24 +86,23 @@ function AuthPage() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
           <TabsList className="grid grid-cols-2 mb-4">
             <TabsTrigger value="login">Entrar</TabsTrigger>
-            <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+            <TabsTrigger value="signup">Criar conta</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
             <form onSubmit={handleLogin} className="space-y-3">
               <Field id="le" label="E-mail" type="email" value={email} onChange={setEmail} />
               <Field id="lp" label="Senha" type="password" value={password} onChange={setPassword} />
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Entrando…" : "Entrar"}
-              </Button>
+              <Button type="submit" disabled={loading} className="w-full">{loading ? "Entrando…" : "Entrar"}</Button>
+              <div className="text-right">
+                <Link to="/esqueci-senha" className="text-xs text-muted-foreground hover:underline">Esqueci minha senha</Link>
+              </div>
             </form>
           </TabsContent>
           <TabsContent value="signup">
             <form onSubmit={handleSignup} className="space-y-3">
               <Field id="se" label="E-mail" type="email" value={email} onChange={setEmail} />
               <Field id="sp" label="Senha (mín. 6)" type="password" value={password} onChange={setPassword} />
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Criando…" : "Criar conta"}
-              </Button>
+              <Button type="submit" disabled={loading} className="w-full">{loading ? "Criando…" : "Criar conta"}</Button>
             </form>
           </TabsContent>
         </Tabs>

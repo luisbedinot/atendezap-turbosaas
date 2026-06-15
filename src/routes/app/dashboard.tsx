@@ -6,37 +6,30 @@ import { Badge } from "@/components/ui/badge";
 import { brand } from "@/config/brand";
 import { Bot, KanbanSquare, MessageSquareText, Smartphone } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
+export const Route = createFileRoute("/app/dashboard")({
   head: () => ({ meta: [{ title: `${brand.name} — Dashboard` }] }),
   component: Dashboard,
 });
 
-interface Stats {
-  conversas: number;
-  negociando: number;
-  ganho: number;
-  perda: number;
-}
+interface Stats { conversas: number; negociando: number; ganho: number; perda: number; }
 
 function Dashboard() {
+  const ctx = Route.useRouteContext();
+  const companyId = ctx.company?.id;
   const [status, setStatus] = useState<string>("disconnected");
   const [stats, setStats] = useState<Stats>({ conversas: 0, negociando: 0, ganho: 0, perda: 0 });
   const [mensagens, setMensagens] = useState<any[]>([]);
 
-  useEffect(() => {
-    void load();
-  }, []);
+  useEffect(() => { if (companyId) void load(companyId); }, [companyId]);
 
-  async function load() {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
+  async function load(cid: string) {
     const [{ data: inst }, { data: cards }, { data: msgs }] = await Promise.all([
-      supabase.from("whatsapp_instances").select("status").eq("user_id", u.user.id).maybeSingle(),
-      supabase.from("crm_cards").select("status").eq("user_id", u.user.id),
+      supabase.from("whatsapp_instances").select("status").eq("company_id", cid).maybeSingle(),
+      supabase.from("crm_cards").select("status").eq("company_id", cid),
       supabase
         .from("mensagens")
         .select("numero,contato_nome,direcao,autor,texto,created_at")
-        .eq("user_id", u.user.id)
+        .eq("company_id", cid)
         .order("created_at", { ascending: false })
         .limit(10),
     ]);
@@ -99,10 +92,7 @@ function Dashboard() {
 function Stat({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: number; accent?: boolean }) {
   return (
     <Card className={`p-4 ${accent ? "border-primary/30 bg-primary/5" : ""}`}>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        {icon}
-        {label}
-      </div>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">{icon}{label}</div>
       <div className="text-2xl font-bold mt-1">{value}</div>
     </Card>
   );

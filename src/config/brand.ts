@@ -1,7 +1,8 @@
 // Branding centralizado. Troque aqui pra renomear/recolorir o app inteiro.
 export const brand = {
   name: "AtendeZap",
-  tagline: "Seu atendente de WhatsApp com IA + CRM Kanban",
-  // Verde estilo WhatsApp como cor de destaque
-  primaryOklch: "0.65 0.18 152",
+  tagline: "IA que atende seu WhatsApp 24/7 + CRM Kanban",
+  // WhatsApp green
+  primary: "#22C55E",
+  primaryOklch: "0.72 0.18 152",
 };

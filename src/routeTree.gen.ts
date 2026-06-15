@@ -9,22 +9,56 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as TrocarSenhaRouteImport } from './routes/trocar-senha'
+import { Route as ResetSenhaRouteImport } from './routes/reset-senha'
+import { Route as MasterRouteImport } from './routes/master'
+import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
+import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedKanbanRouteImport } from './routes/_authenticated/kanban'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedConexaoRouteImport } from './routes/_authenticated/conexao'
-import { Route as AuthenticatedAgenteRouteImport } from './routes/_authenticated/agente'
+import { Route as MasterPainelRouteImport } from './routes/master/painel'
+import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
+import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
+import { Route as AppKanbanRouteImport } from './routes/app/kanban'
+import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
+import { Route as AppConexaoRouteImport } from './routes/app/conexao'
+import { Route as AppAgenteRouteImport } from './routes/app/agente'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
+  id: '/trocar-senha',
+  path: '/trocar-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const ResetSenhaRoute = ResetSenhaRouteImport.update({
+  id: '/reset-senha',
+  path: '/reset-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasterRoute = MasterRouteImport.update({
+  id: '/master',
+  path: '/master',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
+  id: '/esqueci-senha',
+  path: '/esqueci-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -32,25 +66,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedKanbanRoute = AuthenticatedKanbanRouteImport.update({
-  id: '/kanban',
-  path: '/kanban',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const MasterPainelRoute = MasterPainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => MasterRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+const DemoDashboardRoute = DemoDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => DemoRoute,
 } as any)
-const AuthenticatedConexaoRoute = AuthenticatedConexaoRouteImport.update({
+const AppOnboardingRoute = AppOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppKanbanRoute = AppKanbanRouteImport.update({
+  id: '/kanban',
+  path: '/kanban',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConexaoRoute = AppConexaoRouteImport.update({
   id: '/conexao',
   path: '/conexao',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AppRoute,
 } as any)
-const AuthenticatedAgenteRoute = AuthenticatedAgenteRouteImport.update({
+const AppAgenteRoute = AppAgenteRouteImport.update({
   id: '/agente',
   path: '/agente',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AppRoute,
 } as any)
 const ApiPublicWhatsappWebhookRoute =
   ApiPublicWhatsappWebhookRouteImport.update({
@@ -61,85 +110,177 @@ const ApiPublicWhatsappWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/agente': typeof AuthenticatedAgenteRoute
-  '/conexao': typeof AuthenticatedConexaoRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/kanban': typeof AuthenticatedKanbanRoute
+  '/app': typeof AppRouteWithChildren
+  '/demo': typeof DemoRouteWithChildren
+  '/entrar': typeof EntrarRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/master': typeof MasterRouteWithChildren
+  '/reset-senha': typeof ResetSenhaRoute
+  '/trocar-senha': typeof TrocarSenhaRoute
+  '/app/agente': typeof AppAgenteRoute
+  '/app/conexao': typeof AppConexaoRoute
+  '/app/dashboard': typeof AppDashboardRoute
+  '/app/kanban': typeof AppKanbanRoute
+  '/app/onboarding': typeof AppOnboardingRoute
+  '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/agente': typeof AuthenticatedAgenteRoute
-  '/conexao': typeof AuthenticatedConexaoRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/kanban': typeof AuthenticatedKanbanRoute
+  '/app': typeof AppRouteWithChildren
+  '/demo': typeof DemoRouteWithChildren
+  '/entrar': typeof EntrarRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/master': typeof MasterRouteWithChildren
+  '/reset-senha': typeof ResetSenhaRoute
+  '/trocar-senha': typeof TrocarSenhaRoute
+  '/app/agente': typeof AppAgenteRoute
+  '/app/conexao': typeof AppConexaoRoute
+  '/app/dashboard': typeof AppDashboardRoute
+  '/app/kanban': typeof AppKanbanRoute
+  '/app/onboarding': typeof AppOnboardingRoute
+  '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
-  '/_authenticated/agente': typeof AuthenticatedAgenteRoute
-  '/_authenticated/conexao': typeof AuthenticatedConexaoRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/kanban': typeof AuthenticatedKanbanRoute
+  '/app': typeof AppRouteWithChildren
+  '/demo': typeof DemoRouteWithChildren
+  '/entrar': typeof EntrarRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/master': typeof MasterRouteWithChildren
+  '/reset-senha': typeof ResetSenhaRoute
+  '/trocar-senha': typeof TrocarSenhaRoute
+  '/app/agente': typeof AppAgenteRoute
+  '/app/conexao': typeof AppConexaoRoute
+  '/app/dashboard': typeof AppDashboardRoute
+  '/app/kanban': typeof AppKanbanRoute
+  '/app/onboarding': typeof AppOnboardingRoute
+  '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/auth'
-    | '/agente'
-    | '/conexao'
-    | '/dashboard'
-    | '/kanban'
+    | '/app'
+    | '/demo'
+    | '/entrar'
+    | '/esqueci-senha'
+    | '/master'
+    | '/reset-senha'
+    | '/trocar-senha'
+    | '/app/agente'
+    | '/app/conexao'
+    | '/app/dashboard'
+    | '/app/kanban'
+    | '/app/onboarding'
+    | '/demo/dashboard'
+    | '/master/painel'
     | '/api/public/whatsapp-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
-    | '/agente'
-    | '/conexao'
-    | '/dashboard'
-    | '/kanban'
+    | '/app'
+    | '/demo'
+    | '/entrar'
+    | '/esqueci-senha'
+    | '/master'
+    | '/reset-senha'
+    | '/trocar-senha'
+    | '/app/agente'
+    | '/app/conexao'
+    | '/app/dashboard'
+    | '/app/kanban'
+    | '/app/onboarding'
+    | '/demo/dashboard'
+    | '/master/painel'
     | '/api/public/whatsapp-webhook'
   id:
     | '__root__'
     | '/'
-    | '/_authenticated'
-    | '/auth'
-    | '/_authenticated/agente'
-    | '/_authenticated/conexao'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/kanban'
+    | '/app'
+    | '/demo'
+    | '/entrar'
+    | '/esqueci-senha'
+    | '/master'
+    | '/reset-senha'
+    | '/trocar-senha'
+    | '/app/agente'
+    | '/app/conexao'
+    | '/app/dashboard'
+    | '/app/kanban'
+    | '/app/onboarding'
+    | '/demo/dashboard'
+    | '/master/painel'
     | '/api/public/whatsapp-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AppRoute: typeof AppRouteWithChildren
+  DemoRoute: typeof DemoRouteWithChildren
+  EntrarRoute: typeof EntrarRoute
+  EsqueciSenhaRoute: typeof EsqueciSenhaRoute
+  MasterRoute: typeof MasterRouteWithChildren
+  ResetSenhaRoute: typeof ResetSenhaRoute
+  TrocarSenhaRoute: typeof TrocarSenhaRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/trocar-senha': {
+      id: '/trocar-senha'
+      path: '/trocar-senha'
+      fullPath: '/trocar-senha'
+      preLoaderRoute: typeof TrocarSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+    '/reset-senha': {
+      id: '/reset-senha'
+      path: '/reset-senha'
+      fullPath: '/reset-senha'
+      preLoaderRoute: typeof ResetSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/master': {
+      id: '/master'
+      path: '/master'
+      fullPath: '/master'
+      preLoaderRoute: typeof MasterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esqueci-senha': {
+      id: '/esqueci-senha'
+      path: '/esqueci-senha'
+      fullPath: '/esqueci-senha'
+      preLoaderRoute: typeof EsqueciSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -149,33 +290,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/kanban': {
-      id: '/_authenticated/kanban'
-      path: '/kanban'
-      fullPath: '/kanban'
-      preLoaderRoute: typeof AuthenticatedKanbanRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/master/painel': {
+      id: '/master/painel'
+      path: '/painel'
+      fullPath: '/master/painel'
+      preLoaderRoute: typeof MasterPainelRouteImport
+      parentRoute: typeof MasterRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
+    '/demo/dashboard': {
+      id: '/demo/dashboard'
       path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/demo/dashboard'
+      preLoaderRoute: typeof DemoDashboardRouteImport
+      parentRoute: typeof DemoRoute
     }
-    '/_authenticated/conexao': {
-      id: '/_authenticated/conexao'
+    '/app/onboarding': {
+      id: '/app/onboarding'
+      path: '/onboarding'
+      fullPath: '/app/onboarding'
+      preLoaderRoute: typeof AppOnboardingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/kanban': {
+      id: '/app/kanban'
+      path: '/kanban'
+      fullPath: '/app/kanban'
+      preLoaderRoute: typeof AppKanbanRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/dashboard': {
+      id: '/app/dashboard'
+      path: '/dashboard'
+      fullPath: '/app/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/conexao': {
+      id: '/app/conexao'
       path: '/conexao'
-      fullPath: '/conexao'
-      preLoaderRoute: typeof AuthenticatedConexaoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/app/conexao'
+      preLoaderRoute: typeof AppConexaoRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_authenticated/agente': {
-      id: '/_authenticated/agente'
+    '/app/agente': {
+      id: '/app/agente'
       path: '/agente'
-      fullPath: '/agente'
-      preLoaderRoute: typeof AuthenticatedAgenteRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      fullPath: '/app/agente'
+      preLoaderRoute: typeof AppAgenteRouteImport
+      parentRoute: typeof AppRoute
     }
     '/api/public/whatsapp-webhook': {
       id: '/api/public/whatsapp-webhook'
@@ -187,27 +349,54 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAgenteRoute: typeof AuthenticatedAgenteRoute
-  AuthenticatedConexaoRoute: typeof AuthenticatedConexaoRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedKanbanRoute: typeof AuthenticatedKanbanRoute
+interface AppRouteChildren {
+  AppAgenteRoute: typeof AppAgenteRoute
+  AppConexaoRoute: typeof AppConexaoRoute
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppKanbanRoute: typeof AppKanbanRoute
+  AppOnboardingRoute: typeof AppOnboardingRoute
 }
 
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAgenteRoute: AuthenticatedAgenteRoute,
-  AuthenticatedConexaoRoute: AuthenticatedConexaoRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedKanbanRoute: AuthenticatedKanbanRoute,
+const AppRouteChildren: AppRouteChildren = {
+  AppAgenteRoute: AppAgenteRoute,
+  AppConexaoRoute: AppConexaoRoute,
+  AppDashboardRoute: AppDashboardRoute,
+  AppKanbanRoute: AppKanbanRoute,
+  AppOnboardingRoute: AppOnboardingRoute,
 }
 
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface DemoRouteChildren {
+  DemoDashboardRoute: typeof DemoDashboardRoute
+}
+
+const DemoRouteChildren: DemoRouteChildren = {
+  DemoDashboardRoute: DemoDashboardRoute,
+}
+
+const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
+
+interface MasterRouteChildren {
+  MasterPainelRoute: typeof MasterPainelRoute
+}
+
+const MasterRouteChildren: MasterRouteChildren = {
+  MasterPainelRoute: MasterPainelRoute,
+}
+
+const MasterRouteWithChildren =
+  MasterRoute._addFileChildren(MasterRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AppRoute: AppRouteWithChildren,
+  DemoRoute: DemoRouteWithChildren,
+  EntrarRoute: EntrarRoute,
+  EsqueciSenhaRoute: EsqueciSenhaRoute,
+  MasterRoute: MasterRouteWithChildren,
+  ResetSenhaRoute: ResetSenhaRoute,
+  TrocarSenhaRoute: TrocarSenhaRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
 }
 export const routeTree = rootRouteImport
