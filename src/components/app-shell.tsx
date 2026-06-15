@@ -68,7 +68,7 @@ export function AppShell({
   const roleLabel =
     membership?.role === "owner" ? "Dono"
     : membership?.role === "admin" ? "Admin"
-    : membership?.role === "agent" ? "Atendente"
+    : membership?.role === "atendente" ? "Atendente"
     : "Membro";
   const userName = (email || "Você").split("@")[0];
 
