@@ -36,6 +36,7 @@ import { Route as AppConfiguracoesRouteImport } from './routes/app/configuracoes
 import { Route as AppConexaoRouteImport } from './routes/app/conexao'
 import { Route as AppAgenteRouteImport } from './routes/app/agente'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
+import { Route as ApiPublicGoogleCallbackRouteImport } from './routes/api/public/google-callback'
 
 const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
   id: '/trocar-senha',
@@ -173,6 +174,11 @@ const ApiPublicWhatsappWebhookRoute =
     path: '/api/public/whatsapp-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGoogleCallbackRoute = ApiPublicGoogleCallbackRouteImport.update({
+  id: '/api/public/google-callback',
+  path: '/api/public/google-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesById {
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRouteTypes {
@@ -291,6 +300,7 @@ export interface FileRouteTypes {
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -320,6 +330,7 @@ export interface FileRouteTypes {
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
   id:
     | '__root__'
@@ -349,6 +360,7 @@ export interface FileRouteTypes {
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
   fileRoutesById: FileRoutesById
 }
@@ -361,6 +373,7 @@ export interface RootRouteChildren {
   MasterRoute: typeof MasterRouteWithChildren
   ResetSenhaRoute: typeof ResetSenhaRoute
   TrocarSenhaRoute: typeof TrocarSenhaRoute
+  ApiPublicGoogleCallbackRoute: typeof ApiPublicGoogleCallbackRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
 }
 
@@ -555,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/google-callback': {
+      id: '/api/public/google-callback'
+      path: '/api/public/google-callback'
+      fullPath: '/api/public/google-callback'
+      preLoaderRoute: typeof ApiPublicGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -628,6 +648,7 @@ const rootRouteChildren: RootRouteChildren = {
   MasterRoute: MasterRouteWithChildren,
   ResetSenhaRoute: ResetSenhaRoute,
   TrocarSenhaRoute: TrocarSenhaRoute,
+  ApiPublicGoogleCallbackRoute: ApiPublicGoogleCallbackRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
 }
 export const routeTree = rootRouteImport

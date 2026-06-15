@@ -7,11 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Bot, Loader2, Save, Send, Sparkles } from "lucide-react";
+import { Bot, Loader2, Save, Send, Sparkles, Plus, Trash2, Calendar, CheckCircle2, AlertCircle, LinkIcon } from "lucide-react";
 import { brand } from "@/config/brand";
 import { buildSystemPrompt } from "@/lib/ai-prompt";
 import { testAiReply } from "@/lib/evolution.functions";
+import { startGoogleOAuth, disconnectGoogle } from "@/lib/google.functions";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 
 export const Route = createFileRoute("/app/agente")({
@@ -19,52 +23,62 @@ export const Route = createFileRoute("/app/agente")({
   component: AgentePage,
 });
 
-const DEFAULTS = {
-  nome_agente: "Atendente Virtual",
-  nome_empresa: "",
+const DEFAULTS: any = {
+  nome_agente: "Atendente Virtual", nome_empresa: "",
   papel_objetivo: "Atender clientes, descobrir o que precisam, recomendar com sentido e ajudar a fechar a venda.",
-  estilo_comunicacao: "Humano, simpático, consultivo e direto. Mensagens curtas, como gente digita no WhatsApp.",
-  sobre_empresa: "",
-  produtos_servicos: "",
-  pode_fazer: "",
-  nao_pode_fazer: "Inventar preço, prazo ou política que não está no prompt. Prometer o que não foi confirmado.",
-  telefone_transferencia: "",
-  palavra_pausar: "/pausar",
-  palavra_despausar: "/despausar",
-  segundos_buffer: 8,
-  responder_em_partes: true,
+  estilo_comunicacao: "Humano, simpático, consultivo e direto.",
+  sobre_empresa: "", produtos_servicos: "", pode_fazer: "",
+  nao_pode_fazer: "Inventar preço, prazo ou política que não está no prompt.",
+  telefone_transferencia: "", palavra_pausar: "/pausar", palavra_despausar: "/despausar",
+  segundos_buffer: 8, responder_em_partes: true,
+  segmento: "", descricao_negocio: "", diferenciais: "", publico_alvo: "", regiao_horario: "",
+  ofertas: "", cupom: "", como_vender: "", objecoes: "", formas_pagamento: "", ticket_medio: "",
+  faq: "", politicas: "", posvenda_msg: "", pedir_avaliacao: false, reativar_cliente: false,
+  tom: 70, formalidade: 40, usar_emojis: true, tamanho_resposta: "curtas", apresentacao: "",
+  agendamento_ativo: false, servicos_agendaveis: "", duracao_padrao: "30 min",
+  horarios_disponiveis: "", antecedencia_min: "2 horas",
 };
+
+interface Produto { id: string; nome: string; preco: number; descricao: string | null; ativo: boolean; ordem: number; }
 
 function AgentePage() {
   const ctx = Route.useRouteContext();
   const companyId = ctx.company?.id;
   const test = useServerFn(testAiReply);
-  const [cfg, setCfg] = useState(DEFAULTS);
+  const gStart = useServerFn(startGoogleOAuth);
+  const gDisc = useServerFn(disconnectGoogle);
+  const [cfg, setCfg] = useState<any>(DEFAULTS);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [google, setGoogle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [testMsg, setTestMsg] = useState("Oi, vocês entregam aqui na minha região?");
+  const [testMsg, setTestMsg] = useState("Oi, vocês entregam aqui?");
   const [testReply, setTestReply] = useState<string[]>([]);
   const [testing, setTesting] = useState(false);
 
-  useEffect(() => {
+  async function reload() {
     if (!companyId) return;
-    void (async () => {
-      const { data } = await supabase.from("agent_config").select("*").eq("company_id", companyId).maybeSingle();
-      if (data) setCfg({ ...DEFAULTS, ...data } as any);
-      setLoading(false);
-    })();
-  }, [companyId]);
-
-  function update<K extends keyof typeof DEFAULTS>(k: K, v: (typeof DEFAULTS)[K]) {
-    setCfg((p) => ({ ...p, [k]: v }));
+    const [{ data: c }, { data: p }, { data: g }] = await Promise.all([
+      supabase.from("agent_config").select("*").eq("company_id", companyId).maybeSingle(),
+      supabase.from("produto").select("*").eq("company_id", companyId).order("ordem", { ascending: true }),
+      supabase.from("google_integration").select("*").eq("company_id", companyId).maybeSingle(),
+    ]);
+    if (c) setCfg({ ...DEFAULTS, ...c });
+    setProdutos((p ?? []) as Produto[]);
+    setGoogle(g);
+    setLoading(false);
   }
+
+  useEffect(() => { void reload(); }, [companyId]);
+
+  function up(k: string, v: any) { setCfg((p: any) => ({ ...p, [k]: v })); }
 
   async function save() {
     if (!companyId) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("agent_config")
-      .upsert({ company_id: companyId, user_id: ctx.user.id, ...cfg }, { onConflict: "company_id" });
+    const { user_id: _u, company_id: _c, updated_at: _ua, ...payload } = cfg;
+    const { error } = await supabase.from("agent_config").upsert(
+      { company_id: companyId, user_id: ctx.user.id, ...payload }, { onConflict: "company_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Configuração salva");
@@ -74,118 +88,233 @@ function AgentePage() {
     setTesting(true); setTestReply([]);
     try {
       const r = await test({ data: { message: testMsg } });
-      const parts = cfg.responder_em_partes ? r.reply.split("|||").map((s) => s.trim()).filter(Boolean) : [r.reply];
-      setTestReply(parts);
-    } catch (e: any) { toast.error(e?.message || "Falha no teste"); }
+      setTestReply(r.parts);
+    } catch (e: any) { toast.error(e?.message || "Falha"); }
     finally { setTesting(false); }
+  }
+
+  // Produtos CRUD
+  async function addProduto() {
+    if (!companyId) return;
+    const { error } = await supabase.from("produto").insert({
+      company_id: companyId, nome: "Novo produto", preco: 0, ordem: produtos.length,
+    });
+    if (error) return toast.error(error.message);
+    reload();
+  }
+  async function updProduto(id: string, patch: Partial<Produto>) {
+    setProdutos((ps) => ps.map((p) => p.id === id ? { ...p, ...patch } : p));
+    await supabase.from("produto").update(patch).eq("id", id);
+  }
+  async function delProduto(id: string) {
+    await supabase.from("produto").delete().eq("id", id);
+    reload();
+  }
+
+  async function connectGoogle() {
+    try {
+      const r: any = await gStart({});
+      if (!r.ok) return toast.error(r.error);
+      window.location.href = r.url;
+    } catch (e: any) { toast.error(e?.message || "Falha"); }
+  }
+  async function disconnectG() {
+    await gDisc({}); toast.success("Google desconectado"); reload();
   }
 
   if (loading) return <div className="grid place-items-center h-40 text-muted-foreground"><Loader2 className="animate-spin" /></div>;
 
+  const promptPreview = buildSystemPrompt(cfg, {
+    responderEmPartes: cfg.responder_em_partes,
+    produtos: produtos.filter((p) => p.ativo).map((p) => ({ nome: p.nome, preco: p.preco, descricao: p.descricao })),
+  });
+
   return (
-    <div className="space-y-5">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-        <div className="min-w-0">
-          <h1 className="font-display text-xl sm:text-2xl font-bold">Agente IA</h1>
-          <p className="text-xs text-muted-foreground">Configure como sua IA conversa.</p>
+    <div className="space-y-6">
+      <header className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h1>Agente IA</h1>
+          <p className="text-sm text-muted-foreground">Configure como sua IA conversa e vende.</p>
         </div>
-        <Button onClick={save} disabled={saving} size="sm" className="shrink-0">
+        <Button onClick={save} disabled={saving}>
           {saving ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Save className="size-4 mr-1.5" />} Salvar
         </Button>
       </header>
 
-      <div className="grid lg:grid-cols-2 gap-5">
-        {/* FORM */}
-        <div className="space-y-5">
-          <Section title="Identidade">
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="Nome do agente" value={cfg.nome_agente} onChange={(v) => update("nome_agente", v)} />
-              <Field label="Nome da empresa" value={cfg.nome_empresa} onChange={(v) => update("nome_empresa", v)} />
-            </div>
-            <Area label="Sobre a empresa" value={cfg.sobre_empresa} onChange={(v) => update("sobre_empresa", v)} rows={3} />
-            <Area label="Produtos / serviços" value={cfg.produtos_servicos} onChange={(v) => update("produtos_servicos", v)} rows={3} />
-          </Section>
+      <div className="grid lg:grid-cols-[1fr_minmax(380px,440px)] gap-6">
+        <div>
+          <Tabs defaultValue="negocio">
+            <TabsList className="flex flex-wrap h-auto gap-1 bg-transparent p-0 mb-4">
+              {[["negocio","Negócio"],["produtos","Produtos"],["ofertas","Ofertas"],["vendas","Vendas"],
+                ["suporte","Suporte"],["posvenda","Pós-venda"],["personalidade","Personalidade"],
+                ["agendamento","Agendamento"],["regras","Regras"]].map(([k,l]) => (
+                <TabsTrigger key={k} value={k} className="text-sm">{l}</TabsTrigger>
+              ))}
+            </TabsList>
 
-          <Section title="Comportamento">
-            <Area label="Papel e objetivo" value={cfg.papel_objetivo} onChange={(v) => update("papel_objetivo", v)} />
-            <Area label="Estilo de comunicação" value={cfg.estilo_comunicacao} onChange={(v) => update("estilo_comunicacao", v)} />
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Area label="O que PODE fazer" value={cfg.pode_fazer} onChange={(v) => update("pode_fazer", v)} rows={3} />
-              <Area label="O que NÃO pode fazer" value={cfg.nao_pode_fazer} onChange={(v) => update("nao_pode_fazer", v)} rows={3} />
-            </div>
-          </Section>
-
-          <Section title="Avançado">
-            <div className="grid sm:grid-cols-3 gap-3">
-              <Field label="Telefone p/ transferência" value={cfg.telefone_transferencia} onChange={(v) => update("telefone_transferencia", v)} />
-              <Field label="Palavra para pausar" value={cfg.palavra_pausar} onChange={(v) => update("palavra_pausar", v)} />
-              <Field label="Palavra para despausar" value={cfg.palavra_despausar} onChange={(v) => update("palavra_despausar", v)} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Esperar antes de responder</Label>
-                <span className="text-xs text-muted-foreground font-mono">{cfg.segundos_buffer}s</span>
-              </div>
-              <input
-                type="range" min={0} max={20} step={1}
-                value={cfg.segundos_buffer}
-                onChange={(e) => update("segundos_buffer", Number(e.target.value))}
-                className="w-full accent-[var(--brand)]"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                A IA aguarda esses segundos juntando mensagens caso a pessoa ainda esteja digitando.
-              </p>
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-white/8 bg-[var(--panel-2)] p-3">
-              <div>
-                <div className="text-sm font-semibold">Responder em partes (humanizado)</div>
-                <div className="text-[11px] text-muted-foreground">
-                  {cfg.responder_em_partes ? "Ligado — divide em 1–3 bolhas curtas" : "Desligado — uma mensagem só"}
+            <TabsContent value="negocio" className="space-y-3">
+              <Section>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <Field label="Nome do agente" value={cfg.nome_agente} onChange={(v) => up("nome_agente", v)} />
+                  <Field label="Nome da empresa" value={cfg.nome_empresa} onChange={(v) => up("nome_empresa", v)} />
+                  <Field label="Segmento" value={cfg.segmento} onChange={(v) => up("segmento", v)} />
+                  <Field label="Região / horário de atendimento" value={cfg.regiao_horario} onChange={(v) => up("regiao_horario", v)} />
                 </div>
-              </div>
-              <Switch checked={!!cfg.responder_em_partes} onCheckedChange={(v) => update("responder_em_partes", v)} />
-            </div>
-          </Section>
+                <Area label="Descrição do negócio" value={cfg.descricao_negocio} onChange={(v) => up("descricao_negocio", v)} rows={3} />
+                <Area label="Diferenciais" value={cfg.diferenciais} onChange={(v) => up("diferenciais", v)} rows={2} />
+                <Area label="Público-alvo" value={cfg.publico_alvo} onChange={(v) => up("publico_alvo", v)} rows={2} />
+                <Area label="Sobre a empresa (texto livre)" value={cfg.sobre_empresa} onChange={(v) => up("sobre_empresa", v)} rows={3} />
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="produtos" className="space-y-3">
+              <Section>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">Catálogo real usado pela IA.</p>
+                  <Button size="sm" onClick={addProduto}><Plus className="size-4 mr-1" />Novo produto</Button>
+                </div>
+                <div className="space-y-2">
+                  {produtos.length === 0 && <div className="text-sm text-muted-foreground py-4 text-center">Nenhum produto cadastrado.</div>}
+                  {produtos.map((p) => (
+                    <div key={p.id} className="rounded-xl border border-[var(--border)] bg-[var(--panel-2)] p-3 grid sm:grid-cols-[1fr_120px_auto_auto] gap-2 items-center">
+                      <Input value={p.nome} onChange={(e) => updProduto(p.id, { nome: e.target.value })} placeholder="Nome" />
+                      <Input type="number" value={p.preco} onChange={(e) => updProduto(p.id, { preco: Number(e.target.value) || 0 })} placeholder="Preço" />
+                      <Switch checked={p.ativo} onCheckedChange={(v) => updProduto(p.id, { ativo: v })} />
+                      <button onClick={() => delProduto(p.id)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="size-4" /></button>
+                      <Textarea className="sm:col-span-4" rows={2} value={p.descricao ?? ""} onChange={(e) => updProduto(p.id, { descricao: e.target.value })} placeholder="Descrição" />
+                    </div>
+                  ))}
+                </div>
+                <Area label="Produtos/serviços (texto livre — fallback)" value={cfg.produtos_servicos} onChange={(v) => up("produtos_servicos", v)} rows={3} />
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="ofertas" className="space-y-3">
+              <Section>
+                <Area label="Ofertas ativas" value={cfg.ofertas} onChange={(v) => up("ofertas", v)} rows={4} />
+                <Field label="Cupom" value={cfg.cupom} onChange={(v) => up("cupom", v)} />
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="vendas" className="space-y-3">
+              <Section>
+                <Area label="Como vender (passo a passo)" value={cfg.como_vender} onChange={(v) => up("como_vender", v)} rows={4} />
+                <Area label="Objeções comuns e respostas" value={cfg.objecoes} onChange={(v) => up("objecoes", v)} rows={4} />
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <Field label="Formas de pagamento" value={cfg.formas_pagamento} onChange={(v) => up("formas_pagamento", v)} />
+                  <Field label="Ticket médio" value={cfg.ticket_medio} onChange={(v) => up("ticket_medio", v)} />
+                </div>
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="suporte" className="space-y-3">
+              <Section>
+                <Area label="FAQ" value={cfg.faq} onChange={(v) => up("faq", v)} rows={5} />
+                <Area label="Políticas (troca/cancelamento/garantia)" value={cfg.politicas} onChange={(v) => up("politicas", v)} rows={4} />
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="posvenda" className="space-y-3">
+              <Section>
+                <Area label="Mensagem de pós-venda" value={cfg.posvenda_msg} onChange={(v) => up("posvenda_msg", v)} rows={3} />
+                <Toggle label="Pedir avaliação após venda" v={cfg.pedir_avaliacao} on={(v) => up("pedir_avaliacao", v)} />
+                <Toggle label="Reativar clientes inativos" v={cfg.reativar_cliente} on={(v) => up("reativar_cliente", v)} />
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="personalidade" className="space-y-3">
+              <Section>
+                <SliderRow label="Tom (sério → caloroso)" v={cfg.tom} on={(v) => up("tom", v)} />
+                <SliderRow label="Formalidade (informal → formal)" v={cfg.formalidade} on={(v) => up("formalidade", v)} />
+                <Toggle label="Usar emojis" v={cfg.usar_emojis} on={(v) => up("usar_emojis", v)} />
+                <div className="space-y-1.5">
+                  <Label>Tamanho das respostas</Label>
+                  <Select value={cfg.tamanho_resposta} onValueChange={(v) => up("tamanho_resposta", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="curtas">Curtas (WhatsApp)</SelectItem>
+                      <SelectItem value="medias">Médias</SelectItem>
+                      <SelectItem value="longas">Longas (explicativas)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Area label="Apresentação (1ª mensagem)" value={cfg.apresentacao} onChange={(v) => up("apresentacao", v)} rows={2} />
+                <Area label="Estilo de comunicação (extra)" value={cfg.estilo_comunicacao} onChange={(v) => up("estilo_comunicacao", v)} rows={2} />
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="agendamento" className="space-y-3">
+              <Section>
+                <div className="rounded-xl border border-[var(--border)] bg-[var(--panel-2)] p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Calendar className="size-5 text-[var(--brand-text)] mt-0.5" />
+                    <div className="flex-1">
+                      <div className="font-semibold flex items-center gap-2">
+                        Google Agenda
+                        {google?.conectado && <span className="text-[10px] bg-[var(--brand)]/15 text-[var(--brand-text)] px-1.5 py-0.5 rounded-full flex items-center gap-1"><CheckCircle2 className="size-3" />Conectado</span>}
+                      </div>
+                      {google?.email && <div className="text-xs text-muted-foreground">{google.email}</div>}
+                      <p className="text-xs text-muted-foreground mt-1">Permite que a IA marque eventos automaticamente.</p>
+                    </div>
+                    {google?.conectado
+                      ? <Button size="sm" variant="outline" onClick={disconnectG}>Desconectar</Button>
+                      : <Button size="sm" onClick={connectGoogle}><LinkIcon className="size-3.5 mr-1" />Conectar</Button>}
+                  </div>
+                </div>
+                <Toggle label="Agendamento ativo" v={cfg.agendamento_ativo} on={(v) => up("agendamento_ativo", v)} />
+                <Area label="Serviços agendáveis" value={cfg.servicos_agendaveis} onChange={(v) => up("servicos_agendaveis", v)} rows={2} />
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <Field label="Duração padrão" value={cfg.duracao_padrao} onChange={(v) => up("duracao_padrao", v)} />
+                  <Field label="Antecedência mínima" value={cfg.antecedencia_min} onChange={(v) => up("antecedencia_min", v)} />
+                </div>
+                <Area label="Horários disponíveis" value={cfg.horarios_disponiveis} onChange={(v) => up("horarios_disponiveis", v)} rows={2} />
+              </Section>
+            </TabsContent>
+
+            <TabsContent value="regras" className="space-y-3">
+              <Section>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <Area label="O que PODE fazer" value={cfg.pode_fazer} onChange={(v) => up("pode_fazer", v)} rows={4} />
+                  <Area label="O que NÃO pode fazer" value={cfg.nao_pode_fazer} onChange={(v) => up("nao_pode_fazer", v)} rows={4} />
+                </div>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <Field label="Telefone p/ transferência" value={cfg.telefone_transferencia} onChange={(v) => up("telefone_transferencia", v)} />
+                  <Field label="Palavra para pausar" value={cfg.palavra_pausar} onChange={(v) => up("palavra_pausar", v)} />
+                  <Field label="Palavra para despausar" value={cfg.palavra_despausar} onChange={(v) => up("palavra_despausar", v)} />
+                </div>
+                <SliderRow label="Esperar antes de responder (segundos)" v={cfg.segundos_buffer} max={20} on={(v) => up("segundos_buffer", v)} unit="s" />
+                <Toggle label="Responder em partes (1-3 bolhas)" v={cfg.responder_em_partes} on={(v) => up("responder_em_partes", v)} />
+              </Section>
+            </TabsContent>
+          </Tabs>
         </div>
 
-        {/* PREVIEW + TEST */}
-        <div className="space-y-5 lg:sticky lg:top-4 self-start">
+        <div className="space-y-4 lg:sticky lg:top-4 self-start">
           <Section title="Prompt gerado" icon={<Bot className="size-3.5" />}>
-            <pre className="rounded-xl border border-white/8 bg-[#06100b] p-4 font-mono text-[12px] leading-relaxed text-[#bfe9cf] whitespace-pre-wrap max-h-[360px] overflow-auto">
-{buildSystemPrompt(cfg, { responderEmPartes: cfg.responder_em_partes })}
+            <pre className="rounded-xl border border-[var(--border)] bg-[var(--panel-2)] p-4 font-mono text-[12px] leading-relaxed text-[var(--brand-text)] whitespace-pre-wrap max-h-[360px] overflow-auto">
+{promptPreview}
             </pre>
           </Section>
-
-          <Section title="Testar resposta da IA" icon={<Sparkles className="size-3.5" />}>
-            <div className="rounded-xl border border-white/8 bg-[linear-gradient(180deg,#0a120d,#0b1410)] p-4 space-y-2 min-h-[160px]">
+          <Section title="Testar resposta" icon={<Sparkles className="size-3.5" />}>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--panel-2)] p-4 space-y-2 min-h-[140px]">
               <div className="flex justify-end">
-                <div className="max-w-[78%] bg-[#15241c] rounded-2xl rounded-br-md px-3.5 py-2.5 text-[13px]">{testMsg}</div>
+                <div className="max-w-[78%] bg-[var(--panel)] rounded-2xl rounded-br-md px-3.5 py-2.5 text-[13px]">{testMsg}</div>
               </div>
               {testReply.map((p, i) => (
                 <div key={i} className="flex justify-start gap-2 items-end">
-                  <InitialsAvatar name="IA" size={24} forceGradient="linear-gradient(135deg,#A3E635,#25D366)" />
-                  <div className="max-w-[78%] bg-gradient-to-br from-[#1f9d57] to-[#25D366] text-[#04140B] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-[13px] font-medium">
-                    <span className="block text-[9.5px] font-bold opacity-80 mb-1 uppercase tracking-wider">⚡ Agente IA</span>
+                  <InitialsAvatar name="IA" size={24} />
+                  <div className="max-w-[78%] bg-[var(--brand)]/15 text-foreground rounded-2xl rounded-bl-md px-3.5 py-2.5 text-[13px]">
                     {p}
                   </div>
                 </div>
               ))}
-              {testing && <div className="text-xs text-muted-foreground flex items-center gap-2"><Loader2 className="size-3 animate-spin" /> pensando…</div>}
+              {testing && <div className="text-xs text-muted-foreground flex items-center gap-2"><Loader2 className="size-3 animate-spin" />pensando…</div>}
             </div>
-            <div className="flex gap-2">
-              <input
-                value={testMsg}
-                onChange={(e) => setTestMsg(e.target.value)}
-                placeholder="Mensagem do cliente…"
-                className="flex-1 bg-[var(--background)] border border-white/8 rounded-full px-4 py-2.5 text-sm outline-none focus:border-[var(--brand)]/60"
-              />
-              <button
-                onClick={runTest}
-                disabled={testing}
-                className="size-10 shrink-0 rounded-full grid place-items-center text-[#04140B] bg-gradient-to-br from-[#00E676] to-[#25D366] disabled:opacity-50"
-              >
+            <div className="flex gap-2 mt-3">
+              <Input value={testMsg} onChange={(e) => setTestMsg(e.target.value)} placeholder="Mensagem do cliente…" />
+              <Button onClick={runTest} disabled={testing} size="icon">
                 {testing ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-              </button>
+              </Button>
             </div>
           </Section>
         </div>
@@ -194,19 +323,40 @@ function AgentePage() {
   );
 }
 
-function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
+function Section({ title, icon, children }: { title?: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5 space-y-3">
-      <h3 className="font-display text-[12px] font-semibold uppercase tracking-wider text-[var(--brand-strong)] flex items-center gap-1.5">
-        {icon}{title}
-      </h3>
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-5 space-y-3">
+      {title && (
+        <h3 className="font-display text-[12px] font-semibold uppercase tracking-wider text-[var(--brand-text)] flex items-center gap-1.5">
+          {icon}{title}
+        </h3>
+      )}
       {children}
     </div>
   );
 }
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return <div className="space-y-1.5"><Label className="text-[12.5px] text-muted-foreground">{label}</Label><Input value={value} onChange={(e) => onChange(e.target.value)} /></div>;
+function Field({ label, value, onChange, type }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+  return <div className="space-y-1.5"><Label>{label}</Label><Input type={type} value={value ?? ""} onChange={(e) => onChange(e.target.value)} /></div>;
 }
-function Area({ label, value, onChange, rows = 2 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
-  return <div className="space-y-1.5"><Label className="text-[12.5px] text-muted-foreground">{label}</Label><Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} /></div>;
+function Area({ label, value, onChange, rows = 3 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
+  return <div className="space-y-1.5"><Label>{label}</Label><Textarea value={value ?? ""} onChange={(e) => onChange(e.target.value)} rows={rows} /></div>;
+}
+function Toggle({ label, v, on }: { label: string; v: boolean; on: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--panel-2)] p-3">
+      <span className="text-sm font-medium">{label}</span>
+      <Switch checked={!!v} onCheckedChange={on} />
+    </div>
+  );
+}
+function SliderRow({ label, v, on, max = 100, unit = "" }: { label: string; v: number; on: (v: number) => void; max?: number; unit?: string }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label>{label}</Label>
+        <span className="text-xs text-muted-foreground font-mono">{v}{unit}</span>
+      </div>
+      <Slider value={[v]} max={max} step={1} onValueChange={([x]) => on(x)} />
+    </div>
+  );
 }
