@@ -97,7 +97,7 @@ function ConversasDemo() {
         </aside>
 
         {/* THREAD */}
-        <section className="flex flex-col min-h-0 bg-[linear-gradient(180deg,#0a120d,#0b1410)]">
+        <section className="flex flex-col min-h-0 bg-muted/30">
           {!active ? (
             <div className="flex-1 grid place-items-center text-muted-foreground text-sm">
               <div className="text-center"><MessageSquareText className="mx-auto mb-2 size-6" />Selecione uma conversa</div>
@@ -195,7 +195,7 @@ function Bubble({ m }: { m: DemoMsg }) {
         className={`max-w-[78%] sm:max-w-[62%] px-3.5 py-2.5 text-[13px] ${
           isOut
             ? "bg-gradient-to-br from-[#1f9d57] to-[#25D366] text-primary-foreground rounded-2xl rounded-br-md font-medium"
-            : "bg-[#15241c] text-foreground rounded-2xl rounded-bl-md"
+            : "bg-muted text-foreground rounded-2xl rounded-bl-md"
         }`}
       >
         {isOut && (

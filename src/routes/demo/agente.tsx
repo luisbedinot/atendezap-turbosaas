@@ -89,15 +89,15 @@ function AgenteDemo() {
         {/* PREVIEW + TEST */}
         <div className="space-y-5 lg:sticky lg:top-4 self-start">
           <Section title="Prompt gerado" icon={<Bot className="size-3.5" />}>
-            <pre className="rounded-xl border border-border bg-[#06100b] p-4 font-mono text-[12px] leading-relaxed text-[#bfe9cf] whitespace-pre-wrap max-h-[360px] overflow-auto">
+            <pre className="rounded-xl border border-border bg-muted p-4 font-mono text-[12px] leading-relaxed text-foreground whitespace-pre-wrap max-h-[360px] overflow-auto">
 {buildSystemPrompt(c, { responderEmPartes: true })}
             </pre>
           </Section>
 
           <Section title="Testar resposta da IA" icon={<Sparkles className="size-3.5" />}>
-            <div className="rounded-xl border border-border bg-[linear-gradient(180deg,#0a120d,#0b1410)] p-4 space-y-2 min-h-[160px]">
+            <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2 min-h-[160px]">
               <div className="flex justify-end">
-                <div className="max-w-[78%] bg-[#15241c] rounded-2xl rounded-br-md px-3.5 py-2.5 text-[13px]">{testMsg}</div>
+                <div className="max-w-[78%] bg-muted rounded-2xl rounded-br-md px-3.5 py-2.5 text-[13px]">{testMsg}</div>
               </div>
               {testReply.map((p, i) => (
                 <div key={i} className="flex justify-start gap-2 items-end">
