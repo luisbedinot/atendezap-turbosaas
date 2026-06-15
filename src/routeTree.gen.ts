@@ -21,9 +21,9 @@ import { Route as MasterPainelRouteImport } from './routes/master/painel'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
-import { Route as AppKanbanRouteImport } from './routes/app/kanban'
 import { Route as AppEquipeRouteImport } from './routes/app/equipe'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
+import { Route as AppCrmRouteImport } from './routes/app/crm'
 import { Route as AppConversasRouteImport } from './routes/app/conversas'
 import { Route as AppContatosRouteImport } from './routes/app/contatos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app/configuracoes'
@@ -91,11 +91,6 @@ const AppOnboardingRoute = AppOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AppRoute,
 } as any)
-const AppKanbanRoute = AppKanbanRouteImport.update({
-  id: '/kanban',
-  path: '/kanban',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppEquipeRoute = AppEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -104,6 +99,11 @@ const AppEquipeRoute = AppEquipeRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCrmRoute = AppCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
   getParentRoute: () => AppRoute,
 } as any)
 const AppConversasRoute = AppConversasRouteImport.update({
@@ -152,9 +152,9 @@ export interface FileRoutesByFullPath {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/conversas': typeof AppConversasRoute
+  '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
-  '/app/kanban': typeof AppKanbanRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
@@ -175,9 +175,9 @@ export interface FileRoutesByTo {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/conversas': typeof AppConversasRoute
+  '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
-  '/app/kanban': typeof AppKanbanRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
@@ -199,9 +199,9 @@ export interface FileRoutesById {
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/conversas': typeof AppConversasRoute
+  '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
-  '/app/kanban': typeof AppKanbanRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
@@ -224,9 +224,9 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/contatos'
     | '/app/conversas'
+    | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
-    | '/app/kanban'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/dashboard'
@@ -247,9 +247,9 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/contatos'
     | '/app/conversas'
+    | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
-    | '/app/kanban'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/dashboard'
@@ -270,9 +270,9 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/contatos'
     | '/app/conversas'
+    | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
-    | '/app/kanban'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/dashboard'
@@ -378,13 +378,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOnboardingRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/kanban': {
-      id: '/app/kanban'
-      path: '/kanban'
-      fullPath: '/app/kanban'
-      preLoaderRoute: typeof AppKanbanRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/equipe': {
       id: '/app/equipe'
       path: '/equipe'
@@ -397,6 +390,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/crm': {
+      id: '/app/crm'
+      path: '/crm'
+      fullPath: '/app/crm'
+      preLoaderRoute: typeof AppCrmRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/conversas': {
@@ -450,9 +450,9 @@ interface AppRouteChildren {
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppContatosRoute: typeof AppContatosRoute
   AppConversasRoute: typeof AppConversasRoute
+  AppCrmRoute: typeof AppCrmRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEquipeRoute: typeof AppEquipeRoute
-  AppKanbanRoute: typeof AppKanbanRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppRelatoriosRoute: typeof AppRelatoriosRoute
 }
@@ -463,9 +463,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppContatosRoute: AppContatosRoute,
   AppConversasRoute: AppConversasRoute,
+  AppCrmRoute: AppCrmRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEquipeRoute: AppEquipeRoute,
-  AppKanbanRoute: AppKanbanRoute,
   AppOnboardingRoute: AppOnboardingRoute,
   AppRelatoriosRoute: AppRelatoriosRoute,
 }
