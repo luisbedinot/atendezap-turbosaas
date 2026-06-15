@@ -21,11 +21,11 @@ export const Route = createFileRoute("/app/crm")({
 });
 
 type Status = "conversas" | "negociando" | "ganho" | "perda";
-const COLUMNS: { id: Status; label: string; accent: string }[] = [
-  { id: "conversas", label: "Conversas", accent: "bg-blue-500" },
-  { id: "negociando", label: "Negociando", accent: "bg-amber-500" },
-  { id: "ganho", label: "Ganho", accent: "bg-primary" },
-  { id: "perda", label: "Perda", accent: "bg-rose-500" },
+const COLUMNS: { id: Status; label: string; accent: string; glow: string }[] = [
+  { id: "conversas", label: "Conversas", accent: "bg-sky-400", glow: "#38BDF8" },
+  { id: "negociando", label: "Negociando", accent: "bg-amber-400", glow: "#FBBF24" },
+  { id: "ganho", label: "Ganho", accent: "bg-[color:var(--brand)]", glow: "#25D366" },
+  { id: "perda", label: "Perda", accent: "bg-rose-400", glow: "#FB7185" },
 ];
 
 interface CardRow {

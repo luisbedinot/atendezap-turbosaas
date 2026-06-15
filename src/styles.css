@@ -156,8 +156,6 @@ h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0
 
 @utility dot-pulse {
   position: relative;
-}
-@utility dot-pulse {
   &::after {
     content: "";
     position: absolute;
