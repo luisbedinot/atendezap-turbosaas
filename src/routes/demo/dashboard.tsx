@@ -37,14 +37,14 @@ function DemoDashboard() {
         <KpiCard icon={<Trophy className="size-4" />} label="Fechados (mês)" value="R$ 4.2k" trend="+32%" />
       </div>
       <div className="grid lg:grid-cols-[1.6fr_1fr] gap-4">
-        <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5">
+        <div className="rounded-2xl border border-border bg-card p-5">
           <h3 className="font-display text-[15px] font-semibold">Atendimentos · 14 dias</h3>
           <p className="text-xs text-muted-foreground mb-3">recebidas vs respondidas pela IA</p>
           <MiniAreaChart data={series} />
         </div>
         <AgentStatusCard status="connected" numero="+55 11 99999-0000" tempoMedio="3,2s" taxaQualificacao="62%" />
       </div>
-      <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5">
+      <div className="rounded-2xl border border-border bg-card p-5">
         <h3 className="font-display text-[15px] font-semibold">Últimas mensagens</h3>
         <p className="text-xs text-muted-foreground mb-2">atividade recente</p>
         <MessageTimeline items={last.map((m) => ({ id: m.id, nome: m.nome, autor: m.autor, texto: m.texto, quando: m.quando }))} />

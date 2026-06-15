@@ -85,7 +85,7 @@ function EntrarPage() {
           </div>
         </div>
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-          <TabsList className="grid grid-cols-2 mb-5 bg-white/[0.03] border border-white/5">
+          <TabsList className="grid grid-cols-2 mb-5 bg-muted/40 border border-border">
             <TabsTrigger value="login">Entrar</TabsTrigger>
             <TabsTrigger value="signup">Criar conta</TabsTrigger>
           </TabsList>

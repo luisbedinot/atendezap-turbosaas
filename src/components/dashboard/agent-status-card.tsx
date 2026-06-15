@@ -12,10 +12,10 @@ export function AgentStatusCard({
   const sub = status === "connected" ? "respondendo automaticamente" : status === "connecting" ? "preparando conexão" : "configure a conexão";
   const dotColor = status === "connected" ? "#00E676" : status === "connecting" ? "#FFB020" : "#FF5A5A";
   return (
-    <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5">
+    <div className="rounded-2xl border border-border bg-card p-5">
       <h3 className="font-display text-[15px] font-semibold">Status do Agente</h3>
       <p className="text-xs text-muted-foreground mb-4">tempo real</p>
-      <div className="flex items-center gap-3.5 pb-4 border-b border-white/8">
+      <div className="flex items-center gap-3.5 pb-4 border-b border-border">
         <div className="size-13 w-[52px] h-[52px] rounded-2xl grid place-items-center text-[#00E676] bg-[rgba(37,211,102,.14)]">
           <Bot className="size-6" />
         </div>
@@ -41,7 +41,7 @@ export function AgentStatusCard({
 
 function Row({ label, value, accent, mono }: { label: string; value: string; accent?: boolean; mono?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-2.5 text-sm border-t border-white/8 first:border-t-0">
+    <div className="flex items-center justify-between py-2.5 text-sm border-t border-border first:border-t-0">
       <span className="text-muted-foreground">{label}</span>
       <b className={`${accent ? "text-[var(--brand-strong)]" : ""} ${mono ? "font-mono text-xs" : ""}`}>{value}</b>
     </div>

@@ -63,10 +63,10 @@ function ConversasDemo() {
         </div>
       </header>
 
-      <div className="grid md:grid-cols-[300px_1fr] xl:grid-cols-[300px_1fr_260px] gap-0 border border-white/8 rounded-2xl overflow-hidden h-[calc(100vh-180px)] min-h-[480px] bg-[var(--panel)]">
+      <div className="grid md:grid-cols-[300px_1fr] xl:grid-cols-[300px_1fr_260px] gap-0 border border-border rounded-2xl overflow-hidden h-[calc(100vh-180px)] min-h-[480px] bg-card">
         {/* LISTA */}
-        <aside className="border-r border-white/8 flex flex-col min-h-0 bg-[var(--panel)]">
-          <div className="p-3 border-b border-white/8">
+        <aside className="border-r border-border flex flex-col min-h-0 bg-card">
+          <div className="p-3 border-b border-border">
             <Input placeholder="Buscar contato…" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <ul className="flex-1 overflow-auto">
@@ -76,14 +76,14 @@ function ConversasDemo() {
                 <li key={c.numero}>
                   <button
                     onClick={() => setActive(c.numero)}
-                    className={`relative w-full text-left flex gap-3 p-3 border-b border-white/8 transition-colors ${on ? "bg-[rgba(37,211,102,.08)]" : "hover:bg-white/[0.03]"}`}
+                    className={`relative w-full text-left flex gap-3 p-3 border-b border-border transition-colors ${on ? "bg-[rgba(37,211,102,.08)]" : "hover:bg-muted/40"}`}
                   >
                     {on && <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--brand)]" />}
                     <InitialsAvatar name={c.nome || c.numero} size={38} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <b className="text-[13px] truncate">{c.nome}</b>
-                        <span className="ml-auto text-[10.5px] text-[var(--dim,#5f7a6d)] whitespace-nowrap">
+                        <span className="ml-auto text-[10.5px] text-muted-foreground whitespace-nowrap">
                           {c.last.quando.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
@@ -104,7 +104,7 @@ function ConversasDemo() {
             </div>
           ) : (
             <>
-              <header className="flex items-center gap-3 px-4 py-3 border-b border-white/8">
+              <header className="flex items-center gap-3 px-4 py-3 border-b border-border">
                 <InitialsAvatar name={activeConv?.nome || active} size={36} />
                 <div className="min-w-0">
                   <div className="font-semibold text-sm truncate">{activeConv?.nome || active}</div>
@@ -125,13 +125,13 @@ function ConversasDemo() {
               </div>
               <form
                 onSubmit={(e) => { e.preventDefault(); setComposer(""); }}
-                className="px-4 py-3 border-t border-white/8 flex gap-2 items-center"
+                className="px-4 py-3 border-t border-border flex gap-2 items-center"
               >
                 <input
                   value={composer}
                   onChange={(e) => setComposer(e.target.value)}
                   placeholder="Digite uma mensagem… (demo)"
-                  className="flex-1 bg-[var(--background)] border border-white/8 rounded-full px-4 py-2.5 text-sm outline-none focus:border-[var(--brand)]/60"
+                  className="flex-1 bg-background border border-border rounded-full px-4 py-2.5 text-sm outline-none focus:border-[var(--brand)]/60"
                 />
                 <button
                   type="submit"
@@ -146,12 +146,12 @@ function ConversasDemo() {
         </section>
 
         {/* INFO */}
-        <aside className="hidden xl:flex flex-col gap-3 border-l border-white/8 p-4 bg-[var(--panel)] overflow-auto">
+        <aside className="hidden xl:flex flex-col gap-3 border-l border-border p-4 bg-card overflow-auto">
           {!active ? (
             <p className="text-xs text-muted-foreground text-center mt-6">Selecione uma conversa para ver os detalhes.</p>
           ) : (
             <>
-              <div className="flex flex-col items-center text-center gap-2 pb-3 border-b border-white/8">
+              <div className="flex flex-col items-center text-center gap-2 pb-3 border-b border-border">
                 <InitialsAvatar name={activeConv?.nome || active} size={72} />
                 <div>
                   <div className="font-semibold text-sm">{activeConv?.nome || active}</div>
@@ -166,8 +166,8 @@ function ConversasDemo() {
               </div>
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">Tags</div>
-                <span className="inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/[0.06] text-muted-foreground mr-1 mb-1">whatsapp</span>
-                <span className="inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/[0.06] text-muted-foreground mr-1 mb-1">{stage}</span>
+                <span className="inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full bg-muted text-muted-foreground mr-1 mb-1">whatsapp</span>
+                <span className="inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full bg-muted text-muted-foreground mr-1 mb-1">{stage}</span>
               </div>
               {activeCard?.observacao && (
                 <div>
@@ -175,7 +175,7 @@ function ConversasDemo() {
                   <p className="text-[12.5px] text-foreground/80 whitespace-pre-wrap">{activeCard.observacao}</p>
                 </div>
               )}
-              <div className="mt-auto pt-3 border-t border-white/8 text-[11px] text-muted-foreground flex items-center gap-1.5">
+              <div className="mt-auto pt-3 border-t border-border text-[11px] text-muted-foreground flex items-center gap-1.5">
                 <User className="size-3" /> {thread.length} mensagens nesta conversa
               </div>
             </>

@@ -15,7 +15,7 @@ export function MessageTimeline({ items, empty }: { items: TimelineItem[]; empty
   return (
     <ul>
       {items.map((m) => (
-        <li key={m.id} className="flex gap-3 py-4 border-b border-white/8 last:border-b-0">
+        <li key={m.id} className="flex gap-3 py-4 border-b border-border last:border-b-0">
           <InitialsAvatar name={m.nome} size={40} />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 text-[15px]">
@@ -37,7 +37,7 @@ export function AuthorBadge({ autor }: { autor: "ia" | "humano" | "contato" }) {
   const cls =
     autor === "ia"
       ? "bg-[rgba(37,211,102,.15)] text-[#9af0bd] ring-1 ring-[rgba(37,211,102,.25)]"
-      : "bg-white/[0.06] text-foreground/70 ring-1 ring-white/10";
+      : "bg-muted text-foreground/70 ring-1 ring-white/10";
   const txt = autor === "ia" ? "IA" : autor === "humano" ? "Atendente" : "Contato";
   return <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${cls}`}>{txt}</span>;
 }

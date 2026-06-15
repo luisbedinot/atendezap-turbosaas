@@ -76,7 +76,7 @@ function AgenteDemo() {
               <input type="range" min={0} max={20} step={1} value={c.segundos_buffer} readOnly className="w-full accent-[var(--brand)]" />
               <p className="text-[11px] text-muted-foreground">A IA aguarda esses segundos juntando mensagens caso a pessoa ainda esteja digitando.</p>
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-white/8 bg-[var(--panel-2)] p-3">
+            <div className="flex items-center justify-between rounded-xl border border-border bg-muted p-3">
               <div>
                 <div className="text-sm font-semibold">Responder em partes (humanizado)</div>
                 <div className="text-[11px] text-muted-foreground">Ligado — divide em 1–3 bolhas curtas</div>
@@ -89,13 +89,13 @@ function AgenteDemo() {
         {/* PREVIEW + TEST */}
         <div className="space-y-5 lg:sticky lg:top-4 self-start">
           <Section title="Prompt gerado" icon={<Bot className="size-3.5" />}>
-            <pre className="rounded-xl border border-white/8 bg-[#06100b] p-4 font-mono text-[12px] leading-relaxed text-[#bfe9cf] whitespace-pre-wrap max-h-[360px] overflow-auto">
+            <pre className="rounded-xl border border-border bg-[#06100b] p-4 font-mono text-[12px] leading-relaxed text-[#bfe9cf] whitespace-pre-wrap max-h-[360px] overflow-auto">
 {buildSystemPrompt(c, { responderEmPartes: true })}
             </pre>
           </Section>
 
           <Section title="Testar resposta da IA" icon={<Sparkles className="size-3.5" />}>
-            <div className="rounded-xl border border-white/8 bg-[linear-gradient(180deg,#0a120d,#0b1410)] p-4 space-y-2 min-h-[160px]">
+            <div className="rounded-xl border border-border bg-[linear-gradient(180deg,#0a120d,#0b1410)] p-4 space-y-2 min-h-[160px]">
               <div className="flex justify-end">
                 <div className="max-w-[78%] bg-[#15241c] rounded-2xl rounded-br-md px-3.5 py-2.5 text-[13px]">{testMsg}</div>
               </div>
@@ -115,7 +115,7 @@ function AgenteDemo() {
                 value={testMsg}
                 onChange={(e) => setTestMsg(e.target.value)}
                 placeholder="Mensagem do cliente…"
-                className="flex-1 bg-[var(--background)] border border-white/8 rounded-full px-4 py-2.5 text-sm outline-none focus:border-[var(--brand)]/60"
+                className="flex-1 bg-background border border-border rounded-full px-4 py-2.5 text-sm outline-none focus:border-[var(--brand)]/60"
               />
               <button
                 onClick={runTest}
@@ -134,7 +134,7 @@ function AgenteDemo() {
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5 space-y-3">
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
       <h3 className="font-display text-[12px] font-semibold uppercase tracking-wider text-[var(--brand-strong)] flex items-center gap-1.5">
         {icon}{title}
       </h3>
