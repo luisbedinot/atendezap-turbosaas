@@ -108,6 +108,35 @@ function AgentePage() {
           <Field label="Palavra para pausar" value={cfg.palavra_pausar} onChange={(v) => update("palavra_pausar", v)} />
           <Field label="Palavra para despausar" value={cfg.palavra_despausar} onChange={(v) => update("palavra_despausar", v)} />
         </div>
+
+        <div className="grid md:grid-cols-2 gap-4 pt-2 border-t">
+          <div className="space-y-1.5">
+            <Label>Segundos de espera (buffer)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={20}
+              value={cfg.segundos_buffer}
+              onChange={(e) => update("segundos_buffer", Math.max(0, Math.min(20, Number(e.target.value) || 0)))}
+            />
+            <p className="text-xs text-muted-foreground">
+              A IA aguarda esses segundos antes de responder, juntando as mensagens caso a pessoa ainda esteja digitando. Padrão: 8s.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Responder em partes (humanizado)</Label>
+            <div className="flex items-center gap-3 h-10">
+              <Switch
+                checked={!!cfg.responder_em_partes}
+                onCheckedChange={(v) => update("responder_em_partes", v)}
+              />
+              <span className="text-sm text-muted-foreground">
+                {cfg.responder_em_partes ? "Ligado — responde em 1–3 bolhas curtas" : "Desligado — uma mensagem só"}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div className="flex justify-end">
           <Button onClick={save} disabled={saving}>
             {saving ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Save className="size-4 mr-1.5" />}
