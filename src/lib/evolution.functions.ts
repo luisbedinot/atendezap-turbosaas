@@ -179,6 +179,7 @@ export const setContactIaActive = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const testAiReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { message: string }) => d)
   .handler(async ({ context, data }) => {
