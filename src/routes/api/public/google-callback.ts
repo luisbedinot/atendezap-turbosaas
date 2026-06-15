@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { verifyState } from "@/lib/google.functions";
+import { verifyState } from "@/lib/google.server";
 
 export const Route = createFileRoute("/api/public/google-callback")({
   server: {
