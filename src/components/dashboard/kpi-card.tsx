@@ -18,7 +18,7 @@ export function KpiCard({
         "rounded-2xl border p-6",
         accent
           ? "border-[rgba(37,211,102,.3)] bg-[linear-gradient(160deg,rgba(37,211,102,.14),rgba(37,211,102,.02))]"
-          : "border-white/8 bg-[var(--panel)]",
+          : "border-border bg-card",
         className,
       )}
     >

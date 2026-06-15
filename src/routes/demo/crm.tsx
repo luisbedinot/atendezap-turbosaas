@@ -36,16 +36,16 @@ function CrmDemo() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {COLUMNS.map((col) => (
-          <div key={col.id} className="rounded-2xl border border-white/8 bg-[var(--panel)] p-3.5 min-h-[420px]">
+          <div key={col.id} className="rounded-2xl border border-border bg-card p-3.5 min-h-[420px]">
             <div className="flex items-center gap-2 mb-3.5">
               <span className="size-2.5 rounded-full" style={{ background: col.color, boxShadow: `0 0 8px ${col.color}` }} />
               <b className="font-display text-[13.5px]">{col.label}</b>
-              <span className="ml-auto text-[11px] text-muted-foreground bg-white/[0.06] px-2 py-0.5 rounded-full">{byStatus[col.id].length}</span>
+              <span className="ml-auto text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{byStatus[col.id].length}</span>
             </div>
             <div className="space-y-2.5">
               {byStatus[col.id].map((c) => <CardBody key={c.id} card={c} />)}
               {byStatus[col.id].length === 0 && (
-                <div className="text-[11px] text-muted-foreground text-center py-6 border border-dashed border-white/8 rounded-xl">vazio</div>
+                <div className="text-[11px] text-muted-foreground text-center py-6 border border-dashed border-border rounded-xl">vazio</div>
               )}
             </div>
           </div>
@@ -57,12 +57,12 @@ function CrmDemo() {
 
 function CardBody({ card }: { card: DemoCard }) {
   return (
-    <div className="rounded-xl border border-white/8 bg-[var(--panel-2)] p-3 transition-all hover:border-white/15">
+    <div className="rounded-xl border border-border bg-muted p-3 transition-all hover:border-border">
       <div className="flex items-center gap-2.5">
         <InitialsAvatar name={card.nome || card.numero} size={34} />
         <div className="min-w-0 flex-1">
           <div className="text-[13px] font-semibold truncate">{card.nome}</div>
-          <div className="text-[10.5px] text-[var(--dim,#5f7a6d)] font-mono truncate">{card.numero}</div>
+          <div className="text-[10.5px] text-muted-foreground font-mono truncate">{card.numero}</div>
         </div>
       </div>
       {card.ultima_mensagem && (
@@ -77,7 +77,7 @@ function CardBody({ card }: { card: DemoCard }) {
         <span className="text-[9.5px] font-bold text-[#00E676] bg-[rgba(37,211,102,.12)] px-1.5 py-0.5 rounded-md flex items-center gap-1">
           <Sparkles className="size-2.5" /> IA
         </span>
-        <span className="ml-auto text-[10.5px] text-[var(--dim,#5f7a6d)]">
+        <span className="ml-auto text-[10.5px] text-muted-foreground">
           {card.ultima_em.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} {card.ultima_em.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
         </span>
       </div>

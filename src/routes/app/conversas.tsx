@@ -226,7 +226,7 @@ function ConversasPage() {
                           <span title="IA ativa" className="text-[color:var(--brand-text)]"><Bot className="size-3" /></span>
                         )}
                         {u > 0 && (
-                          <span className="bg-[color:var(--brand)] text-[#04140B] text-[10px] font-bold min-w-[18px] h-[18px] rounded-full grid place-items-center px-1">
+                          <span className="bg-[color:var(--brand)] text-primary-foreground text-[10px] font-bold min-w-[18px] h-[18px] rounded-full grid place-items-center px-1">
                             {u}
                           </span>
                         )}
@@ -289,7 +289,7 @@ function ConversasPage() {
                 />
                 <button
                   type="submit" disabled={sending || !composer.trim()}
-                  className="size-10 rounded-full grid place-items-center text-[#04140B] bg-[color:var(--brand)] hover:brightness-110 transition disabled:opacity-50"
+                  className="size-10 rounded-full grid place-items-center text-primary-foreground bg-[color:var(--brand)] hover:brightness-110 transition disabled:opacity-50"
                   aria-label="Enviar"
                 >
                   <Send className="size-4" />
@@ -377,7 +377,7 @@ function FilterTabs({ value, onChange, counts }: { value: Filter; onChange: (f: 
             value === o.v ? "bg-[color:var(--brand-soft)] text-[color:var(--brand-text)]" : "text-muted-foreground hover:text-foreground"
           }`}>
           {o.label}
-          {o.badge ? <span className="bg-[color:var(--brand)] text-[#04140B] text-[10px] font-bold rounded-full px-1.5 min-w-[18px] h-[18px] grid place-items-center">{o.badge}</span> : null}
+          {o.badge ? <span className="bg-[color:var(--brand)] text-primary-foreground text-[10px] font-bold rounded-full px-1.5 min-w-[18px] h-[18px] grid place-items-center">{o.badge}</span> : null}
         </button>
       ))}
     </div>
@@ -392,7 +392,7 @@ function Bubble({ m }: { m: Msg }) {
       <div
         className={`max-w-[78%] sm:max-w-[62%] px-3.5 py-2.5 text-[13.5px] ${
           isOut
-            ? "bg-[color:var(--brand)] text-[#04140B] rounded-2xl rounded-br-md font-medium"
+            ? "bg-[color:var(--brand)] text-primary-foreground rounded-2xl rounded-br-md font-medium"
             : "bg-[color:var(--panel)] text-foreground rounded-2xl rounded-bl-md border border-[color:var(--hairline)]"
         }`}
       >

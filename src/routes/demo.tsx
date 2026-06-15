@@ -28,7 +28,7 @@ function DemoLayout() {
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Link to="/entrar" className="text-sm font-semibold px-3 py-1.5 rounded-md bg-gradient-brand text-white hover:opacity-90">
+          <Link to="/entrar" className="text-sm font-semibold px-3 py-1.5 rounded-md bg-gradient-brand text-primary-foreground hover:opacity-90">
             Criar conta grátis
           </Link>
         </div>
@@ -37,7 +37,7 @@ function DemoLayout() {
         <aside className="md:w-[260px] md:min-h-screen md:border-r md:border-[color:var(--hairline)] bg-[color:var(--sidebar-bg)] flex md:flex-col">
           <div className="px-5 py-5 flex items-center gap-3 md:border-b md:border-[color:var(--hairline)]">
             <div
-              className="size-10 rounded-xl grid place-items-center text-white shadow-md ring-1 ring-[color:var(--hairline)]"
+              className="size-10 rounded-xl grid place-items-center text-primary-foreground shadow-md ring-1 ring-[color:var(--hairline)]"
               style={{ background: `linear-gradient(135deg, ${PRIMARY}, var(--brand-strong))` }}
             >
               <Zap className="size-5" strokeWidth={2.5} />

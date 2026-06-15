@@ -111,7 +111,7 @@ function ConexaoPage() {
 
         {qr ? (
           <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div className="bg-white p-4 rounded-xl border w-fit mx-auto">
+            <div className="bg-white p-4 rounded-xl border border-border w-fit mx-auto">
               <img src={qr} alt="QR Code WhatsApp" className="size-72 object-contain" />
             </div>
             <div className="space-y-3 text-sm">

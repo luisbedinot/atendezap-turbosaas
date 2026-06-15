@@ -52,7 +52,7 @@ function Painel() {
         <MasterKpi icon={<KanbanSquare className="size-4" />} label="Cards no funil (total)" value={s.cards} />
       </div>
 
-      <div className="rounded-2xl border border-white/8 bg-[var(--panel)] p-5">
+      <div className="rounded-2xl border border-border bg-card p-5">
         <h2 className="font-display text-[15px] font-semibold">Crescimento de empresas</h2>
         <p className="text-xs text-muted-foreground mb-3">últimos 12 meses</p>
         <ResponsiveContainer width="100%" height={260}>
@@ -75,7 +75,7 @@ function MasterKpi({ icon, label, value, trend, accent }: { icon: React.ReactNod
       className={`rounded-2xl border p-4 sm:p-5 ${
         accent
           ? "border-[rgba(255,90,90,.30)] bg-[linear-gradient(160deg,rgba(255,90,90,.14),rgba(255,90,90,.02))]"
-          : "border-white/8 bg-[var(--panel)]"
+          : "border-border bg-card"
       }`}
     >
       <div className="flex items-center gap-2 text-[12.5px] text-muted-foreground">

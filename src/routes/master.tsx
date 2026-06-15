@@ -49,7 +49,7 @@ function MasterLayout() {
       <aside className="md:w-[260px] md:min-h-screen md:border-r md:border-[color:var(--hairline)] bg-[color:var(--sidebar-bg)] flex md:flex-col">
         <div className="px-5 py-5 flex items-center gap-3 md:border-b md:border-[color:var(--hairline)]">
           <div
-            className="size-10 rounded-xl grid place-items-center text-white shadow-md ring-1 ring-[color:var(--hairline)]"
+            className="size-10 rounded-xl grid place-items-center text-primary-foreground shadow-md ring-1 ring-[color:var(--hairline)]"
             style={{ background: `linear-gradient(135deg, ${RED}, #B91C1C)` }}
           >
             <Shield className="size-5" strokeWidth={2.5} />

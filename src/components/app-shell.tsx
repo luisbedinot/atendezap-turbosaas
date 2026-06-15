@@ -125,7 +125,7 @@ function Sidebar({
           <img src={company.logo_url} alt={company.nome} className="size-10 rounded-xl object-cover ring-1 ring-[color:var(--hairline)]" />
         ) : (
           <div
-            className="size-10 rounded-xl grid place-items-center text-white shadow-md ring-1 ring-[color:var(--hairline)]"
+            className="size-10 rounded-xl grid place-items-center text-primary-foreground shadow-md ring-1 ring-[color:var(--hairline)]"
             style={{ background: `linear-gradient(135deg, ${primary}, var(--brand-strong))` }}
           >
             <Zap className="size-5" strokeWidth={2.5} />

@@ -8,7 +8,7 @@ export function TrialBanner({ company }: { company: CompanyRow }) {
 
   return (
     <div
-      className={`px-4 py-2 text-sm flex items-center gap-2 border-b border-white/5 ${
+      className={`px-4 py-2 text-sm flex items-center gap-2 border-b border-border ${
         urgent
           ? "bg-amber-500/10 text-amber-200"
           : "bg-[color:var(--brand)]/10 text-foreground"
