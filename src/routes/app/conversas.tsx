@@ -46,7 +46,7 @@ function ConversasPage() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [cards, setCards] = useState<Record<string, LeadCard>>({});
   const [pauses, setPauses] = useState<Record<string, boolean>>({}); // numero → pausado?
-  const [stages, setStages] = useState<Stage[]>([]);
+  const [stages, setStages] = useState<StageWithTipo[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [unread, setUnread] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
