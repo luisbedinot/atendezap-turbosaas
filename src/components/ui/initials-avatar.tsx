@@ -1,13 +1,5 @@
 import { cn } from "@/lib/utils";
 
-const GRADIENTS = [
-  "linear-gradient(135deg,#22D3EE,#25D366)",
-  "linear-gradient(135deg,#A3E635,#25D366)",
-  "linear-gradient(135deg,#25D366,#22D3EE)",
-  "linear-gradient(135deg,#A3E635,#22D3EE)",
-  "linear-gradient(135deg,#22D3EE,#A3E635)",
-];
-
 function initials(s: string | null | undefined): string {
   if (!s) return "??";
   const parts = s.trim().split(/\s+/);
@@ -15,33 +7,39 @@ function initials(s: string | null | undefined): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function hash(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
-}
-
 export function InitialsAvatar({
   name,
   size = 36,
   className,
   forceGradient,
+  variant = "brand",
 }: {
   name: string | null | undefined;
   size?: number;
   className?: string;
+  /** @deprecated kept for backward compatibility — ignored unless variant="solid" */
   forceGradient?: string;
+  variant?: "brand" | "solid";
 }) {
   const key = (name || "?").trim();
-  const grad = forceGradient || GRADIENTS[hash(key) % GRADIENTS.length];
-  const fontSize = Math.max(10, Math.round(size * 0.36));
+  const fontSize = Math.max(11, Math.round(size * 0.38));
+  const style =
+    variant === "solid" && forceGradient
+      ? { width: size, height: size, background: forceGradient, fontSize, color: "#04140B" }
+      : {
+          width: size,
+          height: size,
+          background: "rgba(37,211,102,.15)",
+          color: "#9af0bd",
+          fontSize,
+        };
   return (
     <div
       className={cn(
-        "shrink-0 rounded-full grid place-items-center font-display font-bold text-[#04140B] ring-1 ring-white/10",
+        "shrink-0 rounded-full grid place-items-center font-display font-semibold ring-1 ring-[rgba(37,211,102,.25)]",
         className,
       )}
-      style={{ width: size, height: size, background: grad, fontSize }}
+      style={style}
     >
       {initials(key)}
     </div>
