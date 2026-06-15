@@ -149,7 +149,7 @@ function AgentePage() {
         <h2 className="font-semibold mb-1 flex items-center gap-2"><Bot className="size-4" /> Prompt gerado</h2>
         <p className="text-xs text-muted-foreground mb-3">É exatamente isso que a IA recebe.</p>
         <pre className="text-xs bg-muted/60 rounded-md p-3 whitespace-pre-wrap font-mono max-h-72 overflow-auto">
-{buildSystemPrompt(cfg)}
+{buildSystemPrompt(cfg, { responderEmPartes: cfg.responder_em_partes })}
         </pre>
       </Card>
 
