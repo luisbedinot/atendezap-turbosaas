@@ -214,7 +214,7 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) 
           <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
             <button
               onClick={() => onCta("/entrar")}
-              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl text-black font-semibold btn-glow"
+              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-black font-semibold btn-glow"
               style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
             >
               Começar grátis (14 dias)
@@ -222,13 +222,13 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) 
             </button>
             <button
               onClick={() => onCta("/demo/dashboard")}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass-strong text-white/90 hover:bg-white/10 transition"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl glass-strong text-white/90 hover:bg-white/10 transition"
             >
               <Play className="size-4" /> Ver demonstração
             </button>
           </div>
 
-          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/55">
+          <ul className="mt-6 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/55">
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Sem cartão</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Conecta em 2 minutos</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Cancele quando quiser</li>
