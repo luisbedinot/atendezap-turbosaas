@@ -48,7 +48,6 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const companyId = (inst as any).company_id as string;
           const userId = (inst as any).user_id as string;
 
-          // grava a mensagem que chegou
           const insertedAt = new Date().toISOString();
           const { data: inserted } = await supabaseAdmin
             .from("mensagens")
@@ -76,6 +75,27 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const palavraDespausar = (cfg?.palavra_despausar || "/despausar").toLowerCase().trim();
           const lower = text.toLowerCase().trim();
 
+          // Carrega etapas e produtos da company (uma vez)
+          const [{ data: stagesRows }, { data: produtosRows }] = await Promise.all([
+            supabaseAdmin
+              .from("crm_stage")
+              .select("id, nome, tipo, ordem")
+              .eq("company_id", companyId)
+              .order("ordem", { ascending: true }),
+            supabaseAdmin
+              .from("produto")
+              .select("nome, preco, descricao, ativo, ordem")
+              .eq("company_id", companyId)
+              .eq("ativo", true)
+              .order("ordem", { ascending: true }),
+          ]);
+          const stages = (stagesRows ?? []) as Array<{ id: string; nome: string; tipo: "normal" | "ganho" | "perda" }>;
+          const produtos = (produtosRows ?? []).map((p: any) => ({
+            nome: p.nome,
+            preco: p.preco,
+            descricao: p.descricao,
+          }));
+
           if (lower === palavraPausar) {
             await supabaseAdmin
               .from("contact_pause")
@@ -95,17 +115,15 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             .eq("numero", number)
             .maybeSingle();
           if (pauseRow?.pausado) {
-            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text);
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
             return new Response("paused-contact", { status: 200 });
           }
 
-          // BUFFER — aguarda mais mensagens do mesmo contato
           const bufferSec = Math.max(0, Math.min(20, Number(cfg?.segundos_buffer ?? 8)));
           if (bufferSec > 0) {
             await new Promise((r) => setTimeout(r, bufferSec * 1000));
           }
 
-          // se já chegou uma mensagem mais nova do contato DEPOIS desta, abandona — a mais nova responde
           const { data: newer } = await supabaseAdmin
             .from("mensagens")
             .select("id, created_at")
@@ -115,11 +133,10 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             .gt("created_at", myCreatedAt)
             .limit(1);
           if (newer && newer.length > 0) {
-            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text);
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
             return new Response("superseded", { status: 200 });
           }
 
-          // se um humano (atendente) respondeu manualmente nos últimos 90s, não atropela
           const { data: humanRecent } = await supabaseAdmin
             .from("mensagens")
             .select("id, created_at, autor")
@@ -130,11 +147,10 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             .gte("created_at", new Date(Date.now() - 90_000).toISOString())
             .limit(1);
           if (humanRecent && humanRecent.length > 0) {
-            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text);
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
             return new Response("human-active", { status: 200 });
           }
 
-          // carrega histórico (~25 últimas) em ordem cronológica
           const { data: histDesc } = await supabaseAdmin
             .from("mensagens")
             .select("autor,direcao,texto,created_at")
@@ -144,14 +160,13 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             .limit(25);
           const historico = (histDesc ?? []).slice().reverse();
 
-          // estágio atual do CRM
           const { data: cardRow } = await supabaseAdmin
             .from("crm_cards")
-            .select("status, nome")
+            .select("status, nome, stage_id")
             .eq("company_id", companyId)
             .eq("numero", number)
             .maybeSingle();
-          const estagioAtual = cardRow?.status || "conversas";
+          const estagioAtual = cardRow?.status || stages[0]?.nome || "Conversas";
           const resumoContato = `${cardRow?.nome || pushName || "Contato"} (${number}), ${historico.length} mensagens trocadas`;
 
           const responderEmPartes = cfg?.responder_em_partes ?? true;
@@ -159,6 +174,8 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             responderEmPartes,
             estagioAtual,
             resumoContato,
+            produtos,
+            stages: stages.map((s) => ({ nome: s.nome, tipo: s.tipo })),
           });
 
           const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
@@ -179,7 +196,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             console.error("[ai]", e?.message);
           }
 
-          const { parts, stage } = parseAiOutput(rawReply);
+          const { parts, stage } = parseAiOutput(rawReply, stages.map((s) => ({ nome: s.nome, tipo: s.tipo })));
           const finalParts = responderEmPartes ? parts : [parts.join(" ")];
 
           for (let i = 0; i < finalParts.length; i++) {
@@ -214,6 +231,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             number,
             pushName,
             finalParts[finalParts.length - 1] || text,
+            stages,
             stage,
           );
 
@@ -235,30 +253,47 @@ async function upsertCard(
   numero: string,
   nome: string | undefined,
   ultimaMensagem: string,
-  status?: "conversas" | "negociando" | "ganho" | "perda",
+  stages: Array<{ id: string; nome: string; tipo: "normal" | "ganho" | "perda" }>,
+  proposedStageName?: string | null,
 ) {
   const { data: existing } = await admin
     .from("crm_cards")
-    .select("status,nome")
+    .select("status, nome, stage_id")
     .eq("company_id", companyId)
     .eq("numero", numero)
     .maybeSingle();
-  const finalStatus =
-    status && !(existing?.status === "ganho" || existing?.status === "perda")
-      ? status
-      : existing?.status || status || "conversas";
+
+  const stageByName = new Map(stages.map((s) => [s.nome.toLowerCase(), s]));
+  const stageById = new Map(stages.map((s) => [s.id, s]));
+
+  const currentStage = existing?.stage_id ? stageById.get(existing.stage_id) : undefined;
+  const currentTipo = currentStage?.tipo ?? (existing?.status ? stageByName.get(String(existing.status).toLowerCase())?.tipo : undefined);
+  const isLocked = currentTipo === "ganho" || currentTipo === "perda";
+
+  const proposed = proposedStageName ? stageByName.get(proposedStageName.toLowerCase()) : undefined;
+
+  let finalStage = currentStage;
+  if (proposed && !isLocked) finalStage = proposed;
+  if (!finalStage) finalStage = stages[0]; // fallback
+
+  const payload: any = {
+    company_id: companyId,
+    user_id: userId,
+    numero,
+    nome: existing?.nome || nome || null,
+    ultima_mensagem: ultimaMensagem.slice(0, 240),
+    ultima_em: new Date().toISOString(),
+  };
+  if (finalStage) {
+    payload.stage_id = finalStage.id;
+    payload.status = finalStage.nome;
+  } else if (existing?.status) {
+    payload.status = existing.status;
+  } else {
+    payload.status = "Conversas";
+  }
+
   await admin
     .from("crm_cards")
-    .upsert(
-      {
-        company_id: companyId,
-        user_id: userId,
-        numero,
-        nome: existing?.nome || nome || null,
-        status: finalStatus,
-        ultima_mensagem: ultimaMensagem.slice(0, 240),
-        ultima_em: new Date().toISOString(),
-      },
-      { onConflict: "company_id,numero" },
-    );
+    .upsert(payload, { onConflict: "company_id,numero" });
 }
