@@ -18,6 +18,9 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MasterPainelRouteImport } from './routes/master/painel'
+import { Route as MasterNovaEmpresaRouteImport } from './routes/master/nova-empresa'
+import { Route as MasterEmpresasRouteImport } from './routes/master/empresas'
+import { Route as MasterConfiguracoesRouteImport } from './routes/master/configuracoes'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
@@ -74,6 +77,21 @@ const IndexRoute = IndexRouteImport.update({
 const MasterPainelRoute = MasterPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
+  getParentRoute: () => MasterRoute,
+} as any)
+const MasterNovaEmpresaRoute = MasterNovaEmpresaRouteImport.update({
+  id: '/nova-empresa',
+  path: '/nova-empresa',
+  getParentRoute: () => MasterRoute,
+} as any)
+const MasterEmpresasRoute = MasterEmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => MasterRoute,
+} as any)
+const MasterConfiguracoesRoute = MasterConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => MasterRoute,
 } as any)
 const DemoDashboardRoute = DemoDashboardRouteImport.update({
@@ -158,6 +176,9 @@ export interface FileRoutesByFullPath {
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/configuracoes': typeof MasterConfiguracoesRoute
+  '/master/empresas': typeof MasterEmpresasRoute
+  '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
@@ -181,6 +202,9 @@ export interface FileRoutesByTo {
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/configuracoes': typeof MasterConfiguracoesRoute
+  '/master/empresas': typeof MasterEmpresasRoute
+  '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
@@ -205,6 +229,9 @@ export interface FileRoutesById {
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/demo/dashboard': typeof DemoDashboardRoute
+  '/master/configuracoes': typeof MasterConfiguracoesRoute
+  '/master/empresas': typeof MasterEmpresasRoute
+  '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
 }
@@ -230,6 +257,9 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/dashboard'
+    | '/master/configuracoes'
+    | '/master/empresas'
+    | '/master/nova-empresa'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -253,6 +283,9 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/dashboard'
+    | '/master/configuracoes'
+    | '/master/empresas'
+    | '/master/nova-empresa'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
   id:
@@ -276,6 +309,9 @@ export interface FileRouteTypes {
     | '/app/onboarding'
     | '/app/relatorios'
     | '/demo/dashboard'
+    | '/master/configuracoes'
+    | '/master/empresas'
+    | '/master/nova-empresa'
     | '/master/painel'
     | '/api/public/whatsapp-webhook'
   fileRoutesById: FileRoutesById
@@ -355,6 +391,27 @@ declare module '@tanstack/react-router' {
       path: '/painel'
       fullPath: '/master/painel'
       preLoaderRoute: typeof MasterPainelRouteImport
+      parentRoute: typeof MasterRoute
+    }
+    '/master/nova-empresa': {
+      id: '/master/nova-empresa'
+      path: '/nova-empresa'
+      fullPath: '/master/nova-empresa'
+      preLoaderRoute: typeof MasterNovaEmpresaRouteImport
+      parentRoute: typeof MasterRoute
+    }
+    '/master/empresas': {
+      id: '/master/empresas'
+      path: '/empresas'
+      fullPath: '/master/empresas'
+      preLoaderRoute: typeof MasterEmpresasRouteImport
+      parentRoute: typeof MasterRoute
+    }
+    '/master/configuracoes': {
+      id: '/master/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/master/configuracoes'
+      preLoaderRoute: typeof MasterConfiguracoesRouteImport
       parentRoute: typeof MasterRoute
     }
     '/demo/dashboard': {
@@ -483,10 +540,16 @@ const DemoRouteChildren: DemoRouteChildren = {
 const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
 
 interface MasterRouteChildren {
+  MasterConfiguracoesRoute: typeof MasterConfiguracoesRoute
+  MasterEmpresasRoute: typeof MasterEmpresasRoute
+  MasterNovaEmpresaRoute: typeof MasterNovaEmpresaRoute
   MasterPainelRoute: typeof MasterPainelRoute
 }
 
 const MasterRouteChildren: MasterRouteChildren = {
+  MasterConfiguracoesRoute: MasterConfiguracoesRoute,
+  MasterEmpresasRoute: MasterEmpresasRoute,
+  MasterNovaEmpresaRoute: MasterNovaEmpresaRoute,
   MasterPainelRoute: MasterPainelRoute,
 }
 
@@ -507,13 +570,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
