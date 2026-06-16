@@ -68,7 +68,10 @@ export type Database = {
       agent_config: {
         Row: {
           agendamento_ativo: boolean
+          ai_model: string
+          ai_provider: string
           antecedencia_min: string
+          anthropic_api_key: string
           apresentacao: string
           como_vender: string
           company_id: string
@@ -86,6 +89,7 @@ export type Database = {
           nome_empresa: string
           objecoes: string
           ofertas: string
+          openai_api_key: string
           palavra_despausar: string
           palavra_pausar: string
           papel_objetivo: string
@@ -112,7 +116,10 @@ export type Database = {
         }
         Insert: {
           agendamento_ativo?: boolean
+          ai_model?: string
+          ai_provider?: string
           antecedencia_min?: string
+          anthropic_api_key?: string
           apresentacao?: string
           como_vender?: string
           company_id: string
@@ -130,6 +137,7 @@ export type Database = {
           nome_empresa?: string
           objecoes?: string
           ofertas?: string
+          openai_api_key?: string
           palavra_despausar?: string
           palavra_pausar?: string
           papel_objetivo?: string
@@ -156,7 +164,10 @@ export type Database = {
         }
         Update: {
           agendamento_ativo?: boolean
+          ai_model?: string
+          ai_provider?: string
           antecedencia_min?: string
+          anthropic_api_key?: string
           apresentacao?: string
           como_vender?: string
           company_id?: string
@@ -174,6 +185,7 @@ export type Database = {
           nome_empresa?: string
           objecoes?: string
           ofertas?: string
+          openai_api_key?: string
           palavra_despausar?: string
           palavra_pausar?: string
           papel_objetivo?: string
