@@ -510,7 +510,7 @@ function HowItWorks() {
     },
   ];
   return (
-    <section id="como" className="px-5 md:px-8 py-20">
+    <section id="como" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow="Como funciona" title={<>Em 3 passos. <span className="text-grad">Sério.</span></>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
@@ -541,7 +541,7 @@ function Features() {
     { t: "Relatórios que mostram o dinheiro", d: "Tempo de resposta, conversão, taxa de ganho. Decisão em segundos.", icon: <LineChart className="size-5" /> },
   ];
   return (
-    <section id="recursos" className="px-5 md:px-8 py-20">
+    <section id="recursos" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow="Recursos" title={<>Tudo que você precisa pra <span className="text-grad">parar de perder venda</span>.</>} />
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -584,7 +584,7 @@ function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void 
     },
   ];
   return (
-    <section id="planos" className="px-5 md:px-8 py-20">
+    <section id="planos" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow="Planos" title={<>Simples. <span className="text-grad">Direto.</span> Sem pegadinha.</>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5 items-stretch">
@@ -651,7 +651,7 @@ function Testimonials() {
     },
   ];
   return (
-    <section className="px-5 md:px-8 py-20">
+    <section className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
         <SectionTitle eyebrow="Quem usa" title={<>Times que pararam de perder venda <span className="text-grad">no 'oi, sumiu'</span>.</>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
@@ -692,7 +692,7 @@ function Faq() {
   ];
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="faq" className="px-5 md:px-8 py-20">
+    <section id="faq" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-3xl">
         <SectionTitle eyebrow="Dúvidas" title={<>Antes de você perguntar.</>} center />
         <div className="mt-10 space-y-3">
