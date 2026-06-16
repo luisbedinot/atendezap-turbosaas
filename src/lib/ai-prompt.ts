@@ -10,6 +10,13 @@ export interface StageBrief {
 }
 
 export interface AgentConfig {
+  // IA provider
+  ai_provider?: string;
+  ai_model?: string;
+  openai_api_key?: string;
+  anthropic_api_key?: string;
+
+
   // Identidade
   nome_agente: string;
   nome_empresa: string;
