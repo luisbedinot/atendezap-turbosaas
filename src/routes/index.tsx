@@ -603,7 +603,7 @@ function Features() {
 }
 
 /* ===================== PRICING ===================== */
-function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
+function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard" | "#planos", plano?: string) => void }) {
   const plans = [
     {
       slug: "starter",
@@ -790,7 +790,7 @@ function Faq() {
 }
 
 /* ===================== FINAL CTA ===================== */
-function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
+function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard" | "#planos", plano?: string) => void }) {
   return (
     <section className="px-4 sm:px-5 md:px-8 py-20 md:py-28">
       <div
