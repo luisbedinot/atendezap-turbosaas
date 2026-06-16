@@ -67,9 +67,14 @@ function EquipePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Equipe</h1>
-        <p className="text-sm text-muted-foreground">Gerencie quem tem acesso a esta empresa.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Equipe</h1>
+          <p className="text-sm text-muted-foreground">Gerencie quem tem acesso a esta empresa.</p>
+        </div>
+        {!plan.loading && (
+          <PlanUsageBadge label="usuários" used={plan.usage.usuarios} limit={plan.limites.usuarios} />
+        )}
       </div>
 
       <Card className="p-5">
