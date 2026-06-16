@@ -125,8 +125,12 @@ export const setMemberActive = createServerFn({ method: "POST" })
   .inputValidator((d: { memberId: string; ativo: boolean }) => d)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    const { role } = await getOwnedCompanyId(supabase, userId);
+    const { companyId, role } = await getOwnedCompanyId(supabase, userId);
     assertAdmin(role);
+    if (data.ativo) {
+      const { assertWithinLimit } = await import("./plan-limits.server");
+      await assertWithinLimit(companyId, "usuarios");
+    }
     const { error } = await supabase.from("company_user").update({ ativo: data.ativo }).eq("id", data.memberId);
     if (error) throw error;
     return { ok: true };
