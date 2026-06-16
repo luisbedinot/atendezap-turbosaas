@@ -45,6 +45,17 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
     const instanceName = deriveInstanceName(companyId);
     const webhookUrl = buildWebhookUrl();
 
+    // Plan enforcement: só conta como "nova" se ainda não há instância vinculada.
+    const { data: existing } = await supabase
+      .from("whatsapp_instances")
+      .select("instance_name")
+      .eq("company_id", companyId)
+      .maybeSingle();
+    if (!existing) {
+      const { assertWithinLimit } = await import("./plan-limits.server");
+      await assertWithinLimit(companyId, "instancias");
+    }
+
     await supabase
       .from("whatsapp_instances")
       .upsert(
@@ -148,6 +159,8 @@ export const sendWhatsappText = createServerFn({ method: "POST" })
     const { data: inst } = await supabase
       .from("whatsapp_instances").select("instance_name,status").eq("company_id", companyId).maybeSingle();
     if (!inst?.instance_name) throw new Error("WhatsApp não conectado");
+    const { assertWithinLimit } = await import("./plan-limits.server");
+    await assertWithinLimit(companyId, "mensagens");
     const { evoSendText } = await import("./evolution.server");
     try { await evoSendText(inst.instance_name, data.numero, data.texto); }
     catch (e: any) { throw new Error(`Falha ao enviar: ${e?.message ?? e}`); }
@@ -199,14 +212,27 @@ export const testAiReply = createServerFn({ method: "POST" })
       stages,
       produtos,
     });
+
+    // Enforcement: provider precisa estar liberado no plano (Starter = Gemini)
+    const { getCompanyPlan } = await import("./plan-limits.server");
+    const { allowsProvider, PLAN_LABEL } = await import("./plan-features");
+    const plan = await getCompanyPlan(companyId);
+    let provider = ((cfg as any)?.ai_provider || "gemini") as string;
+    let model = ((cfg as any)?.ai_model || "google/gemini-2.5-flash") as string;
+    if (!allowsProvider(plan.slug, provider)) {
+      throw new Error(
+        `O provedor ${provider.toUpperCase()} não está incluso no plano ${PLAN_LABEL[plan.slug]}. Faça upgrade para Pro para usar GPT/Claude.`,
+      );
+    }
+
     const raw = await lovableAiChat(
       [
         { role: "system", content: system },
         { role: "user", content: data.message },
       ],
       {
-        provider: (cfg as any)?.ai_provider || "gemini",
-        model: (cfg as any)?.ai_model || "google/gemini-2.5-flash",
+        provider,
+        model,
         openaiKey: (cfg as any)?.openai_api_key || "",
         anthropicKey: (cfg as any)?.anthropic_api_key || "",
       },

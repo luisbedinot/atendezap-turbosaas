@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Loader2, RefreshCw, Power, QrCode } from "lucide-react";
 import { brand } from "@/config/brand";
 import { connectWhatsapp, checkWhatsappStatus, disconnectWhatsapp } from "@/lib/evolution.functions";
+import { usePlanFeatures } from "@/hooks/use-plan-features";
+import { PlanUsageBadge } from "@/components/plan-usage-badge";
 
 export const Route = createFileRoute("/app/conexao")({
   head: () => ({ meta: [{ title: `${brand.name} — Conexão` }] }),
@@ -18,6 +20,7 @@ function ConexaoPage() {
   const connect = useServerFn(connectWhatsapp);
   const check = useServerFn(checkWhatsappStatus);
   const disconnect = useServerFn(disconnectWhatsapp);
+  const plan = usePlanFeatures();
 
   const [loading, setLoading] = useState(false);
   const [qr, setQr] = useState<string | null>(null);
@@ -78,10 +81,16 @@ function ConexaoPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Conexão WhatsApp</h1>
-        <p className="text-sm text-muted-foreground">Conecte sua linha via Evolution API.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Conexão WhatsApp</h1>
+          <p className="text-sm text-muted-foreground">Conecte sua linha via Evolution API.</p>
+        </div>
+        {!plan.loading && (
+          <PlanUsageBadge label="números" used={plan.usage.instancias} limit={plan.limites.instancias} />
+        )}
       </div>
+
 
       <Card className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">

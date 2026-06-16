@@ -196,11 +196,29 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             messages.push({ role: "user", content: text });
           }
 
+          // Enforcement de plano: bloqueia IA quando estourar mensagens do mês,
+          // ou força Gemini quando o provider escolhido não está no plano.
+          const { isWithinLimit, getCompanyPlan } = await import("@/lib/plan-limits.server");
+          const { allowsProvider } = await import("@/lib/plan-features");
+          const withinMsgs = await isWithinLimit(companyId, "mensagens");
+          if (!withinMsgs) {
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+            console.warn("[plan] limite de mensagens atingido — IA não respondeu", companyId);
+            return new Response("limit", { status: 200 });
+          }
+          const plan = await getCompanyPlan(companyId);
+          let providerChoice = ((cfg as any)?.ai_provider || "gemini") as string;
+          let modelChoice = ((cfg as any)?.ai_model || "google/gemini-2.5-flash") as string;
+          if (!allowsProvider(plan.slug, providerChoice)) {
+            providerChoice = "gemini";
+            modelChoice = "google/gemini-2.5-flash";
+          }
+
           let rawReply = "";
           try {
             rawReply = await lovableAiChat(messages, {
-              provider: (cfg as any)?.ai_provider || "gemini",
-              model: (cfg as any)?.ai_model || "google/gemini-2.5-flash",
+              provider: providerChoice,
+              model: modelChoice,
               openaiKey: (cfg as any)?.openai_api_key || "",
               anthropicKey: (cfg as any)?.anthropic_api_key || "",
             });

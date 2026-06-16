@@ -74,6 +74,23 @@ export const inviteMember = createServerFn({ method: "POST" })
       .maybeSingle();
     if (prof) targetUserId = prof.user_id;
 
+    // Plan enforcement: só conta se o user ainda não é membro ativo
+    if (targetUserId) {
+      const { data: alreadyLinked } = await supabaseAdmin
+        .from("company_user")
+        .select("id, ativo")
+        .eq("company_id", companyId)
+        .eq("user_id", targetUserId)
+        .maybeSingle();
+      if (!alreadyLinked?.ativo) {
+        const { assertWithinLimit } = await import("./plan-limits.server");
+        await assertWithinLimit(companyId, "usuarios");
+      }
+    } else {
+      const { assertWithinLimit } = await import("./plan-limits.server");
+      await assertWithinLimit(companyId, "usuarios");
+    }
+
     let tempPassword: string | null = null;
     if (!targetUserId) {
       tempPassword = Math.random().toString(36).slice(2, 10) + "A1!";
@@ -108,8 +125,12 @@ export const setMemberActive = createServerFn({ method: "POST" })
   .inputValidator((d: { memberId: string; ativo: boolean }) => d)
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    const { role } = await getOwnedCompanyId(supabase, userId);
+    const { companyId, role } = await getOwnedCompanyId(supabase, userId);
     assertAdmin(role);
+    if (data.ativo) {
+      const { assertWithinLimit } = await import("./plan-limits.server");
+      await assertWithinLimit(companyId, "usuarios");
+    }
     const { error } = await supabase.from("company_user").update({ ativo: data.ativo }).eq("id", data.memberId);
     if (error) throw error;
     return { ok: true };

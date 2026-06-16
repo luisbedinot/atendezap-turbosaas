@@ -17,6 +17,8 @@ import { buildSystemPrompt } from "@/lib/ai-prompt";
 import { testAiReply } from "@/lib/evolution.functions";
 import { startGoogleOAuth, disconnectGoogle } from "@/lib/google.functions";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
+import { usePlanFeatures } from "@/hooks/use-plan-features";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/app/agente")({
   head: () => ({ meta: [{ title: `${brand.name} — Agente IA` }] }),
@@ -72,6 +74,10 @@ function AgentePage() {
   const test = useServerFn(testAiReply);
   const gStart = useServerFn(startGoogleOAuth);
   const gDisc = useServerFn(disconnectGoogle);
+  const plan = usePlanFeatures();
+  const allowOpenAI = plan.features.providersIA.includes("openai");
+  const allowAnthropic = plan.features.providersIA.includes("anthropic");
+  const allowGoogleCal = plan.features.googleCalendar;
   const [cfg, setCfg] = useState<any>(DEFAULTS);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [google, setGoogle] = useState<any>(null);
@@ -185,12 +191,18 @@ function AgentePage() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="gemini">Google Gemini — incluso, sem custo extra</SelectItem>
-                      <SelectItem value="openai">OpenAI (GPT) — sua chave</SelectItem>
-                      <SelectItem value="anthropic">Anthropic (Claude) — sua chave</SelectItem>
+                      <SelectItem value="openai" disabled={!allowOpenAI}>
+                        OpenAI (GPT) — sua chave{!allowOpenAI ? " · Pro/Business" : ""}
+                      </SelectItem>
+                      <SelectItem value="anthropic" disabled={!allowAnthropic}>
+                        Anthropic (Claude) — sua chave{!allowAnthropic ? " · Pro/Business" : ""}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Gemini é o padrão e já vem incluso. Para usar GPT ou Claude, cole a chave da sua conta abaixo.
+                    Gemini é o padrão e já vem incluso. {(!allowOpenAI || !allowAnthropic) && (
+                      <>GPT e Claude exigem o plano Pro. <Link to="/app/checkout" className="underline">Fazer upgrade</Link>.</>
+                    )}
                   </p>
                 </div>
 
@@ -345,7 +357,9 @@ function AgentePage() {
                       {google?.email && <div className="text-xs text-muted-foreground">{google.email}</div>}
                       <p className="text-xs text-muted-foreground mt-1">Permite que a IA marque eventos automaticamente.</p>
                     </div>
-                    {google?.conectado
+                    {!allowGoogleCal ? (
+                      <Link to="/app/checkout" className="text-xs underline text-muted-foreground">Disponível no Pro</Link>
+                    ) : google?.conectado
                       ? <Button size="sm" variant="outline" onClick={disconnectG}>Desconectar</Button>
                       : <Button size="sm" onClick={connectGoogle}><LinkIcon className="size-3.5 mr-1" />Conectar</Button>}
                   </div>

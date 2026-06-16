@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { Loader2, UserPlus, Copy } from "lucide-react";
 import { brand } from "@/config/brand";
 import { listTeam, inviteMember, setMemberActive, setMemberRole } from "@/lib/team.functions";
+import { usePlanFeatures } from "@/hooks/use-plan-features";
+import { PlanUsageBadge } from "@/components/plan-usage-badge";
 
 export const Route = createFileRoute("/app/equipe")({
   head: () => ({ meta: [{ title: `${brand.name} — Equipe` }] }),
@@ -30,6 +32,7 @@ function EquipePage() {
   const invite = useServerFn(inviteMember);
   const toggleActive = useServerFn(setMemberActive);
   const changeRole = useServerFn(setMemberRole);
+  const plan = usePlanFeatures();
 
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,16 +60,21 @@ function EquipePage() {
       if (r.tempPassword) {
         setTempPwd(r.tempPassword);
       }
-      await reload();
+      await Promise.all([reload(), plan.refresh()]);
     } catch (e: any) { toast.error(e?.message); }
     finally { setBusy(false); }
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Equipe</h1>
-        <p className="text-sm text-muted-foreground">Gerencie quem tem acesso a esta empresa.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Equipe</h1>
+          <p className="text-sm text-muted-foreground">Gerencie quem tem acesso a esta empresa.</p>
+        </div>
+        {!plan.loading && (
+          <PlanUsageBadge label="usuários" used={plan.usage.usuarios} limit={plan.limites.usuarios} />
+        )}
       </div>
 
       <Card className="p-5">
