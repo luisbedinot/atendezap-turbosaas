@@ -177,25 +177,13 @@ function Onboarding() {
     try {
       await persistPartial(STEPS.length - 1);
 
-      // Cria agente
-      const { data: existing } = await supabase
-        .from("agent_config")
-        .select("id")
-        .eq("company_id", companyId)
-        .maybeSingle();
-      if (existing) {
-        await supabase.from("agent_config").update({
-          ...agente,
-          nome_empresa: nomeFantasia.trim(),
-        }).eq("id", existing.id);
-      } else {
-        await supabase.from("agent_config").insert({
-          company_id: companyId,
-          user_id: ctx.user.id,
-          nome_empresa: nomeFantasia.trim(),
-          ...agente,
-        });
-      }
+      // Upsert agente (PK = company_id)
+      await supabase.from("agent_config").upsert({
+        company_id: companyId,
+        user_id: ctx.user.id,
+        nome_empresa: nomeFantasia.trim(),
+        ...agente,
+      }, { onConflict: "company_id" });
 
       await supabase.from("company").update({
         onboarding_completed: true,
