@@ -24,6 +24,13 @@ const sections = [
     items: [
       { to: "/master/painel", label: "Painel", icon: BarChart3 },
       { to: "/master/empresas", label: "Empresas", icon: Building2 },
+      { to: "/master/assinaturas", label: "Assinaturas", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Catálogo",
+    items: [
+      { to: "/master/planos", label: "Planos", icon: Package },
     ],
   },
   {
@@ -42,8 +49,8 @@ const RED_SOFT_STRONG = "rgba(220,38,38,.22)";
 const mobileItems: MobileNavItem[] = [
   { to: "/master/painel", label: "Painel", icon: BarChart3 },
   { to: "/master/empresas", label: "Empresas", icon: Building2 },
-  { to: "/master/nova-empresa", label: "Nova", icon: Plus },
-  { to: "/master/configuracoes", label: "Config", icon: Settings },
+  { to: "/master/assinaturas", label: "Assinat.", icon: CreditCard },
+  { to: "/master/planos", label: "Planos", icon: Package },
 ];
 
 function MasterLayout() {
