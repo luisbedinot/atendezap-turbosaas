@@ -697,7 +697,7 @@ function Faq() {
   return (
     <section id="faq" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-3xl">
-        <SectionTitle eyebrow="Dúvidas" title={<>Antes de você perguntar.</>} center />
+        <SectionTitle eyebrow="Dúvidas" title={<>Antes de você perguntar.</>} subtitle="As respostas mais comuns de quem tá pensando em começar hoje." />
         <div className="mt-10 space-y-3">
           {items.map((it, i) => {
             const isOpen = open === i;
