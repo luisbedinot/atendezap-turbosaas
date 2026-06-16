@@ -327,30 +327,30 @@ function Header({
 
 
 /* ===================== HERO ===================== */
-function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
+function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard" | "#planos", plano?: string) => void }) {
   return (
     <section className="relative px-4 sm:px-6 md:px-8 pt-12 md:pt-28 pb-16 md:pb-24">
-      <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40" />
+      <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40 pointer-events-none" />
       <div className="mx-auto max-w-7xl grid lg:grid-cols-2 gap-10 md:gap-16 items-center relative">
         <div className="text-center lg:text-left">
           <div className="inline-flex items-center gap-2 text-[13px] px-3.5 py-1.5 rounded-full glass">
             <span className="relative inline-block size-2 rounded-full bg-[#25D366] dot-pulse" />
-            <span className="text-white/80 font-medium">WhatsApp + IA + CRM no automático</span>
+            <span className="text-white/80 font-semibold">WhatsApp + IA + CRM no automático</span>
           </div>
 
-          <h1 className="font-display text-[clamp(2.6rem,8.5vw,6rem)] leading-[0.98] mt-6 tracking-tight">
+          <h1 className="font-display text-[clamp(3rem,10vw,7rem)] leading-[0.92] mt-6 tracking-tight font-black">
             Sua IA atende o WhatsApp <span className="text-grad">24h</span> e organiza o CRM <span className="text-grad">sozinha</span>.
           </h1>
 
-          <p className="mt-6 text-[17px] sm:text-xl text-white/65 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+          <p className="mt-6 text-[17px] sm:text-xl text-white/70 max-w-xl mx-auto lg:mx-0 leading-relaxed">
             Conecte seu número, treine o agente em uma tela e veja cada lead ser respondido na hora,
             qualificado e movido no funil — sem você levantar o dedo.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
             <button
-              onClick={() => onCta("/entrar")}
-              className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-black font-semibold text-[16px] btn-glow"
+              onClick={() => onCta("#planos")}
+              className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-black font-bold text-[16px] btn-glow"
               style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
             >
               Começar 3 dias grátis
@@ -358,13 +358,13 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: str
             </button>
             <button
               onClick={() => onCta("/demo/dashboard")}
-              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl glass-strong text-white/90 hover:bg-white/10 transition text-[16px] font-medium"
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl glass-strong text-white/90 hover:bg-white/10 transition text-[16px] font-semibold cursor-pointer"
             >
               <Play className="size-4" /> Ver demonstração
             </button>
           </div>
 
-          <ul className="mt-7 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/55">
+          <ul className="mt-7 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/65 font-medium">
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> 3 dias grátis</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Conecta em 2 minutos</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Cancele quando quiser</li>
