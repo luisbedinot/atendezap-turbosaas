@@ -838,4 +838,3 @@ function useTheme() {
 
 export const _unused = redirect;
 
-export const _unused = redirect;
