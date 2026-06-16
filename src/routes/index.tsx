@@ -433,13 +433,14 @@ function Bubble({ children, side, delay }: { children: React.ReactNode; side: "l
       data-reveal
     >
       <div
-        className={`max-w-[78%] px-3 py-2 text-[13px] leading-snug rounded-2xl ${isRight ? "rounded-br-sm text-black" : "rounded-bl-sm text-white"}`}
+        className={`max-w-[78%] px-3 py-2 text-[13px] leading-snug rounded-2xl ${isRight ? "rounded-br-sm text-black" : "rounded-bl-sm"}`}
         style={
           isRight
             ? { background: "linear-gradient(135deg,#25D366,#16a34a)", boxShadow: "0 8px 24px -8px rgba(37,211,102,0.5)" }
-            : { background: "#1b2926", border: "1px solid rgba(255,255,255,0.05)" }
+            : { background: "var(--lp-bubble-left-bg)", border: "1px solid var(--lp-bubble-left-bd)", color: "var(--lp-bubble-left-fg)" }
         }
       >
+
         {children}
       </div>
     </div>
