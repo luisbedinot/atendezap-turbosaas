@@ -60,7 +60,7 @@ function EquipePage() {
       if (r.tempPassword) {
         setTempPwd(r.tempPassword);
       }
-      await reload();
+      await Promise.all([reload(), plan.refresh()]);
     } catch (e: any) { toast.error(e?.message); }
     finally { setBusy(false); }
   }
