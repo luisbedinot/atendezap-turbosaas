@@ -17,6 +17,7 @@ import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DemoIndexRouteImport } from './routes/demo/index'
 import { Route as MasterPlanosRouteImport } from './routes/master/planos'
 import { Route as MasterPainelRouteImport } from './routes/master/painel'
 import { Route as MasterNovaEmpresaRouteImport } from './routes/master/nova-empresa'
@@ -87,6 +88,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DemoIndexRoute = DemoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DemoRoute,
 } as any)
 const MasterPlanosRoute = MasterPlanosRouteImport.update({
   id: '/planos',
@@ -276,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/master/planos': typeof MasterPlanosRoute
+  '/demo/': typeof DemoIndexRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
@@ -284,7 +291,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
-  '/demo': typeof DemoRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/master': typeof MasterRouteWithChildren
@@ -316,6 +322,7 @@ export interface FileRoutesByTo {
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/master/planos': typeof MasterPlanosRoute
+  '/demo': typeof DemoIndexRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
@@ -357,6 +364,7 @@ export interface FileRoutesById {
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
   '/master/planos': typeof MasterPlanosRoute
+  '/demo/': typeof DemoIndexRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
@@ -399,6 +407,7 @@ export interface FileRouteTypes {
     | '/master/nova-empresa'
     | '/master/painel'
     | '/master/planos'
+    | '/demo/'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
@@ -407,7 +416,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/app'
-    | '/demo'
     | '/entrar'
     | '/esqueci-senha'
     | '/master'
@@ -439,6 +447,7 @@ export interface FileRouteTypes {
     | '/master/nova-empresa'
     | '/master/painel'
     | '/master/planos'
+    | '/demo'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
@@ -479,6 +488,7 @@ export interface FileRouteTypes {
     | '/master/nova-empresa'
     | '/master/painel'
     | '/master/planos'
+    | '/demo/'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
@@ -556,6 +566,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/demo/': {
+      id: '/demo/'
+      path: '/'
+      fullPath: '/demo/'
+      preLoaderRoute: typeof DemoIndexRouteImport
+      parentRoute: typeof DemoRoute
     }
     '/master/planos': {
       id: '/master/planos'
@@ -822,6 +839,7 @@ interface DemoRouteChildren {
   DemoDashboardRoute: typeof DemoDashboardRoute
   DemoEquipeRoute: typeof DemoEquipeRoute
   DemoRelatoriosRoute: typeof DemoRelatoriosRoute
+  DemoIndexRoute: typeof DemoIndexRoute
 }
 
 const DemoRouteChildren: DemoRouteChildren = {
@@ -834,6 +852,7 @@ const DemoRouteChildren: DemoRouteChildren = {
   DemoDashboardRoute: DemoDashboardRoute,
   DemoEquipeRoute: DemoEquipeRoute,
   DemoRelatoriosRoute: DemoRelatoriosRoute,
+  DemoIndexRoute: DemoIndexRoute,
 }
 
 const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
