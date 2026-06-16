@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Conecte seu número de WhatsApp em 2 minutos. A IA do AtendeZap responde, qualifica e move cada lead no funil automaticamente. 14 dias grátis, sem cartão.",
+          "Conecte seu número de WhatsApp em 2 minutos. A IA do AtendeZap responde, qualifica e move cada lead no funil automaticamente. 3 dias grátis para testar.",
       },
       { property: "og:title", content: `${brand.name} — WhatsApp + IA + CRM no automático` },
       {
@@ -313,7 +313,7 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: str
               className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-black font-semibold text-[16px] btn-glow"
               style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
             >
-              Começar grátis (14 dias)
+              Começar 3 dias grátis
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
             </button>
             <button
@@ -325,7 +325,7 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: str
           </div>
 
           <ul className="mt-7 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/55">
-            <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Sem cartão</li>
+            <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> 3 dias grátis</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Conecta em 2 minutos</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Cancele quando quiser</li>
           </ul>
@@ -744,7 +744,7 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?:
             Pare de perder venda no <span className="text-grad">"oi, sumiu"</span>.
           </h2>
           <p className="mt-6 text-white/70 max-w-xl mx-auto text-lg sm:text-xl">
-            14 dias grátis. Sem cartão. Liga em 2 minutos. Você vai ver os leads sendo respondidos na hora.
+            3 dias grátis pra ver a IA atendendo seu WhatsApp e fechando lead sozinha. Cancele antes e não paga nada.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row flex-wrap justify-center gap-3">
             <button
