@@ -84,7 +84,7 @@ function ConversasDemo() {
                       <div className="flex items-center gap-1.5">
                         <b className="text-[13px] truncate">{c.nome}</b>
                         <span className="ml-auto text-[10.5px] text-muted-foreground whitespace-nowrap">
-                          {c.last.quando.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          {c.last.quando.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}
                         </span>
                       </div>
                       <p className="text-[12px] text-muted-foreground truncate mt-0.5">{c.last.texto}</p>
@@ -206,7 +206,7 @@ function Bubble({ m }: { m: DemoMsg }) {
         {!isOut && <span className="block mb-1"><AuthorBadge autor={m.autor} /></span>}
         <div className="whitespace-pre-wrap break-words">{m.texto}</div>
         <div className={`text-[10px] mt-1 ${isOut ? "opacity-70" : "text-muted-foreground"}`}>
-          {m.quando.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          {m.quando.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}
         </div>
       </div>
     </div>

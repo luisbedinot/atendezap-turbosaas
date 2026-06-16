@@ -78,7 +78,7 @@ function CardBody({ card }: { card: DemoCard }) {
           <Sparkles className="size-2.5" /> IA
         </span>
         <span className="ml-auto text-[10.5px] text-muted-foreground">
-          {card.ultima_em.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} {card.ultima_em.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          {card.ultima_em.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo" })} {card.ultima_em.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}
         </span>
       </div>
     </div>
