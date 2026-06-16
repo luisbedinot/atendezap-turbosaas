@@ -7,7 +7,9 @@ export type DemoMsg = {
   texto: string; quando: Date;
 };
 
-const NOW = Date.now();
+// Timestamp FIXO para evitar hydration mismatch entre SSR e client.
+// Datas relativas a esse ponto mantêm os textos "há X min" estáveis no demo.
+const NOW = new Date("2026-06-16T14:30:00.000Z").getTime();
 const m = (min: number) => new Date(NOW - min * 60000);
 
 const seedContatos = [

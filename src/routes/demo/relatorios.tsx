@@ -21,10 +21,11 @@ function RelatoriosDemo() {
   const [period, setPeriod] = useState("7d");
   const days = PERIODS.find((p) => p.id === period)?.days ?? 7;
 
+  // Série determinística (sem Math.random) para evitar hydration mismatch SSR/client.
   const series: AreaPoint[] = Array.from({ length: days === 1 ? 24 : days }, (_, i) => ({
     label: String(i),
-    a: 6 + Math.round(Math.sin(i * 0.7) * 5 + i * 0.4 + Math.random() * 4),
-    b: 4 + Math.round(Math.sin(i * 0.5) * 4 + i * 0.3 + Math.random() * 3),
+    a: 6 + Math.round(Math.sin(i * 0.7) * 5 + i * 0.4 + Math.abs(Math.sin(i * 1.3)) * 4),
+    b: 4 + Math.round(Math.sin(i * 0.5) * 4 + i * 0.3 + Math.abs(Math.cos(i * 0.9)) * 3),
   }));
 
   const atendentes = [
