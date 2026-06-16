@@ -357,7 +357,9 @@ function AgentePage() {
                       {google?.email && <div className="text-xs text-muted-foreground">{google.email}</div>}
                       <p className="text-xs text-muted-foreground mt-1">Permite que a IA marque eventos automaticamente.</p>
                     </div>
-                    {google?.conectado
+                    {!allowGoogleCal ? (
+                      <Link to="/app/checkout" className="text-xs underline text-muted-foreground">Disponível no Pro</Link>
+                    ) : google?.conectado
                       ? <Button size="sm" variant="outline" onClick={disconnectG}>Desconectar</Button>
                       : <Button size="sm" onClick={connectGoogle}><LinkIcon className="size-3.5 mr-1" />Conectar</Button>}
                   </div>
