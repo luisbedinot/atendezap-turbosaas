@@ -17,6 +17,7 @@ import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MasterPlanosRouteImport } from './routes/master/planos'
 import { Route as MasterPainelRouteImport } from './routes/master/painel'
 import { Route as MasterNovaEmpresaRouteImport } from './routes/master/nova-empresa'
 import { Route as MasterEmpresasRouteImport } from './routes/master/empresas'
@@ -83,6 +84,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MasterPlanosRoute = MasterPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => MasterRoute,
 } as any)
 const MasterPainelRoute = MasterPainelRouteImport.update({
   id: '/painel',
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/master/planos': typeof MasterPlanosRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -285,6 +292,7 @@ export interface FileRoutesByTo {
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/master/planos': typeof MasterPlanosRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -322,6 +330,7 @@ export interface FileRoutesById {
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/master/planos': typeof MasterPlanosRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -360,6 +369,7 @@ export interface FileRouteTypes {
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/master/planos'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/api/public/payments/webhook'
@@ -396,6 +406,7 @@ export interface FileRouteTypes {
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/master/planos'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/api/public/payments/webhook'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/master/planos'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/api/public/payments/webhook'
@@ -508,6 +520,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/master/planos': {
+      id: '/master/planos'
+      path: '/planos'
+      fullPath: '/master/planos'
+      preLoaderRoute: typeof MasterPlanosRouteImport
+      parentRoute: typeof MasterRoute
     }
     '/master/painel': {
       id: '/master/painel'
@@ -753,6 +772,7 @@ interface MasterRouteChildren {
   MasterEmpresasRoute: typeof MasterEmpresasRoute
   MasterNovaEmpresaRoute: typeof MasterNovaEmpresaRoute
   MasterPainelRoute: typeof MasterPainelRoute
+  MasterPlanosRoute: typeof MasterPlanosRoute
 }
 
 const MasterRouteChildren: MasterRouteChildren = {
@@ -760,6 +780,7 @@ const MasterRouteChildren: MasterRouteChildren = {
   MasterEmpresasRoute: MasterEmpresasRoute,
   MasterNovaEmpresaRoute: MasterNovaEmpresaRoute,
   MasterPainelRoute: MasterPainelRoute,
+  MasterPlanosRoute: MasterPlanosRoute,
 }
 
 const MasterRouteWithChildren =
