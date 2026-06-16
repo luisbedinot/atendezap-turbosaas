@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Loader2, RefreshCw, Power, QrCode } from "lucide-react";
 import { brand } from "@/config/brand";
 import { connectWhatsapp, checkWhatsappStatus, disconnectWhatsapp } from "@/lib/evolution.functions";
+import { usePlanFeatures } from "@/hooks/use-plan-features";
+import { PlanUsageBadge } from "@/components/plan-usage-badge";
 
 export const Route = createFileRoute("/app/conexao")({
   head: () => ({ meta: [{ title: `${brand.name} — Conexão` }] }),
