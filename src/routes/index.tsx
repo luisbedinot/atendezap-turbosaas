@@ -96,7 +96,7 @@ function Landing() {
 
       <style>{`
         html { scroll-behavior: smooth; }
-        .font-display { font-family: 'Sora', 'Inter', system-ui, sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+        .font-display { font-family: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif; font-weight: 800; letter-spacing: -0.035em; font-variation-settings: "opsz" 96; }
         .text-grad {
           background: linear-gradient(95deg, #25D366 0%, #a3e635 45%, #22d3ee 100%);
           -webkit-background-clip: text;
