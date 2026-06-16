@@ -191,12 +191,18 @@ function AgentePage() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="gemini">Google Gemini — incluso, sem custo extra</SelectItem>
-                      <SelectItem value="openai">OpenAI (GPT) — sua chave</SelectItem>
-                      <SelectItem value="anthropic">Anthropic (Claude) — sua chave</SelectItem>
+                      <SelectItem value="openai" disabled={!allowOpenAI}>
+                        OpenAI (GPT) — sua chave{!allowOpenAI ? " · Pro/Business" : ""}
+                      </SelectItem>
+                      <SelectItem value="anthropic" disabled={!allowAnthropic}>
+                        Anthropic (Claude) — sua chave{!allowAnthropic ? " · Pro/Business" : ""}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Gemini é o padrão e já vem incluso. Para usar GPT ou Claude, cole a chave da sua conta abaixo.
+                    Gemini é o padrão e já vem incluso. {(!allowOpenAI || !allowAnthropic) && (
+                      <>GPT e Claude exigem o plano Pro. <Link to="/app/checkout" className="underline">Fazer upgrade</Link>.</>
+                    )}
                   </p>
                 </div>
 
