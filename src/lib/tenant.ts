@@ -6,8 +6,26 @@ export type CompanyRow = {
   primary_color: string;
   logo_url: string | null;
   telefone: string | null;
-  status_cobranca: "trial" | "ativo" | "suspenso";
+  status_cobranca: "trial" | "ativo" | "suspenso" | "pendente" | "checkout_pending";
   trial_ate: string;
+  onboarding_completed?: boolean | null;
+  onboarding_step?: number | null;
+  tipo_pessoa?: "pf" | "pj" | null;
+  cnpj_cpf?: string | null;
+  razao_social?: string | null;
+  nome_fantasia?: string | null;
+  segmento?: string | null;
+  porte?: string | null;
+  site?: string | null;
+  email_corporativo?: string | null;
+  cep?: string | null;
+  rua?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  pais?: string | null;
 };
 
 export type Membership = {
