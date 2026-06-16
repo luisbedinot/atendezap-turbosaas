@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { createContact, importContacts } from "@/lib/plan.functions";
+import { PlanUsageBadge } from "@/components/plan-usage-badge";
+import { usePlanFeatures } from "@/hooks/use-plan-features";
 
 export const Route = createFileRoute("/app/contatos")({
   head: () => ({ meta: [{ title: `${brand.name} — Contatos` }] }),
