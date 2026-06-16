@@ -45,6 +45,17 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
     const instanceName = deriveInstanceName(companyId);
     const webhookUrl = buildWebhookUrl();
 
+    // Plan enforcement: só conta como "nova" se ainda não há instância vinculada.
+    const { data: existing } = await supabase
+      .from("whatsapp_instances")
+      .select("instance_name")
+      .eq("company_id", companyId)
+      .maybeSingle();
+    if (!existing) {
+      const { assertWithinLimit } = await import("./plan-limits.server");
+      await assertWithinLimit(companyId, "instancias");
+    }
+
     await supabase
       .from("whatsapp_instances")
       .upsert(
