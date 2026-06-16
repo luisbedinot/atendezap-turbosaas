@@ -456,12 +456,12 @@ function Stats() {
     { n: "0", l: "lead esquecido" },
   ];
   return (
-    <section className="px-5 md:px-8 py-10">
-      <div className="mx-auto max-w-6xl glass rounded-2xl grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-white/10 reveal" data-reveal>
+    <section className="px-5 md:px-8 py-12 md:py-16">
+      <div className="mx-auto max-w-6xl glass rounded-3xl grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-white/10 reveal" data-reveal>
         {items.map((it) => (
-          <div key={it.l} className="px-6 py-6 text-center">
-            <div className="font-display text-3xl md:text-4xl text-grad">{it.n}</div>
-            <div className="text-xs uppercase tracking-wider text-white/55 mt-1">{it.l}</div>
+          <div key={it.l} className="px-6 py-8 text-center">
+            <div className="font-display text-4xl md:text-5xl text-grad">{it.n}</div>
+            <div className="text-[11px] uppercase tracking-[0.18em] text-white/55 mt-2 font-semibold">{it.l}</div>
           </div>
         ))}
       </div>
@@ -472,12 +472,12 @@ function Stats() {
 /* ===================== PAIN ===================== */
 function Pain() {
   return (
-    <section className="px-5 md:px-8 py-20">
+    <section className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-3xl text-center reveal" data-reveal>
-        <h2 className="font-display text-3xl md:text-5xl leading-tight">
+        <h2 className="font-display text-4xl md:text-6xl leading-[1.02] tracking-tight">
           Lead que espera, lead que <span className="text-grad">compra do concorrente</span>.
         </h2>
-        <p className="mt-5 text-lg text-white/65 leading-relaxed">
+        <p className="mt-6 text-lg md:text-xl text-white/65 leading-relaxed">
           A primeira empresa a responder vende. Sempre. Enquanto você está dirigindo, atendendo na loja
           ou dormindo, os leads do anúncio que você pagou estão sumindo na fila. O AtendeZap responde
           em segundos, qualifica e já te entrega o lead pronto pra fechar.
