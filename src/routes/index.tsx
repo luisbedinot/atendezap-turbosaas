@@ -589,7 +589,7 @@ function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void 
   return (
     <section id="planos" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Planos" title={<>Simples. <span className="text-grad">Direto.</span> Sem pegadinha.</>} />
+        <SectionTitle eyebrow="Planos" title={<>Simples. <span className="text-grad">Direto.</span> Sem pegadinha.</>} subtitle="Comece grátis por 14 dias. Sem cartão. Cancele quando quiser." />
         <div className="mt-12 grid md:grid-cols-3 gap-5 items-stretch">
           {plans.map((pl) => (
             <div
