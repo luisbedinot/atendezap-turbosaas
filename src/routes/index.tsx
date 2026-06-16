@@ -17,7 +17,10 @@ import {
   Plus,
   Minus,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/")({
   ssr: false,
