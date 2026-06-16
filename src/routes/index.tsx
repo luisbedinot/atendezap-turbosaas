@@ -724,11 +724,12 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void
         className="mx-auto max-w-6xl rounded-3xl p-6 sm:p-10 md:p-16 text-center relative overflow-hidden reveal"
         data-reveal
         style={{
-          background: "linear-gradient(135deg,#0c3a23,#0a1a13)",
-          border: "1px solid rgba(37,211,102,0.3)",
-          boxShadow: "0 40px 120px -40px rgba(37,211,102,0.6)",
+          background: "var(--lp-final-bg)",
+          border: "1px solid var(--lp-final-bd)",
+          boxShadow: "var(--lp-final-shadow)",
         }}
       >
+
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 size-[500px] rounded-full opacity-40 blur-3xl" style={{ background: "radial-gradient(circle,#25D366,transparent 60%)" }} />
         <div className="relative">
           <h2 className="font-display text-3xl sm:text-4xl md:text-6xl leading-tight">
