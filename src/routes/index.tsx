@@ -735,7 +735,7 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void
 
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 size-[500px] rounded-full opacity-40 blur-3xl" style={{ background: "radial-gradient(circle,#25D366,transparent 60%)" }} />
         <div className="relative">
-          <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.98] tracking-tight">
+          <h2 className="font-display text-[clamp(2.6rem,7.5vw,6rem)] leading-[0.95] tracking-tight max-w-4xl mx-auto">
             Pare de perder venda no <span className="text-grad">"oi, sumiu"</span>.
           </h2>
           <p className="mt-6 text-white/70 max-w-xl mx-auto text-lg sm:text-xl">
