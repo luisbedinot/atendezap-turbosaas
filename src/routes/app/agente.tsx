@@ -168,14 +168,78 @@ function AgentePage() {
 
       <div className="grid lg:grid-cols-[1fr_minmax(380px,440px)] gap-6">
         <div>
-          <Tabs defaultValue="negocio">
+          <Tabs defaultValue="modelo">
             <TabsList className="flex flex-wrap h-auto gap-1 bg-transparent p-0 mb-4">
-              {[["negocio","Negócio"],["produtos","Produtos"],["ofertas","Ofertas"],["vendas","Vendas"],
+              {[["modelo","Modelo IA"],["negocio","Negócio"],["produtos","Produtos"],["ofertas","Ofertas"],["vendas","Vendas"],
                 ["suporte","Suporte"],["posvenda","Pós-venda"],["personalidade","Personalidade"],
                 ["agendamento","Agendamento"],["regras","Regras"]].map(([k,l]) => (
                 <TabsTrigger key={k} value={k} className="text-sm">{l}</TabsTrigger>
               ))}
             </TabsList>
+
+            <TabsContent value="modelo" className="space-y-3">
+              <Section title="Cérebro da IA" icon={<Sparkles className="size-3.5" />}>
+                <div className="space-y-1.5">
+                  <Label>Provedor</Label>
+                  <Select value={cfg.ai_provider} onValueChange={(v) => { up("ai_provider", v); up("ai_model", PROVIDER_MODELS[v]?.[0]?.value || ""); }}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gemini">Google Gemini — incluso, sem custo extra</SelectItem>
+                      <SelectItem value="openai">OpenAI (GPT) — sua chave</SelectItem>
+                      <SelectItem value="anthropic">Anthropic (Claude) — sua chave</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Gemini é o padrão e já vem incluso. Para usar GPT ou Claude, cole a chave da sua conta abaixo.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Modelo</Label>
+                  <Select value={cfg.ai_model} onValueChange={(v) => up("ai_model", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {(PROVIDER_MODELS[cfg.ai_provider] || PROVIDER_MODELS.gemini).map((m) => (
+                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {cfg.ai_provider === "openai" && (
+                  <div className="space-y-1.5">
+                    <Label>Chave OpenAI (sk-...)</Label>
+                    <Input type="password" value={cfg.openai_api_key} onChange={(e) => up("openai_api_key", e.target.value)} placeholder="sk-..." />
+                    <p className="text-xs text-muted-foreground">Pegue em platform.openai.com → API Keys. A chave fica salva apenas para sua empresa.</p>
+                  </div>
+                )}
+                {cfg.ai_provider === "anthropic" && (
+                  <div className="space-y-1.5">
+                    <Label>Chave Anthropic (sk-ant-...)</Label>
+                    <Input type="password" value={cfg.anthropic_api_key} onChange={(e) => up("anthropic_api_key", e.target.value)} placeholder="sk-ant-..." />
+                    <p className="text-xs text-muted-foreground">Pegue em console.anthropic.com → API Keys.</p>
+                  </div>
+                )}
+
+                <div className="space-y-2 pt-2">
+                  <Label>Tempo de espera antes de responder</Label>
+                  <p className="text-xs text-muted-foreground">A IA aguarda esse tempo para juntar mensagens enviadas em sequência e responder de uma vez só — parece mais humano.</p>
+                  <div className="flex flex-wrap gap-2">
+                    {BUFFER_PRESETS.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => up("segundos_buffer", s)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition ${cfg.segundos_buffer === s ? "bg-[var(--brand)] text-white border-transparent" : "bg-[var(--panel-2)] border-[var(--border)] hover:border-[var(--brand)]"}`}
+                      >{s}s</button>
+                    ))}
+                  </div>
+                  <Slider value={[cfg.segundos_buffer]} max={30} step={1} onValueChange={([x]) => up("segundos_buffer", x)} />
+                  <div className="text-xs text-muted-foreground font-mono text-right">{cfg.segundos_buffer}s</div>
+                </div>
+              </Section>
+            </TabsContent>
+
 
             <TabsContent value="negocio" className="space-y-3">
               <Section>
