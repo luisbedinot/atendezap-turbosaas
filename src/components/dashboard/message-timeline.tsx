@@ -22,7 +22,7 @@ export function MessageTimeline({ items, empty }: { items: TimelineItem[]; empty
               <b className="truncate font-semibold">{m.nome}</b>
               <AuthorBadge autor={m.autor} />
               <span className="ml-auto text-[12px] text-muted-foreground whitespace-nowrap">
-                {m.quando.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                {m.quando.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })}
               </span>
             </div>
             <p className="text-foreground/70 text-[14px] mt-1 truncate">{m.texto}</p>
