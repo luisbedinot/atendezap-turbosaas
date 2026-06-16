@@ -815,4 +815,27 @@ function useScrollReveal() {
   }, []);
 }
 
+function useTheme() {
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof document === "undefined") return false;
+    return document.documentElement.classList.contains("dark");
+  });
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+  function toggle() {
+    const next = !isDark;
+    setIsDark(next);
+    const root = document.documentElement;
+    if (next) root.classList.add("dark");
+    else root.classList.remove("dark");
+    try {
+      localStorage.setItem("theme", next ? "dark" : "light");
+    } catch {}
+  }
+  return { isDark, toggle };
+}
+
+export const _unused = redirect;
+
 export const _unused = redirect;
