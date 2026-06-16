@@ -557,7 +557,7 @@ function HowItWorks() {
         <SectionTitle eyebrow="Como funciona" title={<>Em 3 passos. <span className="text-grad">Sério.</span></>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {steps.map((s) => (
-            <div key={s.n} className="glass rounded-2xl p-7 relative reveal" data-reveal>
+            <div key={s.n} className="glass border-sheen rounded-2xl p-7 relative reveal" data-reveal>
               <div className="font-display text-5xl text-white/10 absolute right-5 top-4">{s.n}</div>
               <div className="size-11 rounded-xl grid place-items-center" style={{ background: "rgba(37,211,102,0.15)", color: "#25D366" }}>
                 {s.icon}
@@ -588,7 +588,7 @@ function Features() {
         <SectionTitle eyebrow="Recursos" title={<>Tudo que você precisa pra <span className="text-grad">parar de perder venda</span>.</>} />
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((it) => (
-            <div key={it.t} className="glass rounded-2xl p-6 hover:-translate-y-1 transition-transform reveal" data-reveal>
+            <div key={it.t} className="glass border-sheen rounded-2xl p-6 hover:-translate-y-1 transition-transform reveal" data-reveal>
               <div className="size-11 rounded-xl grid place-items-center" style={{ background: "rgba(37,211,102,0.15)", color: "#25D366" }}>
                 {it.icon}
               </div>
@@ -729,7 +729,7 @@ function Testimonials() {
         <SectionTitle eyebrow="Quem usa" title={<>Times que pararam de perder venda <span className="text-grad">no 'oi, sumiu'</span>.</>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {items.map((it) => (
-            <div key={it.n} className="glass rounded-2xl p-6 reveal" data-reveal>
+            <div key={it.n} className="glass border-sheen rounded-2xl p-6 reveal" data-reveal>
               <div className="flex gap-1 text-[#facc15]">
                 {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="size-4 fill-current" />)}
               </div>
@@ -767,12 +767,12 @@ function Faq() {
   return (
     <section id="faq" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-3xl">
-        <SectionTitle eyebrow="Dúvidas" title={<>Antes de você perguntar.</>} center />
+        <SectionTitle eyebrow="Dúvidas" title={<>Antes de você perguntar.</>} />
         <div className="mt-10 space-y-3">
           {items.map((it, i) => {
             const isOpen = open === i;
             return (
-              <div key={it.q} className="glass rounded-2xl overflow-hidden reveal" data-reveal>
+              <div key={it.q} className="glass border-sheen rounded-2xl overflow-hidden reveal" data-reveal>
                 <button onClick={() => setOpen(isOpen ? null : i)} className="w-full px-5 py-4 flex items-center justify-between gap-4 text-left">
                   <span className="font-semibold">{it.q}</span>
                   <span className="size-7 grid place-items-center rounded-full shrink-0" style={{ background: "rgba(37,211,102,0.15)", color: "#25D366" }}>
