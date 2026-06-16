@@ -561,15 +561,17 @@ function Features() {
 }
 
 /* ===================== PRICING ===================== */
-function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function Pricing({ onCta: _onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
   const plans = [
     {
+      slug: "starter",
       n: "Starter",
       p: "R$ 97",
       d: "Pra começar a parar de perder lead hoje.",
-      f: ["1 número de WhatsApp", "IA respondendo 24/7", "CRM Kanban", "14 dias grátis"],
+      f: ["1 número de WhatsApp", "IA respondendo 24/7", "CRM Kanban", "3 dias grátis com cartão"],
     },
     {
+      slug: "pro",
       n: "Pro",
       p: "R$ 197",
       d: "O preferido pra quem já tem time.",
@@ -577,12 +579,16 @@ function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void 
       highlight: true,
     },
     {
-      n: "Scale",
-      p: "R$ 397",
+      slug: "business",
+      n: "Business",
+      p: "R$ 497",
       d: "Pra operações que faturam alto.",
-      f: ["Tudo do Pro", "Branding white-label", "Atendentes ilimitados", "Onboarding 1:1"],
+      f: ["Tudo do Pro", "Múltiplas instâncias", "Atendentes ilimitados", "Onboarding 1:1"],
     },
   ];
+  function start(slug: string) {
+    window.location.href = `/entrar?modo=signup&plano=${slug}`;
+  }
   return (
     <section id="planos" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
@@ -617,18 +623,18 @@ function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void 
                 ))}
               </ul>
               <button
-                onClick={() => onCta("/entrar")}
+                onClick={() => start(pl.slug)}
                 className={`mt-7 w-full px-4 py-3 rounded-xl font-semibold transition ${
                   pl.highlight ? "text-black btn-glow" : "glass-strong text-white hover:bg-white/10"
                 }`}
                 style={pl.highlight ? { background: "linear-gradient(135deg,#25D366,#16a34a)" } : undefined}
               >
-                Começar agora
+                Começar 3 dias grátis
               </button>
             </div>
           ))}
         </div>
-        <p className="mt-5 text-center text-xs text-white/40">Valores de exemplo durante o lançamento.</p>
+        <p className="mt-5 text-center text-xs text-white/40">Cartão é exigido para liberar o trial. Cancele em até 3 dias e não pagamos nada.</p>
       </div>
     </section>
   );

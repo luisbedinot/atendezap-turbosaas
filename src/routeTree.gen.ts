@@ -41,6 +41,7 @@ import { Route as AppConversasRouteImport } from './routes/app/conversas'
 import { Route as AppContatosRouteImport } from './routes/app/contatos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app/configuracoes'
 import { Route as AppConexaoRouteImport } from './routes/app/conexao'
+import { Route as AppCheckoutRouteImport } from './routes/app/checkout'
 import { Route as AppAgenteRouteImport } from './routes/app/agente'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
 import { Route as ApiPublicGoogleCallbackRouteImport } from './routes/api/public/google-callback'
@@ -206,6 +207,11 @@ const AppConexaoRoute = AppConexaoRouteImport.update({
   path: '/conexao',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCheckoutRoute = AppCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAgenteRoute = AppAgenteRouteImport.update({
   id: '/agente',
   path: '/agente',
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/reset-senha': typeof ResetSenhaRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRoute
+  '/app/checkout': typeof AppCheckoutRoute
   '/app/conexao': typeof AppConexaoRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/reset-senha': typeof ResetSenhaRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRoute
+  '/app/checkout': typeof AppCheckoutRoute
   '/app/conexao': typeof AppConexaoRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/reset-senha': typeof ResetSenhaRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRoute
+  '/app/checkout': typeof AppCheckoutRoute
   '/app/conexao': typeof AppConexaoRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/reset-senha'
     | '/trocar-senha'
     | '/app/agente'
+    | '/app/checkout'
     | '/app/conexao'
     | '/app/configuracoes'
     | '/app/contatos'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/reset-senha'
     | '/trocar-senha'
     | '/app/agente'
+    | '/app/checkout'
     | '/app/conexao'
     | '/app/configuracoes'
     | '/app/contatos'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/reset-senha'
     | '/trocar-senha'
     | '/app/agente'
+    | '/app/checkout'
     | '/app/conexao'
     | '/app/configuracoes'
     | '/app/contatos'
@@ -701,6 +713,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConexaoRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/checkout': {
+      id: '/app/checkout'
+      path: '/checkout'
+      fullPath: '/app/checkout'
+      preLoaderRoute: typeof AppCheckoutRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/agente': {
       id: '/app/agente'
       path: '/agente'
@@ -734,6 +753,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAgenteRoute: typeof AppAgenteRoute
+  AppCheckoutRoute: typeof AppCheckoutRoute
   AppConexaoRoute: typeof AppConexaoRoute
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppContatosRoute: typeof AppContatosRoute
@@ -747,6 +767,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAgenteRoute: AppAgenteRoute,
+  AppCheckoutRoute: AppCheckoutRoute,
   AppConexaoRoute: AppConexaoRoute,
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppContatosRoute: AppContatosRoute,

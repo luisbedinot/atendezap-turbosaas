@@ -51,7 +51,7 @@ export const Route = createFileRoute("/app")({
 
     if (!cu) {
       if (isSuperAdmin) throw redirect({ to: "/master/painel" });
-      if (location.pathname !== "/app/onboarding") throw redirect({ to: "/app/onboarding" });
+      if (location.pathname !== "/app/checkout") throw redirect({ to: "/app/checkout" });
       return { user: { id: u.user.id, email: u.user.email }, company: null, membership: null, isSuperAdmin, impersonating: false };
     }
 
@@ -59,9 +59,16 @@ export const Route = createFileRoute("/app")({
       throw redirect({ to: "/trocar-senha" });
     }
 
+    const company = (cu.company as any) as CompanyRow;
+
+    // Empresa criada mas onboarding não finalizado → força wizard
+    if (!company.onboarding_completed && location.pathname !== "/app/onboarding" && location.pathname !== "/app/checkout") {
+      throw redirect({ to: "/app/onboarding" });
+    }
+
     return {
       user: { id: u.user.id, email: u.user.email },
-      company: (cu.company as any) as CompanyRow,
+      company,
       membership: { company_id: cu.company_id, role: cu.role as any, forcar_troca_senha: cu.forcar_troca_senha },
       isSuperAdmin,
       impersonating: false,

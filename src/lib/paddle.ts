@@ -14,8 +14,13 @@ export function getPaddleEnvironment(): "sandbox" | "live" {
 
 let paddleInitialized = false;
 
-export async function initializePaddle() {
-  if (paddleInitialized) return;
+export async function initializePaddle(eventCallback?: (event: any) => void) {
+  if (paddleInitialized) {
+    if (eventCallback && window.Paddle?.Update) {
+      try { window.Paddle.Update({ eventCallback }); } catch {}
+    }
+    return;
+  }
   if (!clientToken) throw new Error("VITE_PAYMENTS_CLIENT_TOKEN não configurado");
   return new Promise<void>((resolve, reject) => {
     const script = document.createElement("script");
@@ -23,7 +28,7 @@ export async function initializePaddle() {
     script.onload = () => {
       const paddleJsEnvironment = getPaddleEnvironment() === "sandbox" ? "sandbox" : "production";
       window.Paddle.Environment.set(paddleJsEnvironment);
-      window.Paddle.Initialize({ token: clientToken });
+      window.Paddle.Initialize({ token: clientToken, eventCallback });
       paddleInitialized = true;
       resolve();
     };
@@ -31,6 +36,7 @@ export async function initializePaddle() {
     document.head.appendChild(script);
   });
 }
+
 
 export async function getPaddlePriceId(priceId: string): Promise<string> {
   const environment = getPaddleEnvironment();
