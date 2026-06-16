@@ -51,7 +51,7 @@ function KanbanPage() {
   useEffect(() => {
     if (!companyId) return;
     void loadAll(companyId);
-    const ch = supabase.channel("crm_realtime")
+    const ch = supabase.channel(`tenant:${companyId}:crm`)
       .on("postgres_changes", { event: "*", schema: "public", table: "crm_cards", filter: `company_id=eq.${companyId}` },
         () => loadAll(companyId))
       .on("postgres_changes", { event: "*", schema: "public", table: "crm_stage", filter: `company_id=eq.${companyId}` },

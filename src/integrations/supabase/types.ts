@@ -716,6 +716,10 @@ export type Database = {
       claim_super_admin_if_empty: { Args: never; Returns: undefined }
       current_company_id: { Args: never; Returns: string }
       has_company_access: { Args: { _company_id: string }; Returns: boolean }
+      has_company_role: {
+        Args: { _company_id: string; _roles: string[] }
+        Returns: boolean
+      }
       is_super_admin: { Args: never; Returns: boolean }
     }
     Enums: {
