@@ -159,6 +159,8 @@ export const sendWhatsappText = createServerFn({ method: "POST" })
     const { data: inst } = await supabase
       .from("whatsapp_instances").select("instance_name,status").eq("company_id", companyId).maybeSingle();
     if (!inst?.instance_name) throw new Error("WhatsApp não conectado");
+    const { assertWithinLimit } = await import("./plan-limits.server");
+    await assertWithinLimit(companyId, "mensagens");
     const { evoSendText } = await import("./evolution.server");
     try { await evoSendText(inst.instance_name, data.numero, data.texto); }
     catch (e: any) { throw new Error(`Falha ao enviar: ${e?.message ?? e}`); }
