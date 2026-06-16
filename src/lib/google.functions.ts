@@ -22,6 +22,13 @@ export const startGoogleOAuth = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true }).limit(1).maybeSingle();
     if (!cu) return { ok: false as const, error: "Sem empresa." };
 
+    const { getCompanyPlan } = await import("@/lib/plan-limits.server");
+    const { featuresFor, PLAN_LABEL } = await import("@/lib/plan-features");
+    const plan = await getCompanyPlan(cu.company_id);
+    if (!featuresFor(plan.slug).googleCalendar) {
+      return { ok: false as const, error: `Google Agenda não está incluso no plano ${PLAN_LABEL[plan.slug]}. Faça upgrade para Pro.` };
+    }
+
     const origin = await buildOrigin();
     const redirectUri = `${origin}/api/public/google-callback`;
     const payload = Buffer.from(JSON.stringify({ companyId: cu.company_id, t: Date.now() })).toString("base64url");
