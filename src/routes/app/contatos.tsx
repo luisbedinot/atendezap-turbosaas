@@ -112,7 +112,10 @@ function ContatosPage() {
           <h1 className="font-display text-[26px] font-extrabold tracking-tight">Contatos</h1>
           <p className="text-sm text-muted-foreground">Todos os leads gerados pelo WhatsApp.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {!plan.loading && (
+            <PlanUsageBadge label="contatos" used={plan.usage.contatos} limit={plan.limites.contatos} />
+          )}
           <input ref={fileRef} type="file" accept=".csv" className="hidden"
             onChange={(e) => { const f = e.target.files?.[0]; if (f) importCSV(f); e.currentTarget.value = ""; }} />
           <Button variant="outline" onClick={() => fileRef.current?.click()}>
