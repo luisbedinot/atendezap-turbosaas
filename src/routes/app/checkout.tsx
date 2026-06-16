@@ -72,11 +72,14 @@ function CheckoutPage() {
     if (!nome.trim()) return toast.error("Informe o nome da sua empresa.");
     setCreating(true);
     try {
-      // Cria empresa minimal
+      // Cria empresa sem depender de RETURNING, porque a política de leitura
+      // só libera depois que o vínculo owner existe.
+      const companyId = crypto.randomUUID();
       const finalSlug = slugify(nome).slice(0, 48) + "-" + Math.random().toString(36).slice(2, 6);
-      const { data: comp, error: e1 } = await supabase
+      const { error: e1 } = await supabase
         .from("company")
         .insert({
+          id: companyId,
           nome: nome.trim(),
           slug: finalSlug,
           primary_color: "#25D366",
@@ -84,14 +87,12 @@ function CheckoutPage() {
           status_cobranca: "checkout_pending",
           onboarding_completed: false,
           onboarding_step: 0,
-        })
-        .select("id")
-        .single();
+        });
       if (e1) throw e1;
 
       const { error: e2 } = await supabase.from("company_user").insert({
         user_id: ctx.user.id,
-        company_id: comp.id,
+        company_id: companyId,
         role: "owner",
         ativo: true,
       });
@@ -102,7 +103,7 @@ function CheckoutPage() {
         priceId: plano.paddle_price_id,
         customerEmail: ctx.user.email ?? undefined,
         customData: {
-          companyId: comp.id,
+          companyId,
           userId: ctx.user.id,
           planSlug: plano.slug,
         },
