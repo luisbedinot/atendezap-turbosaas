@@ -20,7 +20,7 @@ import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { usePlanFeatures } from "@/hooks/use-plan-features";
 import { Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/app/agente")({
+export const Route = createFileRoute("/app/agente/avancado")({
   head: () => ({ meta: [{ title: `${brand.name} — Agente IA` }] }),
   beforeLoad: ({ context }: any) => {
     const r = context?.membership?.role;
