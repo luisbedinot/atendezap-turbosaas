@@ -105,6 +105,7 @@ export function buildSystemPrompt(
     resumoContato?: string;
     produtos?: ProdutoBrief[];
     stages?: StageBrief[];
+    googleConectado?: boolean;
   },
 ): string {
   const partes = opts?.responderEmPartes ?? c.responder_em_partes ?? true;
