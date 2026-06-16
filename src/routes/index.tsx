@@ -278,20 +278,22 @@ function Header({
   isDark,
   onToggleTheme,
 }: {
-  onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void;
+  onCta: (p: "/entrar" | "/demo/dashboard" | "#planos", plano?: string) => void;
   isDark: boolean;
   onToggleTheme: () => void;
 }) {
   return (
     <header className="lp-header sticky top-0 z-50 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8 h-[4.5rem] md:h-20 flex items-center justify-between gap-3">
-        <a href="/" className="flex items-center gap-3">
+        <a href="/" className="flex items-center gap-2.5">
           <span className="grid h-10 w-10 md:h-11 md:w-11 place-items-center rounded-2xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
             <Zap className="size-5 text-black" strokeWidth={2.6} />
           </span>
-          <span className="font-display text-xl md:text-[1.4rem] tracking-tight">{brand.name}</span>
+          <span className="font-brand text-[1.5rem] md:text-[1.7rem] leading-none">
+            Atende<span className="text-grad">Zap</span>
+          </span>
         </a>
-        <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-white/70">
+        <nav className="hidden md:flex items-center gap-8 text-[15px] font-semibold text-white/70">
           <a href="#como" className="hover:text-white transition">Como funciona</a>
           <a href="#recursos" className="hover:text-white transition">Recursos</a>
           <a href="#planos" className="hover:text-white transition">Planos</a>
@@ -307,15 +309,15 @@ function Header({
           >
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <button onClick={() => onCta("/entrar")} className="hidden sm:inline text-[15px] font-medium px-4 py-2.5 rounded-xl text-white/80 hover:text-white">
+          <button onClick={() => onCta("/entrar")} className="hidden sm:inline text-[15px] font-semibold px-4 py-2.5 rounded-xl text-white/80 hover:text-white">
             Entrar
           </button>
           <button
-            onClick={() => onCta("/entrar")}
-            className="text-[15px] font-semibold px-5 py-3 rounded-xl text-black btn-glow"
+            onClick={() => onCta("#planos")}
+            className="text-[15px] font-bold px-5 py-3 rounded-xl text-black btn-glow"
             style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
           >
-            Começar grátis
+            Ver planos
           </button>
         </div>
       </div>
