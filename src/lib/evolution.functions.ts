@@ -212,14 +212,27 @@ export const testAiReply = createServerFn({ method: "POST" })
       stages,
       produtos,
     });
+
+    // Enforcement: provider precisa estar liberado no plano (Starter = Gemini)
+    const { getCompanyPlan } = await import("./plan-limits.server");
+    const { allowsProvider, PLAN_LABEL } = await import("./plan-features");
+    const plan = await getCompanyPlan(companyId);
+    let provider = ((cfg as any)?.ai_provider || "gemini") as string;
+    let model = ((cfg as any)?.ai_model || "google/gemini-2.5-flash") as string;
+    if (!allowsProvider(plan.slug, provider)) {
+      throw new Error(
+        `O provedor ${provider.toUpperCase()} não está incluso no plano ${PLAN_LABEL[plan.slug]}. Faça upgrade para Pro para usar GPT/Claude.`,
+      );
+    }
+
     const raw = await lovableAiChat(
       [
         { role: "system", content: system },
         { role: "user", content: data.message },
       ],
       {
-        provider: (cfg as any)?.ai_provider || "gemini",
-        model: (cfg as any)?.ai_model || "google/gemini-2.5-flash",
+        provider,
+        model,
         openaiKey: (cfg as any)?.openai_api_key || "",
         anthropicKey: (cfg as any)?.anthropic_api_key || "",
       },
