@@ -43,15 +43,17 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  async function cta(path: "/entrar" | "/demo/dashboard") {
+  async function cta(path: "/entrar" | "/demo/dashboard", plano: string = "pro") {
     if (path === "/entrar") {
       try {
         const { data } = await supabase.auth.getUser();
         if (data.user) {
-          window.location.href = "/app/dashboard";
+          window.location.href = `/app/checkout?plano=${plano}`;
           return;
         }
       } catch {}
+      window.location.href = `/entrar?modo=signup&plano=${plano}`;
+      return;
     }
     window.location.href = path;
   }
