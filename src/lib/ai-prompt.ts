@@ -201,6 +201,19 @@ Se uma frase só já resolve, use UMA parte e pronto (sem o marcador). Nunca mai
     blocos.push(`FORMATO DA RESPOSTA: uma mensagem só, curta e natural.`);
   }
 
+  if (c.agendamento_ativo && opts?.googleConectado) {
+    const nowIso = new Date().toISOString();
+    blocos.push(
+      `AGENDAMENTO REAL (Google Agenda conectado):
+Hoje é ${nowIso} (UTC, fuso America/Sao_Paulo). Quando o cliente CONFIRMAR um horário específico (dia + hora) para um serviço agendável, ` +
+        `na MESMA resposta, em uma nova linha, escreva exatamente:
+[AGENDAR: AAAA-MM-DDTHH:MM | AAAA-MM-DDTHH:MM | título curto]
+A primeira data é o início, a segunda é o fim (use ${c.duracao_padrao || "30 min"} se o cliente não disser). ` +
+        `Use o fuso -03:00 nos horários (ex.: 2026-06-20T15:00:00-03:00). Esse marcador é interno e NÃO aparece pro cliente. ` +
+        `Só emita o marcador quando o cliente confirmou claramente. Nunca invente horários que o cliente não disse.`,
+    );
+  }
+
   blocos.push(
     `AO FINAL DA RESPOSTA, em uma nova linha, escreva exatamente:
 [ESTAGIO: ${stageNames}]
