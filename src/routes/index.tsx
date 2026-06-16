@@ -470,12 +470,17 @@ function Stats() {
 /* ===================== PAIN ===================== */
 function Pain() {
   return (
-    <section className="px-5 md:px-8 py-24 md:py-28">
-      <div className="mx-auto max-w-3xl text-center reveal" data-reveal>
-        <h2 className="font-display text-4xl md:text-6xl leading-[1.02] tracking-tight">
+    <section className="px-5 md:px-8 py-24 md:py-32">
+      <div className="mx-auto max-w-4xl text-center reveal" data-reveal>
+        <div className="inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.28em] text-white/55 font-bold">
+          <span className="h-px w-8 bg-[#25D366]/60" />
+          O problema
+          <span className="h-px w-8 bg-[#25D366]/60" />
+        </div>
+        <h2 className="font-display text-[clamp(2.4rem,6.5vw,5.5rem)] leading-[0.98] tracking-tight mt-6">
           Lead que espera, lead que <span className="text-grad">compra do concorrente</span>.
         </h2>
-        <p className="mt-6 text-lg md:text-xl text-white/65 leading-relaxed">
+        <p className="mt-7 text-lg md:text-2xl text-white/70 leading-relaxed max-w-3xl mx-auto">
           A primeira empresa a responder vende. Sempre. Enquanto você está dirigindo, atendendo na loja
           ou dormindo, os leads do anúncio que você pagou estão sumindo na fila. O AtendeZap responde
           em segundos, qualifica e já te entrega o lead pronto pra fechar.
