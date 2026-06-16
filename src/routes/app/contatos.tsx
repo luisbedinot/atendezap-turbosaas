@@ -27,6 +27,9 @@ export const Route = createFileRoute("/app/contatos")({
 function ContatosPage() {
   const ctx = Route.useRouteContext();
   const companyId = ctx.company?.id;
+  const plan = usePlanFeatures();
+  const createContactFn = useServerFn(createContact);
+  const importContactsFn = useServerFn(importContacts);
   const [cards, setCards] = useState<LeadCard[]>([]);
   const [stages, setStages] = useState<Stage[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
