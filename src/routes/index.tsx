@@ -840,7 +840,7 @@ function Footer() {
               <span className="grid h-10 w-10 place-items-center rounded-2xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
                 <Zap className="size-4 text-black" strokeWidth={2.6} />
               </span>
-              <span className="font-display text-xl">{brand.name}</span>
+              <span className="font-brand text-[1.4rem] leading-none">Atende<span className="text-grad">Zap</span></span>
             </div>
             <p className="mt-4 text-sm text-white/55 leading-relaxed max-w-xs">
               IA que atende seu WhatsApp 24h, qualifica e organiza o CRM sozinha. Você só fecha.
