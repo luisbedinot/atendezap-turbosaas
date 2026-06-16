@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { Loader2, UserPlus, Copy } from "lucide-react";
 import { brand } from "@/config/brand";
 import { listTeam, inviteMember, setMemberActive, setMemberRole } from "@/lib/team.functions";
+import { usePlanFeatures } from "@/hooks/use-plan-features";
+import { PlanUsageBadge } from "@/components/plan-usage-badge";
 
 export const Route = createFileRoute("/app/equipe")({
   head: () => ({ meta: [{ title: `${brand.name} — Equipe` }] }),
