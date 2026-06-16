@@ -515,7 +515,7 @@ function HowItWorks() {
   return (
     <section id="como" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Como funciona" title={<>Em 3 passos. <span className="text-grad">Sério.</span></>} />
+        <SectionTitle eyebrow="Como funciona" title={<>Em 3 passos. <span className="text-grad">Sério.</span></>} subtitle="Do QR Code ao primeiro lead respondido pela IA em menos de 5 minutos." />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {steps.map((s) => (
             <div key={s.n} className="glass rounded-2xl p-7 relative reveal" data-reveal>
