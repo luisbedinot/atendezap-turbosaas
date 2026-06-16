@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Conecte seu número de WhatsApp em 2 minutos. A IA do AtendeZap responde, qualifica e move cada lead no funil automaticamente. 14 dias grátis, sem cartão.",
+          "Conecte seu número de WhatsApp em 2 minutos. A IA do AtendeZap responde, qualifica e move cada lead no funil automaticamente. 3 dias grátis para testar.",
       },
       { property: "og:title", content: `${brand.name} — WhatsApp + IA + CRM no automático` },
       {
@@ -43,15 +43,17 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  async function cta(path: "/entrar" | "/demo/dashboard") {
+  async function cta(path: "/entrar" | "/demo/dashboard", plano: string = "pro") {
     if (path === "/entrar") {
       try {
         const { data } = await supabase.auth.getUser();
         if (data.user) {
-          window.location.href = "/app/dashboard";
+          window.location.href = `/app/checkout?plano=${plano}`;
           return;
         }
       } catch {}
+      window.location.href = `/entrar?modo=signup&plano=${plano}`;
+      return;
     }
     window.location.href = path;
   }
@@ -238,7 +240,7 @@ function Header({
   isDark,
   onToggleTheme,
 }: {
-  onCta: (p: "/entrar" | "/demo/dashboard") => void;
+  onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void;
   isDark: boolean;
   onToggleTheme: () => void;
 }) {
@@ -285,7 +287,7 @@ function Header({
 
 
 /* ===================== HERO ===================== */
-function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
   return (
     <section className="relative px-4 sm:px-6 md:px-8 pt-12 md:pt-28 pb-16 md:pb-24">
       <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40" />
@@ -311,7 +313,7 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) 
               className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-black font-semibold text-[16px] btn-glow"
               style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
             >
-              Começar grátis (14 dias)
+              Começar 3 dias grátis
               <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
             </button>
             <button
@@ -323,7 +325,7 @@ function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) 
           </div>
 
           <ul className="mt-7 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/55">
-            <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Sem cartão</li>
+            <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> 3 dias grátis</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Conecta em 2 minutos</li>
             <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Cancele quando quiser</li>
           </ul>
@@ -561,38 +563,63 @@ function Features() {
 }
 
 /* ===================== PRICING ===================== */
-function Pricing({ onCta: _onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
   const plans = [
     {
       slug: "starter",
       n: "Starter",
       p: "R$ 97",
-      d: "Pra começar a parar de perder lead hoje.",
-      f: ["1 número de WhatsApp", "IA respondendo 24/7", "CRM Kanban", "3 dias grátis com cartão"],
+      d: "Pra autônomo testando a operação.",
+      f: [
+        "1 número de WhatsApp",
+        "1 usuário",
+        "1.500 conversas/mês",
+        "1.000 contatos",
+        "CRM Kanban + IA Gemini",
+        "Suporte por email",
+      ],
+      cta: "Começar 3 dias grátis",
     },
     {
       slug: "pro",
       n: "Pro",
       p: "R$ 197",
-      d: "O preferido pra quem já tem time.",
-      f: ["Tudo do Starter", "Multi-atendente", "Relatórios completos", "Suporte prioritário"],
+      d: "Pra time que já vende todo dia. O mais escolhido.",
+      f: [
+        "3 números de WhatsApp",
+        "5 usuários no painel",
+        "6.000 conversas/mês",
+        "5.000 contatos",
+        "IA Gemini + GPT + Claude",
+        "Google Agenda + Relatórios",
+        "Suporte prioritário",
+      ],
       highlight: true,
+      cta: "Quero o Pro — 3 dias grátis",
+      badge: "Economize 2 meses no anual",
     },
     {
       slug: "business",
       n: "Business",
       p: "R$ 497",
-      d: "Pra operações que faturam alto.",
-      f: ["Tudo do Pro", "Múltiplas instâncias", "Atendentes ilimitados", "Onboarding 1:1"],
+      d: "Pra operação alta performance e múltiplas equipes.",
+      f: [
+        "10 números de WhatsApp",
+        "20 usuários no painel",
+        "30.000 conversas/mês",
+        "25.000 contatos",
+        "API + Webhooks",
+        "Onboarding 1:1 + Gerente dedicado",
+        "SLA 99,9% + Suporte 24/7",
+      ],
+      cta: "Falar com vendas",
     },
   ];
-  function start(slug: string) {
-    window.location.href = `/entrar?modo=signup&plano=${slug}`;
-  }
   return (
     <section id="planos" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Planos" title={<>Simples. <span className="text-grad">Direto.</span> Sem pegadinha.</>} />
+        <SectionTitle eyebrow="Planos" title={<>Quanto mais <span className="text-grad">cresce</span>, mais <span className="text-grad">economiza</span>.</>} />
+        <p className="text-center text-white/55 max-w-2xl mx-auto mt-4 text-[15px]">Todos os planos têm 3 dias grátis. Cancele antes do fim do trial e não é cobrado.</p>
         <div className="mt-12 grid md:grid-cols-3 gap-5 items-stretch">
           {plans.map((pl) => (
             <div
@@ -602,16 +629,16 @@ function Pricing({ onCta: _onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") 
               style={pl.highlight ? { boxShadow: "0 20px 60px -20px rgba(37,211,102,0.5), 0 0 0 1px rgba(37,211,102,0.4) inset" } : undefined}
             >
               {pl.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full text-black" style={{ background: "linear-gradient(135deg,#25D366,#a3e635)" }}>
-                  Mais popular
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full text-black whitespace-nowrap" style={{ background: "linear-gradient(135deg,#25D366,#a3e635)" }}>
+                  Mais popular · 4× mais conversas
                 </div>
               )}
-              <div className="text-sm text-white/60">{pl.n}</div>
+              <div className="text-sm text-white/60 font-semibold uppercase tracking-wider">{pl.n}</div>
               <div className="font-display text-4xl mt-2">
                 {pl.p}
                 <span className="text-base text-white/50 font-normal">/mês</span>
               </div>
-              <p className="text-sm text-white/60 mt-2">{pl.d}</p>
+              <p className="text-sm text-white/60 mt-2 min-h-[40px]">{pl.d}</p>
               <ul className="mt-6 space-y-2.5 text-sm flex-1">
                 {pl.f.map((x) => (
                   <li key={x} className="flex gap-2.5">
@@ -623,18 +650,18 @@ function Pricing({ onCta: _onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") 
                 ))}
               </ul>
               <button
-                onClick={() => start(pl.slug)}
+                onClick={() => onCta("/entrar", pl.slug)}
                 className={`mt-7 w-full px-4 py-3 rounded-xl font-semibold transition ${
                   pl.highlight ? "text-black btn-glow" : "glass-strong text-white hover:bg-white/10"
                 }`}
                 style={pl.highlight ? { background: "linear-gradient(135deg,#25D366,#16a34a)" } : undefined}
               >
-                Começar 3 dias grátis
+                {pl.cta}
               </button>
             </div>
           ))}
         </div>
-        <p className="mt-5 text-center text-xs text-white/40">Cartão é exigido para liberar o trial. Cancele em até 3 dias e não pagamos nada.</p>
+        <p className="mt-5 text-center text-xs text-white/40">Cartão é exigido apenas para liberar o trial. Cancele em até 3 dias e não pagamos nada.</p>
       </div>
     </section>
   );
@@ -723,7 +750,7 @@ function Faq() {
 }
 
 /* ===================== FINAL CTA ===================== */
-function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
   return (
     <section className="px-4 sm:px-5 md:px-8 py-20 md:py-28">
       <div
@@ -742,7 +769,7 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void
             Pare de perder venda no <span className="text-grad">"oi, sumiu"</span>.
           </h2>
           <p className="mt-6 text-white/70 max-w-xl mx-auto text-lg sm:text-xl">
-            14 dias grátis. Sem cartão. Liga em 2 minutos. Você vai ver os leads sendo respondidos na hora.
+            3 dias grátis pra ver a IA atendendo seu WhatsApp e fechando lead sozinha. Cancele antes e não paga nada.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row flex-wrap justify-center gap-3">
             <button
