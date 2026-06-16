@@ -74,6 +74,23 @@ export const inviteMember = createServerFn({ method: "POST" })
       .maybeSingle();
     if (prof) targetUserId = prof.user_id;
 
+    // Plan enforcement: só conta se o user ainda não é membro ativo
+    if (targetUserId) {
+      const { data: alreadyLinked } = await supabaseAdmin
+        .from("company_user")
+        .select("id, ativo")
+        .eq("company_id", companyId)
+        .eq("user_id", targetUserId)
+        .maybeSingle();
+      if (!alreadyLinked?.ativo) {
+        const { assertWithinLimit } = await import("./plan-limits.server");
+        await assertWithinLimit(companyId, "usuarios");
+      }
+    } else {
+      const { assertWithinLimit } = await import("./plan-limits.server");
+      await assertWithinLimit(companyId, "usuarios");
+    }
+
     let tempPassword: string | null = null;
     if (!targetUserId) {
       tempPassword = Math.random().toString(36).slice(2, 10) + "A1!";
