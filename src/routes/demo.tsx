@@ -5,6 +5,7 @@ import {
   Contact, BarChart3, Smartphone, Users, Settings,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
 
 export const Route = createFileRoute("/demo")({
   component: DemoLayout,
@@ -34,26 +35,51 @@ const sections: { label: string; items: { to: string; label: string; icon: any; 
 
 const PRIMARY = "var(--brand)";
 
+const mobileItems: MobileNavItem[] = [
+  { to: "/demo/dashboard", label: "Início", icon: LayoutDashboard },
+  { to: "/demo/conversas", label: "Conversas", icon: Inbox },
+  { to: "/demo/crm", label: "CRM", icon: KanbanSquare },
+  { to: "/demo/contatos", label: "Contatos", icon: Contact },
+  { to: "/demo/agente", label: "Agente", icon: Bot },
+];
+
 function DemoLayout() {
   const loc = useLocation();
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="border-b border-[color:var(--hairline)] bg-[color:var(--panel)]/85 backdrop-blur px-4 py-2.5 text-[13.5px] flex items-center justify-between gap-3 sticky top-0 z-10">
+      <header className="border-b border-[color:var(--hairline)] bg-[color:var(--panel)]/85 backdrop-blur-xl px-4 py-2.5 text-[12.5px] md:text-[13.5px] flex items-center justify-between gap-3 sticky top-0 z-20">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="size-1.5 rounded-full bg-[color:var(--brand)] shadow-[0_0_10px_var(--brand)]" />
-          <Sparkles className="size-4 text-[color:var(--brand)]" />
-          <span className="truncate"><b className="text-gradient-brand font-display font-bold">Modo demonstração</b> — dados de exemplo, somente leitura.</span>
+          <Sparkles className="size-4 text-[color:var(--brand)] shrink-0" />
+          <span className="truncate">
+            <b className="text-gradient-brand font-display font-bold">Modo demo</b>
+            <span className="hidden sm:inline"> — dados de exemplo, somente leitura.</span>
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <ThemeToggle />
-          <Link to="/entrar" className="text-sm font-semibold px-3 py-1.5 rounded-md bg-gradient-brand text-primary-foreground hover:opacity-90">
-            Criar conta grátis
+          <Link to="/entrar" className="text-[12.5px] md:text-sm font-semibold px-3 py-1.5 rounded-md bg-gradient-brand text-primary-foreground hover:opacity-90 whitespace-nowrap">
+            Criar conta
           </Link>
         </div>
       </header>
+
+      {/* Mobile brand bar */}
+      <div className="md:hidden flex items-center gap-2.5 px-4 py-3 border-b border-[color:var(--hairline)]">
+        <div
+          className="size-8 rounded-lg grid place-items-center text-primary-foreground shrink-0"
+          style={{ background: `linear-gradient(135deg, ${PRIMARY}, var(--brand-strong))` }}
+        >
+          <Zap className="size-4" strokeWidth={2.5} />
+        </div>
+        <div className="min-w-0">
+          <div className="font-display font-bold tracking-tight text-[14.5px] leading-none truncate">{brand.name}</div>
+          <div className="text-[10.5px] uppercase tracking-[0.12em] text-muted-foreground truncate mt-0.5">Demo · Padaria</div>
+        </div>
+      </div>
+
       <div className="flex flex-1 flex-col md:flex-row">
-        <aside className="md:w-[260px] md:min-h-screen md:border-r md:border-[color:var(--hairline)] bg-[color:var(--sidebar-bg)] flex md:flex-col">
-          <div className="px-5 py-5 flex items-center gap-3 md:border-b md:border-[color:var(--hairline)]">
+        <aside className="hidden md:flex w-[260px] min-h-screen border-r border-[color:var(--hairline)] bg-[color:var(--sidebar-bg)] flex-col">
+          <div className="px-5 py-5 flex items-center gap-3 border-b border-[color:var(--hairline)]">
             <div
               className="size-10 rounded-xl grid place-items-center text-primary-foreground shadow-md ring-1 ring-[color:var(--hairline)]"
               style={{ background: `linear-gradient(135deg, ${PRIMARY}, var(--brand-strong))` }}
@@ -66,13 +92,13 @@ function DemoLayout() {
             </div>
           </div>
 
-          <nav className="p-3 flex-1 overflow-x-auto md:overflow-y-auto space-y-5">
+          <nav className="p-3 flex-1 overflow-y-auto space-y-5">
             {sections.map((sec) => (
               <div key={sec.label}>
-                <div className="hidden md:block px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
+                <div className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
                   {sec.label}
                 </div>
-                <div className="flex md:flex-col gap-1">
+                <div className="flex flex-col gap-1">
                   {sec.items.map((it) => {
                     const active = loc.pathname === it.to;
                     const Icon = it.icon;
@@ -113,7 +139,7 @@ function DemoLayout() {
             ))}
           </nav>
 
-          <div className="hidden md:block p-3 border-t border-[color:var(--hairline)]">
+          <div className="p-3 border-t border-[color:var(--hairline)]">
             <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-[color:var(--panel-2)] border border-[color:var(--hairline)]">
               <div
                 className="size-9 rounded-full grid place-items-center text-[13px] font-bold text-[color:var(--brand-text)] ring-1 ring-[color:var(--hairline-strong)] shrink-0"
@@ -131,8 +157,10 @@ function DemoLayout() {
             </div>
           </div>
         </aside>
-        <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto"><Outlet /></main>
+        <main className="flex-1 px-4 pt-4 pb-28 md:p-8 md:pb-8 max-w-7xl w-full mx-auto"><Outlet /></main>
       </div>
+
+      <MobileBottomNav items={mobileItems} accent="var(--brand)" />
     </div>
   );
 }

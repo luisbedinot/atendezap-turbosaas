@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { brand } from "@/config/brand";
 import { TrialBanner } from "@/components/trial-banner";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
 import { toast } from "sonner";
 import type { CompanyRow, Membership } from "@/lib/tenant";
 
@@ -15,7 +16,7 @@ type NavItem = {
   to: string;
   label: string;
   icon: any;
-  adminOnly?: boolean; // hides for atendente
+  adminOnly?: boolean;
   tag?: string;
   badge?: boolean;
 };
@@ -41,7 +42,6 @@ const sections: { label: string; items: NavItem[] }[] = [
     ],
   },
 ];
-
 
 export function AppShell({
   children,
@@ -74,9 +74,50 @@ export function AppShell({
     : "Membro";
   const userName = (email || "Você").split("@")[0];
 
+  const mobileItems: MobileNavItem[] = [
+    { to: "/app/dashboard", label: "Início", icon: LayoutDashboard },
+    { to: "/app/conversas", label: "Conversas", icon: Inbox },
+    { to: "/app/crm", label: "CRM", icon: KanbanSquare },
+    { to: "/app/contatos", label: "Contatos", icon: Contact },
+    isAdmin
+      ? { to: "/app/agente", label: "Agente", icon: Bot }
+      : { to: "/app/conexao", label: "Conexão", icon: Smartphone },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground" style={{ ["--brand" as any]: primary }}>
       {company && <TrialBanner company={company} />}
+
+      {/* Mobile top bar */}
+      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between gap-3 px-4 py-3 bg-[color:var(--panel)]/80 backdrop-blur-xl border-b border-[color:var(--hairline)]">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {company?.logo_url ? (
+            <img src={company.logo_url} alt={company.nome} className="size-8 rounded-lg object-cover ring-1 ring-[color:var(--hairline)]" />
+          ) : (
+            <div
+              className="size-8 rounded-lg grid place-items-center text-primary-foreground shrink-0"
+              style={{ background: `linear-gradient(135deg, ${primary}, var(--brand-strong))` }}
+            >
+              <Zap className="size-4" strokeWidth={2.5} />
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="font-display font-bold tracking-tight text-[14.5px] leading-none truncate">{brand.name}</div>
+            <div className="text-[10.5px] text-muted-foreground truncate mt-0.5">{company?.nome || "Sua empresa"}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <ThemeToggle />
+          <button
+            onClick={signOut}
+            title="Sair"
+            className="size-9 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="size-[18px]" />
+          </button>
+        </div>
+      </header>
+
       <div className="flex flex-1 flex-col md:flex-row">
         <Sidebar
           loc={loc}
@@ -89,9 +130,9 @@ export function AppShell({
           roleLabel={roleLabel}
           signOut={signOut}
         />
-        <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <div className="hidden md:flex items-center gap-2 text-[13.5px] text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-[color:var(--panel)] border border-[color:var(--hairline)]">
+        <main className="flex-1 px-4 pt-4 pb-28 md:p-8 md:pb-8 max-w-7xl w-full mx-auto">
+          <div className="hidden md:flex items-center justify-between gap-3 mb-6">
+            <div className="flex items-center gap-2 text-[13.5px] text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-[color:var(--panel)] border border-[color:var(--hairline)]">
               <span className="size-1.5 rounded-full bg-[color:var(--brand)] shadow-[0_0_10px_var(--brand)]" />
               Agente conectado
             </div>
@@ -109,6 +150,8 @@ export function AppShell({
           {children}
         </main>
       </div>
+
+      <MobileBottomNav items={mobileItems} accent={primary} />
     </div>
   );
 }
@@ -116,11 +159,9 @@ export function AppShell({
 function Sidebar({
   loc, company, isSuperAdmin, isAdmin, primary, userName, email, roleLabel, signOut,
 }: any) {
-  const initials = (company?.nome || brand.name).slice(0, 2).toUpperCase();
   return (
-    <aside className="md:w-[260px] md:min-h-screen md:border-r md:border-[color:var(--hairline)] bg-[color:var(--sidebar-bg)] flex md:flex-col">
-      {/* brand */}
-      <div className="px-5 py-5 flex items-center gap-3 md:border-b md:border-[color:var(--hairline)]">
+    <aside className="hidden md:flex w-[260px] min-h-screen border-r border-[color:var(--hairline)] bg-[color:var(--sidebar-bg)] flex-col">
+      <div className="px-5 py-5 flex items-center gap-3 border-b border-[color:var(--hairline)]">
         {company?.logo_url ? (
           <img src={company.logo_url} alt={company.nome} className="size-10 rounded-xl object-cover ring-1 ring-[color:var(--hairline)]" />
         ) : (
@@ -137,14 +178,13 @@ function Sidebar({
         </div>
       </div>
 
-      {/* nav */}
-      <nav className="p-3 flex-1 overflow-x-auto md:overflow-y-auto space-y-5">
+      <nav className="p-3 flex-1 overflow-y-auto space-y-5">
         {sections.map((sec) => (
           <div key={sec.label}>
-            <div className="hidden md:block px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
+            <div className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/80">
               {sec.label}
             </div>
-            <div className="flex md:flex-col gap-1">
+            <div className="flex flex-col gap-1">
               {sec.items.filter((i) => !i.adminOnly || isAdmin).map((item) => (
                 <NavLink key={item.to} item={item} active={loc.pathname.startsWith(item.to)} primary={primary} />
               ))}
@@ -153,8 +193,7 @@ function Sidebar({
         ))}
       </nav>
 
-      {/* footer user block */}
-      <div className="hidden md:block p-3 border-t border-[color:var(--hairline)]">
+      <div className="p-3 border-t border-[color:var(--hairline)]">
         {isSuperAdmin && (
           <Link to="/master/painel" className="mb-2 flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium text-destructive hover:bg-[color:var(--panel-2)]">
             <Shield className="size-4" /> Painel Master
