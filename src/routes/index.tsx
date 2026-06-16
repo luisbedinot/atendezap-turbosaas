@@ -882,14 +882,16 @@ function Footer() {
 }
 
 /* ===================== HELPERS ===================== */
-function SectionTitle({ eyebrow, title, center }: { eyebrow: string; title: React.ReactNode; center?: boolean }) {
+function SectionTitle({ eyebrow, title }: { eyebrow: string; title: React.ReactNode; center?: boolean }) {
+  // Padronizado: sempre centralizado, maior, com eyebrow em destaque.
   return (
-    <div className={`reveal ${center ? "text-center" : ""}`} data-reveal>
-      <div className={`inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.25em] text-white/55 font-bold ${center ? "" : ""}`}>
-        <span className="h-px w-8 bg-[#25D366]/60" />
+    <div className="reveal text-center" data-reveal>
+      <div className="inline-flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.28em] text-[#25D366] font-bold">
+        <span className="h-px w-10 bg-[#25D366]/60" />
         {eyebrow}
+        <span className="h-px w-10 bg-[#25D366]/60" />
       </div>
-      <h2 className={`font-display text-4xl md:text-6xl leading-[1.02] tracking-tight mt-5 max-w-3xl ${center ? "mx-auto" : ""}`}>
+      <h2 className="font-display text-5xl md:text-7xl font-black leading-[0.98] tracking-tight mt-5 max-w-4xl mx-auto">
         {title}
       </h2>
     </div>
