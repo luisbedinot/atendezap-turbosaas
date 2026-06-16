@@ -656,7 +656,7 @@ function Testimonials() {
   return (
     <section className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Quem usa" title={<>Times que pararam de perder venda <span className="text-grad">no 'oi, sumiu'</span>.</>} />
+        <SectionTitle eyebrow="Quem usa" title={<>Times que pararam de perder venda <span className="text-grad">no 'oi, sumiu'</span>.</>} subtitle="Histórias reais de quem ligou o AtendeZap e nunca mais voltou atrás." />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {items.map((it) => (
             <div key={it.n} className="glass rounded-2xl p-6 reveal" data-reveal>
