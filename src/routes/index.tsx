@@ -287,47 +287,49 @@ function Header({
 /* ===================== HERO ===================== */
 function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
   return (
-    <section className="relative px-4 sm:px-6 md:px-8 pt-16 md:pt-32 pb-20 md:pb-28">
+    <section className="relative px-4 sm:px-6 md:px-8 pt-12 md:pt-28 pb-16 md:pb-24">
       <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40" />
-      <div className="mx-auto max-w-5xl relative text-center flex flex-col items-center">
-        <div className="inline-flex items-center gap-2 text-[13px] px-3.5 py-1.5 rounded-full glass">
-          <span className="relative inline-block size-2 rounded-full bg-[#25D366] dot-pulse" />
-          <span className="text-white/80 font-medium">WhatsApp + IA + CRM no automático</span>
+      <div className="mx-auto max-w-7xl grid lg:grid-cols-2 gap-10 md:gap-16 items-center relative">
+        <div className="text-center lg:text-left">
+          <div className="inline-flex items-center gap-2 text-[13px] px-3.5 py-1.5 rounded-full glass">
+            <span className="relative inline-block size-2 rounded-full bg-[#25D366] dot-pulse" />
+            <span className="text-white/80 font-medium">WhatsApp + IA + CRM no automático</span>
+          </div>
+
+          <h1 className="font-display text-[clamp(2.6rem,8.5vw,6rem)] leading-[0.98] mt-6 tracking-tight">
+            Sua IA atende o WhatsApp <span className="text-grad">24h</span> e organiza o CRM <span className="text-grad">sozinha</span>.
+          </h1>
+
+          <p className="mt-6 text-[17px] sm:text-xl text-white/65 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            Conecte seu número, treine o agente em uma tela e veja cada lead ser respondido na hora,
+            qualificado e movido no funil — sem você levantar o dedo.
+          </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
+            <button
+              onClick={() => onCta("/entrar")}
+              className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-black font-semibold text-[16px] btn-glow"
+              style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
+            >
+              Começar grátis (14 dias)
+              <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
+            </button>
+            <button
+              onClick={() => onCta("/demo/dashboard")}
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl glass-strong text-white/90 hover:bg-white/10 transition text-[16px] font-medium"
+            >
+              <Play className="size-4" /> Ver demonstração
+            </button>
+          </div>
+
+          <ul className="mt-7 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/55">
+            <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Sem cartão</li>
+            <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Conecta em 2 minutos</li>
+            <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Cancele quando quiser</li>
+          </ul>
         </div>
 
-        <h1 className="font-display text-[clamp(2.8rem,9.5vw,7rem)] leading-[0.95] mt-8 tracking-tight max-w-5xl mx-auto">
-          Sua IA atende o WhatsApp <span className="text-grad">24h</span> e organiza o CRM <span className="text-grad">sozinha</span>.
-        </h1>
-
-        <p className="mt-7 text-lg sm:text-2xl text-white/70 max-w-2xl mx-auto leading-relaxed">
-          Conecte seu número, treine o agente em uma tela e veja cada lead ser respondido na hora,
-          qualificado e movido no funil — sem você levantar o dedo.
-        </p>
-
-        <div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
-          <button
-            onClick={() => onCta("/entrar")}
-            className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-black font-semibold text-[17px] btn-glow"
-            style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
-          >
-            Começar grátis (14 dias)
-            <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
-          </button>
-          <button
-            onClick={() => onCta("/demo/dashboard")}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl glass-strong text-white/90 hover:bg-white/10 transition text-[17px] font-medium"
-          >
-            <Play className="size-4" /> Ver demonstração
-          </button>
-        </div>
-
-        <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/55">
-          <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Sem cartão</li>
-          <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Conecta em 2 minutos</li>
-          <li className="flex items-center gap-1.5"><Check className="size-4 text-[#25D366]" /> Cancele quando quiser</li>
-        </ul>
-
-        <div className="relative mt-16 md:mt-20 flex justify-center w-full">
+        <div className="relative flex justify-center lg:justify-end">
           <PhoneMock />
         </div>
       </div>
@@ -470,17 +472,12 @@ function Stats() {
 /* ===================== PAIN ===================== */
 function Pain() {
   return (
-    <section className="px-5 md:px-8 py-24 md:py-32">
-      <div className="mx-auto max-w-4xl text-center reveal" data-reveal>
-        <div className="inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.28em] text-white/55 font-bold">
-          <span className="h-px w-8 bg-[#25D366]/60" />
-          O problema
-          <span className="h-px w-8 bg-[#25D366]/60" />
-        </div>
-        <h2 className="font-display text-[clamp(2.4rem,6.5vw,5.5rem)] leading-[0.98] tracking-tight mt-6">
+    <section className="px-5 md:px-8 py-24 md:py-28">
+      <div className="mx-auto max-w-3xl text-center reveal" data-reveal>
+        <h2 className="font-display text-4xl md:text-6xl leading-[1.02] tracking-tight">
           Lead que espera, lead que <span className="text-grad">compra do concorrente</span>.
         </h2>
-        <p className="mt-7 text-lg md:text-2xl text-white/70 leading-relaxed max-w-3xl mx-auto">
+        <p className="mt-6 text-lg md:text-xl text-white/65 leading-relaxed">
           A primeira empresa a responder vende. Sempre. Enquanto você está dirigindo, atendendo na loja
           ou dormindo, os leads do anúncio que você pagou estão sumindo na fila. O AtendeZap responde
           em segundos, qualifica e já te entrega o lead pronto pra fechar.
@@ -515,7 +512,7 @@ function HowItWorks() {
   return (
     <section id="como" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Como funciona" title={<>Em 3 passos. <span className="text-grad">Sério.</span></>} subtitle="Do QR Code ao primeiro lead respondido pela IA em menos de 5 minutos." />
+        <SectionTitle eyebrow="Como funciona" title={<>Em 3 passos. <span className="text-grad">Sério.</span></>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {steps.map((s) => (
             <div key={s.n} className="glass rounded-2xl p-7 relative reveal" data-reveal>
@@ -546,7 +543,7 @@ function Features() {
   return (
     <section id="recursos" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Recursos" title={<>Tudo que você precisa pra <span className="text-grad">parar de perder venda</span>.</>} subtitle="Inbox, IA, CRM, time e relatórios — no mesmo lugar, conversando entre si." />
+        <SectionTitle eyebrow="Recursos" title={<>Tudo que você precisa pra <span className="text-grad">parar de perder venda</span>.</>} />
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((it) => (
             <div key={it.t} className="glass rounded-2xl p-6 hover:-translate-y-1 transition-transform reveal" data-reveal>
@@ -589,7 +586,7 @@ function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void 
   return (
     <section id="planos" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Planos" title={<>Simples. <span className="text-grad">Direto.</span> Sem pegadinha.</>} subtitle="Comece grátis por 14 dias. Sem cartão. Cancele quando quiser." />
+        <SectionTitle eyebrow="Planos" title={<>Simples. <span className="text-grad">Direto.</span> Sem pegadinha.</>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5 items-stretch">
           {plans.map((pl) => (
             <div
@@ -656,7 +653,7 @@ function Testimonials() {
   return (
     <section className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionTitle eyebrow="Quem usa" title={<>Times que pararam de perder venda <span className="text-grad">no 'oi, sumiu'</span>.</>} subtitle="Histórias reais de quem ligou o AtendeZap e nunca mais voltou atrás." />
+        <SectionTitle eyebrow="Quem usa" title={<>Times que pararam de perder venda <span className="text-grad">no 'oi, sumiu'</span>.</>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {items.map((it) => (
             <div key={it.n} className="glass rounded-2xl p-6 reveal" data-reveal>
@@ -697,7 +694,7 @@ function Faq() {
   return (
     <section id="faq" className="px-5 md:px-8 py-24 md:py-28">
       <div className="mx-auto max-w-3xl">
-        <SectionTitle eyebrow="Dúvidas" title={<>Antes de você perguntar.</>} subtitle="As respostas mais comuns de quem tá pensando em começar hoje." />
+        <SectionTitle eyebrow="Dúvidas" title={<>Antes de você perguntar.</>} center />
         <div className="mt-10 space-y-3">
           {items.map((it, i) => {
             const isOpen = open === i;
@@ -735,7 +732,7 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void
 
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 size-[500px] rounded-full opacity-40 blur-3xl" style={{ background: "radial-gradient(circle,#25D366,transparent 60%)" }} />
         <div className="relative">
-          <h2 className="font-display text-[clamp(2.6rem,7.5vw,6rem)] leading-[0.95] tracking-tight max-w-4xl mx-auto">
+          <h2 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[0.98] tracking-tight">
             Pare de perder venda no <span className="text-grad">"oi, sumiu"</span>.
           </h2>
           <p className="mt-6 text-white/70 max-w-xl mx-auto text-lg sm:text-xl">
@@ -812,32 +809,16 @@ function Footer() {
 }
 
 /* ===================== HELPERS ===================== */
-function SectionTitle({
-  eyebrow,
-  title,
-  subtitle,
-}: {
-  eyebrow: string;
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  /** @deprecated kept for API compat — sempre centralizado agora */
-  center?: boolean;
-}) {
+function SectionTitle({ eyebrow, title, center }: { eyebrow: string; title: React.ReactNode; center?: boolean }) {
   return (
-    <div className="reveal text-center mx-auto max-w-4xl" data-reveal>
-      <div className="inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.28em] text-white/55 font-bold">
+    <div className={`reveal ${center ? "text-center" : ""}`} data-reveal>
+      <div className={`inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.25em] text-white/55 font-bold ${center ? "" : ""}`}>
         <span className="h-px w-8 bg-[#25D366]/60" />
         {eyebrow}
-        <span className="h-px w-8 bg-[#25D366]/60" />
       </div>
-      <h2 className="font-display text-[clamp(2.4rem,6.5vw,5.5rem)] leading-[0.98] tracking-tight mt-6 mx-auto">
+      <h2 className={`font-display text-4xl md:text-6xl leading-[1.02] tracking-tight mt-5 max-w-3xl ${center ? "mx-auto" : ""}`}>
         {title}
       </h2>
-      {subtitle && (
-        <p className="mt-5 text-lg md:text-xl text-white/65 leading-relaxed max-w-2xl mx-auto">
-          {subtitle}
-        </p>
-      )}
     </div>
   );
 }
