@@ -1,16 +1,15 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { brand } from "@/config/brand";
-import { slugify } from "@/lib/tenant";
 import { Loader2, ShieldCheck, CreditCard, Sparkles, ArrowLeft } from "lucide-react";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { createCheckoutCompany } from "@/lib/checkout.functions";
 
 type Search = { plano?: string };
 
@@ -36,15 +35,20 @@ function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function defaultCompanyName(email?: string | null) {
+  const local = email?.split("@")[0]?.replace(/[._-]+/g, " ").trim();
+  return local ? `Empresa de ${local}` : "Minha empresa";
+}
+
 function CheckoutPage() {
   const ctx = Route.useRouteContext();
   const navigate = useNavigate();
   const search = useSearch({ from: "/app/checkout" }) as Search;
   const { openCheckout, loading: paddleLoading } = usePaddleCheckout();
+  const createCompany = useServerFn(createCheckoutCompany);
 
   const [plans, setPlans] = useState<Plano[]>([]);
   const [selected, setSelected] = useState<string | null>(search.plano ?? null);
-  const [nome, setNome] = useState("");
   const [creating, setCreating] = useState(false);
   const [waitingWebhook, setWaitingWebhook] = useState(false);
 
@@ -69,40 +73,16 @@ function CheckoutPage() {
 
   async function continuar() {
     if (!plano) return toast.error("Selecione um plano.");
-    if (!nome.trim()) return toast.error("Informe o nome da sua empresa.");
     setCreating(true);
     try {
-      // Cria empresa minimal
-      const finalSlug = slugify(nome).slice(0, 48) + "-" + Math.random().toString(36).slice(2, 6);
-      const { data: comp, error: e1 } = await supabase
-        .from("company")
-        .insert({
-          nome: nome.trim(),
-          slug: finalSlug,
-          primary_color: "#25D366",
-          created_by: ctx.user.id,
-          status_cobranca: "checkout_pending",
-          onboarding_completed: false,
-          onboarding_step: 0,
-        })
-        .select("id")
-        .single();
-      if (e1) throw e1;
-
-      const { error: e2 } = await supabase.from("company_user").insert({
-        user_id: ctx.user.id,
-        company_id: comp.id,
-        role: "owner",
-        ativo: true,
-      });
-      if (e2) throw e2;
+      const { companyId } = await createCompany({ data: { nome: defaultCompanyName(ctx.user.email) } });
 
       // Abre Paddle Checkout (3d trial — cobrança após validar cartão)
       await openCheckout({
         priceId: plano.paddle_price_id,
         customerEmail: ctx.user.email ?? undefined,
         customData: {
-          companyId: comp.id,
+          companyId,
           userId: ctx.user.id,
           planSlug: plano.slug,
         },
@@ -171,25 +151,9 @@ function CheckoutPage() {
           </div>
         </Card>
 
-        {/* Empresa */}
-        <Card className="p-6 mb-5">
-          <h2 className="font-display text-lg font-bold mb-4">2. Como vamos chamar sua empresa?</h2>
-          <div className="space-y-2">
-            <Label htmlFor="empresa-nome">Nome da empresa</Label>
-            <Input
-              id="empresa-nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              placeholder="Ex: Padaria do João"
-              autoFocus
-            />
-            <p className="text-xs text-muted-foreground">Depois do pagamento você completa os dados fiscais, endereço e identidade.</p>
-          </div>
-        </Card>
-
         {/* Pagamento */}
         <Card className="p-6">
-          <h2 className="font-display text-lg font-bold mb-2 flex items-center gap-2"><CreditCard className="size-4" /> 3. Validar cartão</h2>
+          <h2 className="font-display text-lg font-bold mb-2 flex items-center gap-2"><CreditCard className="size-4" /> 2. Validar cartão</h2>
           <p className="text-sm text-muted-foreground mb-4">Vamos abrir um checkout seguro. Sem cobrança nos próximos 3 dias.</p>
 
           {waitingWebhook ? (
@@ -200,7 +164,7 @@ function CheckoutPage() {
           ) : (
             <Button
               onClick={continuar}
-              disabled={!plano || !nome.trim() || creating || paddleLoading}
+              disabled={!plano || creating || paddleLoading}
               size="lg"
               className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold"
             >
@@ -211,7 +175,7 @@ function CheckoutPage() {
 
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5" />
-            Pagamento processado por Paddle. PCI-DSS. Cancele a qualquer momento.
+            Pagamento seguro. Cancele a qualquer momento.
           </div>
         </Card>
       </div>
