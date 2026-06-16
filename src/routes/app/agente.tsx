@@ -74,6 +74,10 @@ function AgentePage() {
   const test = useServerFn(testAiReply);
   const gStart = useServerFn(startGoogleOAuth);
   const gDisc = useServerFn(disconnectGoogle);
+  const plan = usePlanFeatures();
+  const allowOpenAI = plan.features.providersIA.includes("openai");
+  const allowAnthropic = plan.features.providersIA.includes("anthropic");
+  const allowGoogleCal = plan.features.googleCalendar;
   const [cfg, setCfg] = useState<any>(DEFAULTS);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [google, setGoogle] = useState<any>(null);
