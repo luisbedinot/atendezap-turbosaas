@@ -169,6 +169,12 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const estagioAtual = cardRow?.status || stages[0]?.nome || "Conversas";
           const resumoContato = `${cardRow?.nome || pushName || "Contato"} (${number}), ${historico.length} mensagens trocadas`;
 
+          const { data: googleIntegration } = await supabaseAdmin
+            .from("google_integration")
+            .select("conectado")
+            .eq("company_id", companyId)
+            .maybeSingle();
+
           const responderEmPartes = cfg?.responder_em_partes ?? true;
           const system = buildSystemPrompt(cfg ?? {}, {
             responderEmPartes,
@@ -176,6 +182,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             resumoContato,
             produtos,
             stages: stages.map((s) => ({ nome: s.nome, tipo: s.tipo })),
+            googleConectado: !!googleIntegration?.conectado,
           });
 
           const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
@@ -191,13 +198,33 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
 
           let rawReply = "";
           try {
-            rawReply = await lovableAiChat(messages);
+            rawReply = await lovableAiChat(messages, {
+              provider: (cfg as any)?.ai_provider || "gemini",
+              model: (cfg as any)?.ai_model || "google/gemini-2.5-flash",
+              openaiKey: (cfg as any)?.openai_api_key || "",
+              anthropicKey: (cfg as any)?.anthropic_api_key || "",
+            });
           } catch (e: any) {
             console.error("[ai]", e?.message);
           }
 
-          const { parts, stage } = parseAiOutput(rawReply, stages.map((s) => ({ nome: s.nome, tipo: s.tipo })));
+          const { parts, stage, agendar } = parseAiOutput(rawReply, stages.map((s) => ({ nome: s.nome, tipo: s.tipo })));
           const finalParts = responderEmPartes ? parts : [parts.join(" ")];
+
+          // Cria evento no Google Agenda se a IA marcou [AGENDAR: ...]
+          if (agendar && googleIntegration?.conectado) {
+            try {
+              const { createCalendarEventForCompany } = await import("@/lib/google.server");
+              await createCalendarEventForCompany(supabaseAdmin, companyId, {
+                titulo: agendar.titulo,
+                inicio: agendar.inicio,
+                fim: agendar.fim,
+                descricao: `Agendado via WhatsApp — ${pushName || number}`,
+              });
+            } catch (e: any) {
+              console.error("[agendar]", e?.message);
+            }
+          }
 
           for (let i = 0; i < finalParts.length; i++) {
             const part = finalParts[i];

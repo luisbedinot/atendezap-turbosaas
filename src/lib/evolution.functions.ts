@@ -199,10 +199,18 @@ export const testAiReply = createServerFn({ method: "POST" })
       stages,
       produtos,
     });
-    const raw = await lovableAiChat([
-      { role: "system", content: system },
-      { role: "user", content: data.message },
-    ]);
+    const raw = await lovableAiChat(
+      [
+        { role: "system", content: system },
+        { role: "user", content: data.message },
+      ],
+      {
+        provider: (cfg as any)?.ai_provider || "gemini",
+        model: (cfg as any)?.ai_model || "google/gemini-2.5-flash",
+        openaiKey: (cfg as any)?.openai_api_key || "",
+        anthropicKey: (cfg as any)?.anthropic_api_key || "",
+      },
+    );
     const { parts, stage } = parseAiOutput(raw, stages);
     return { reply: parts.join("\n\n"), parts, stage, system };
   });
