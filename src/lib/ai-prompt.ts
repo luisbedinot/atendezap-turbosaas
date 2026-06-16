@@ -227,12 +227,29 @@ Escolha 1 entre as etapas reais do CRM da empresa listadas acima. ` +
   return blocos.filter(Boolean).join("\n\n");
 }
 
+export interface AgendarBrief { inicio: string; fim: string; titulo: string; }
+
 export function parseAiOutput(
   raw: string,
   stages?: StageBrief[],
-): { parts: string[]; stage: string | null } {
+): { parts: string[]; stage: string | null; agendar: AgendarBrief | null } {
   let text = raw || "";
   let stage: string | null = null;
+  let agendar: AgendarBrief | null = null;
+
+  const agMatch = text.match(/\[\s*AGENDAR\s*:\s*([^\]]+)\]/i);
+  if (agMatch) {
+    const parts = agMatch[1].split("|").map((s) => s.trim());
+    if (parts.length >= 2) {
+      agendar = {
+        inicio: parts[0],
+        fim: parts[1],
+        titulo: (parts[2] || "Agendamento").slice(0, 120),
+      };
+    }
+    text = text.replace(agMatch[0], "").trim();
+  }
+
   const stageMatch = text.match(/\[\s*ESTAGIO\s*:\s*([^\]]+)\]/i);
   if (stageMatch) {
     const candidate = stageMatch[1].trim().toLowerCase();
@@ -240,7 +257,6 @@ export function parseAiOutput(
       const found = stages.find((s) => s.nome.toLowerCase() === candidate);
       if (found) stage = found.nome;
       else {
-        // tenta começar com o nome
         const starts = stages.find((s) => candidate.startsWith(s.nome.toLowerCase()));
         if (starts) stage = starts.nome;
       }
@@ -254,7 +270,7 @@ export function parseAiOutput(
     .map((p) => p.trim())
     .filter((p) => p.length > 0)
     .slice(0, 3);
-  return { parts: parts.length ? parts : [text.trim()].filter(Boolean), stage };
+  return { parts: parts.length ? parts : [text.trim()].filter(Boolean), stage, agendar };
 }
 
 export function classifyStagePromptInstruction(): string {
