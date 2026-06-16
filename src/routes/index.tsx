@@ -782,11 +782,11 @@ function Footer() {
 function SectionTitle({ eyebrow, title, center }: { eyebrow: string; title: React.ReactNode; center?: boolean }) {
   return (
     <div className={`reveal ${center ? "text-center" : ""}`} data-reveal>
-      <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/50 font-semibold">
-        <span className="h-px w-6 bg-white/30" />
+      <div className={`inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.25em] text-white/55 font-bold ${center ? "" : ""}`}>
+        <span className="h-px w-8 bg-[#25D366]/60" />
         {eyebrow}
       </div>
-      <h2 className="font-display text-3xl md:text-5xl leading-tight mt-4 max-w-3xl">
+      <h2 className="font-display text-4xl md:text-6xl leading-[1.02] tracking-tight mt-5 max-w-3xl">
         {title}
       </h2>
     </div>
