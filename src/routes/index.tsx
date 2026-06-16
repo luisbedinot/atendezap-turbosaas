@@ -57,33 +57,31 @@ function Landing() {
   }
 
   useScrollReveal();
+  const { isDark, toggle } = useTheme();
 
   return (
     <div
-      className="min-h-screen w-full text-white antialiased overflow-x-hidden"
-      style={{
-        background: "#04100A",
-        fontFamily: "'Inter', system-ui, sans-serif",
-      }}
+      className={`lp-root ${isDark ? "is-dark" : "is-light"} min-h-screen w-full antialiased overflow-x-hidden`}
+      style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
     >
       {/* radial glows — absolute (não fixed) e mais leves no mobile pra fluidez */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[1400px] z-0 overflow-hidden">
         <div
-          className="hidden md:block absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-40 blur-3xl"
+          className="lp-glow-a hidden md:block absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full blur-3xl"
           style={{ background: "radial-gradient(circle, #25D366 0%, transparent 60%)" }}
         />
         <div
-          className="hidden md:block absolute top-[20%] -right-40 h-[700px] w-[700px] rounded-full opacity-25 blur-3xl"
+          className="lp-glow-b hidden md:block absolute top-[20%] -right-40 h-[700px] w-[700px] rounded-full blur-3xl"
           style={{ background: "radial-gradient(circle, #06b6d4 0%, transparent 65%)" }}
         />
         <div
-          className="md:hidden absolute -top-32 left-1/2 -translate-x-1/2 h-[420px] w-[420px] rounded-full opacity-30 blur-2xl"
+          className="lp-glow-c md:hidden absolute -top-32 left-1/2 -translate-x-1/2 h-[420px] w-[420px] rounded-full blur-2xl"
           style={{ background: "radial-gradient(circle, #25D366 0%, transparent 60%)" }}
         />
       </div>
 
       <div className="relative z-10">
-        <Header onCta={cta} />
+        <Header onCta={cta} isDark={isDark} onToggleTheme={toggle} />
         <Hero onCta={cta} />
         <Stats />
         <Pain />
@@ -108,18 +106,102 @@ function Landing() {
         .btn-glow {
           box-shadow: 0 10px 30px -12px rgba(37,211,102,0.55), 0 0 0 1px rgba(37,211,102,0.35) inset;
         }
-        .glass {
-          background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-          border: 1px solid rgba(255,255,255,0.10);
+
+        /* ===== LP tokens ===== */
+        .lp-root.is-dark {
+          --lp-bg: #04100A;
+          --lp-fg-rgb: 255,255,255;
+          --lp-fg-inv: #0A1510;
+          --lp-glass-bg: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+          --lp-glass-bd: rgba(255,255,255,0.10);
+          --lp-glass-strong-bg: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+          --lp-glass-strong-bd: rgba(255,255,255,0.14);
+          --lp-header-bg: rgba(4,16,10,0.55);
+          --lp-header-bd: rgba(255,255,255,0.06);
+          --lp-grid: rgba(255,255,255,0.04);
+          --lp-bubble-left-bg: #1b2926;
+          --lp-bubble-left-bd: rgba(255,255,255,0.05);
+          --lp-bubble-left-fg: #FFFFFF;
+          --lp-phone-shell: linear-gradient(180deg,#1a1f1d,#0b0f0d);
+          --lp-phone-shell-bd: rgba(255,255,255,0.08);
+          --lp-phone-screen: #0b1410;
+          --lp-chat-header-bg: #111d18;
+          --lp-chat-header-bd: rgba(255,255,255,0.05);
+          --lp-input-bg: #111d18;
+          --lp-input-pill: #0b1410;
+          --lp-final-bg: linear-gradient(135deg,#0c3a23,#0a1a13);
+          --lp-final-bd: rgba(37,211,102,0.30);
+          --lp-final-shadow: 0 40px 120px -40px rgba(37,211,102,0.6);
         }
-        .glass-strong {
-          background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
-          border: 1px solid rgba(255,255,255,0.14);
+        .lp-root.is-light {
+          --lp-bg: #F5F8F6;
+          --lp-fg-rgb: 10,21,16;
+          --lp-fg-inv: #FFFFFF;
+          --lp-glass-bg: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65));
+          --lp-glass-bd: rgba(10,21,16,0.10);
+          --lp-glass-strong-bg: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.80));
+          --lp-glass-strong-bd: rgba(10,21,16,0.14);
+          --lp-header-bg: rgba(255,255,255,0.75);
+          --lp-header-bd: rgba(10,21,16,0.08);
+          --lp-grid: rgba(10,21,16,0.05);
+          --lp-bubble-left-bg: #EEF3EF;
+          --lp-bubble-left-bd: rgba(10,21,16,0.06);
+          --lp-bubble-left-fg: #0A1510;
+          --lp-phone-shell: linear-gradient(180deg,#E2E8E4,#BFCAC3);
+          --lp-phone-shell-bd: rgba(10,21,16,0.12);
+          --lp-phone-screen: #F2F6F3;
+          --lp-chat-header-bg: #FFFFFF;
+          --lp-chat-header-bd: rgba(10,21,16,0.06);
+          --lp-input-bg: #FFFFFF;
+          --lp-input-pill: #EEF3EF;
+          --lp-final-bg: linear-gradient(135deg,#E8F6EE,#FFFFFF);
+          --lp-final-bd: rgba(22,163,74,0.30);
+          --lp-final-shadow: 0 40px 120px -40px rgba(22,163,74,0.35);
         }
+
+        .lp-root { background: var(--lp-bg); color: rgb(var(--lp-fg-rgb)); }
+        .lp-root .glass { background: var(--lp-glass-bg); border: 1px solid var(--lp-glass-bd); }
+        .lp-root .glass-strong { background: var(--lp-glass-strong-bg); border: 1px solid var(--lp-glass-strong-bd); }
         @media (min-width: 768px) {
-          .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-          .glass-strong { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+          .lp-root .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+          .lp-root .glass-strong { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
         }
+        .lp-root .grid-bg {
+          background-image:
+            linear-gradient(var(--lp-grid) 1px, transparent 1px),
+            linear-gradient(90deg, var(--lp-grid) 1px, transparent 1px);
+          background-size: 48px 48px;
+        }
+        .lp-header { background: var(--lp-header-bg); border-bottom: 1px solid var(--lp-header-bd); }
+
+        /* override hardcoded white text/bg utilities inside LP */
+        .lp-root .text-white { color: rgb(var(--lp-fg-rgb)) !important; }
+        .lp-root .text-white\\/90 { color: rgba(var(--lp-fg-rgb),0.90) !important; }
+        .lp-root .text-white\\/85 { color: rgba(var(--lp-fg-rgb),0.85) !important; }
+        .lp-root .text-white\\/80 { color: rgba(var(--lp-fg-rgb),0.80) !important; }
+        .lp-root .text-white\\/70 { color: rgba(var(--lp-fg-rgb),0.70) !important; }
+        .lp-root .text-white\\/65 { color: rgba(var(--lp-fg-rgb),0.65) !important; }
+        .lp-root .text-white\\/60 { color: rgba(var(--lp-fg-rgb),0.60) !important; }
+        .lp-root .text-white\\/55 { color: rgba(var(--lp-fg-rgb),0.55) !important; }
+        .lp-root .text-white\\/50 { color: rgba(var(--lp-fg-rgb),0.50) !important; }
+        .lp-root .text-white\\/45 { color: rgba(var(--lp-fg-rgb),0.45) !important; }
+        .lp-root .text-white\\/40 { color: rgba(var(--lp-fg-rgb),0.40) !important; }
+        .lp-root .text-white\\/30 { color: rgba(var(--lp-fg-rgb),0.30) !important; }
+        .lp-root .text-white\\/10 { color: rgba(var(--lp-fg-rgb),0.10) !important; }
+        .lp-root .bg-white\\/10 { background-color: rgba(var(--lp-fg-rgb),0.10) !important; }
+        .lp-root .bg-white\\/5 { background-color: rgba(var(--lp-fg-rgb),0.05) !important; }
+        .lp-root .hover\\:bg-white\\/10:hover { background-color: rgba(var(--lp-fg-rgb),0.10) !important; }
+        .lp-root .hover\\:text-white:hover { color: rgb(var(--lp-fg-rgb)) !important; }
+        .lp-root .border-white\\/5 { border-color: rgba(var(--lp-fg-rgb),0.08) !important; }
+        .lp-root .border-white\\/10 { border-color: rgba(var(--lp-fg-rgb),0.10) !important; }
+        .lp-root .divide-white\\/10 > :where(*) { border-color: rgba(var(--lp-fg-rgb),0.10) !important; }
+        .lp-root.is-light .lp-glow-a { opacity: .25; }
+        .lp-root.is-light .lp-glow-b { opacity: .12; }
+        .lp-root.is-light .lp-glow-c { opacity: .18; }
+        .lp-root.is-dark .lp-glow-a { opacity: .40; }
+        .lp-root.is-dark .lp-glow-b { opacity: .25; }
+        .lp-root.is-dark .lp-glow-c { opacity: .30; }
+
         .dot-pulse { position: relative; }
         .dot-pulse::after {
           content: '';
@@ -145,24 +227,23 @@ function Landing() {
           .reveal { opacity: 1; transform: none; transition: none; }
           .animate-float { animation: none; }
         }
-        .grid-bg {
-          background-image:
-            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-          background-size: 48px 48px;
-        }
       `}</style>
     </div>
   );
 }
 
 /* ===================== HEADER ===================== */
-function Header({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function Header({
+  onCta,
+  isDark,
+  onToggleTheme,
+}: {
+  onCta: (p: "/entrar" | "/demo/dashboard") => void;
+  isDark: boolean;
+  onToggleTheme: () => void;
+}) {
   return (
-    <header
-      className="sticky top-0 z-50 backdrop-blur-xl"
-      style={{ background: "rgba(4,16,10,0.55)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-    >
+    <header className="lp-header sticky top-0 z-50 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8 h-16 flex items-center justify-between gap-3">
         <a href="/" className="flex items-center gap-2.5">
           <span className="grid h-9 w-9 place-items-center rounded-xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
@@ -177,6 +258,15 @@ function Header({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }
           <a href="#faq" className="hover:text-white transition">Dúvidas</a>
         </nav>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onToggleTheme}
+            aria-label="Alternar tema"
+            title={isDark ? "Tema claro" : "Tema escuro"}
+            className="size-9 grid place-items-center rounded-lg glass text-white/80 hover:text-white transition"
+          >
+            {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </button>
           <button onClick={() => onCta("/entrar")} className="hidden sm:inline text-sm px-4 py-2 rounded-lg text-white/80 hover:text-white">
             Entrar
           </button>
@@ -192,6 +282,7 @@ function Header({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }
     </header>
   );
 }
+
 
 /* ===================== HERO ===================== */
 function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
