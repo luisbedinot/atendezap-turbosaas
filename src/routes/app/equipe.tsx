@@ -32,6 +32,7 @@ function EquipePage() {
   const invite = useServerFn(inviteMember);
   const toggleActive = useServerFn(setMemberActive);
   const changeRole = useServerFn(setMemberRole);
+  const plan = usePlanFeatures();
 
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
