@@ -348,11 +348,11 @@ function PhoneMock() {
       {/* phone */}
       <div
         className="relative w-[270px] sm:w-[320px] md:w-[340px] h-[560px] sm:h-[620px] md:h-[640px] rounded-[2.5rem] p-3 shadow-2xl"
-        style={{ background: "linear-gradient(180deg,#1a1f1d,#0b0f0d)", border: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ background: "var(--lp-phone-shell)", border: "1px solid var(--lp-phone-shell-bd)" }}
       >
         <div
           className="relative w-full h-full rounded-[2rem] overflow-hidden flex flex-col"
-          style={{ background: "#0b1410" }}
+          style={{ background: "var(--lp-phone-screen)" }}
         >
           {/* status bar */}
           <div className="flex items-center justify-between px-5 pt-3 pb-2 text-[10px] text-white/60">
@@ -360,7 +360,7 @@ function PhoneMock() {
             <span>●●● 5G</span>
           </div>
           {/* chat header */}
-          <div className="flex items-center gap-3 px-4 py-3" style={{ background: "#111d18", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div className="flex items-center gap-3 px-4 py-3" style={{ background: "var(--lp-chat-header-bg)", borderBottom: "1px solid var(--lp-chat-header-bd)" }}>
             <div className="grid place-items-center size-9 rounded-full text-black font-bold" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
               A
             </div>
@@ -385,8 +385,8 @@ function PhoneMock() {
             </div>
           </div>
           {/* input */}
-          <div className="px-3 py-3 flex items-center gap-2" style={{ background: "#111d18" }}>
-            <div className="flex-1 h-9 rounded-full px-4 text-xs text-white/40 grid place-items-start content-center" style={{ background: "#0b1410" }}>
+          <div className="px-3 py-3 flex items-center gap-2" style={{ background: "var(--lp-chat-header-bg)" }}>
+            <div className="flex-1 h-9 rounded-full px-4 text-xs text-white/40 grid place-items-start content-center" style={{ background: "var(--lp-input-pill)" }}>
               Mensagem
             </div>
             <div className="size-9 rounded-full grid place-items-center" style={{ background: "#25D366" }}>
@@ -395,6 +395,7 @@ function PhoneMock() {
           </div>
         </div>
       </div>
+
 
       {/* floating CRM card — escondido em telas muito pequenas pra não estourar */}
       <div className="hidden sm:block absolute -left-10 sm:-left-16 bottom-20 glass-strong rounded-2xl p-3.5 w-[220px] shadow-2xl animate-float" style={{ animationDelay: "1.5s" }}>
