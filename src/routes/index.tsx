@@ -240,7 +240,7 @@ function Header({
   isDark,
   onToggleTheme,
 }: {
-  onCta: (p: "/entrar" | "/demo/dashboard") => void;
+  onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void;
   isDark: boolean;
   onToggleTheme: () => void;
 }) {
@@ -287,7 +287,7 @@ function Header({
 
 
 /* ===================== HERO ===================== */
-function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function Hero({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
   return (
     <section className="relative px-4 sm:px-6 md:px-8 pt-12 md:pt-28 pb-16 md:pb-24">
       <div className="absolute inset-0 grid-bg [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] opacity-40" />
@@ -563,7 +563,7 @@ function Features() {
 }
 
 /* ===================== PRICING ===================== */
-function Pricing({ onCta: _onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function Pricing({ onCta: _onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
   const plans = [
     {
       slug: "starter",
@@ -725,7 +725,7 @@ function Faq() {
 }
 
 /* ===================== FINAL CTA ===================== */
-function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void }) {
+function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard", plano?: string) => void }) {
   return (
     <section className="px-4 sm:px-5 md:px-8 py-20 md:py-28">
       <div
