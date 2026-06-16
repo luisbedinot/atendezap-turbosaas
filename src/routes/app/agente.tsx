@@ -65,7 +65,7 @@ function AgentePage() {
     const [{ data: c }, { data: p }, { data: g }] = await Promise.all([
       supabase.from("agent_config").select("*").eq("company_id", companyId).maybeSingle(),
       supabase.from("produto").select("*").eq("company_id", companyId).order("ordem", { ascending: true }),
-      supabase.from("google_integration").select("*").eq("company_id", companyId).maybeSingle(),
+      supabase.from("google_integration").select("company_id,email,conectado,calendar_id,expiry,updated_at").eq("company_id", companyId).maybeSingle(),
     ]);
     if (c) setCfg({ ...DEFAULTS, ...c });
     setProdutos((p ?? []) as Produto[]);

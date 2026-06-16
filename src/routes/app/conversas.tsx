@@ -61,7 +61,7 @@ function ConversasPage() {
     if (!companyId) return;
     void load(companyId);
     const ch = supabase
-      .channel(`mensagens_realtime_${companyId}`)
+      .channel(`tenant:${companyId}:mensagens`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "mensagens", filter: `company_id=eq.${companyId}` },
         (payload) => {

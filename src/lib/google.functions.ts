@@ -44,10 +44,11 @@ export const disconnectGoogle = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { data: cu } = await supabase
-      .from("company_user").select("company_id").eq("user_id", userId).eq("ativo", true)
+      .from("company_user").select("company_id,role").eq("user_id", userId).eq("ativo", true)
       .order("created_at", { ascending: true }).limit(1).maybeSingle();
-    if (!cu) return { ok: false };
-    await supabase.from("google_integration").upsert(
+    if (!cu || !["owner", "admin"].includes(cu.role)) return { ok: false };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("google_integration").upsert(
       { company_id: cu.company_id, conectado: false, access_token: null, refresh_token: null, expiry: null, email: null, calendar_id: null },
       { onConflict: "company_id" },
     );
@@ -65,7 +66,9 @@ export const createGoogleCalendarEvent = createServerFn({ method: "POST" })
     if (!cu) throw new Error("Sem empresa");
     const companyId = cu.company_id;
 
-    const { data: gi } = await supabase.from("google_integration").select("*").eq("company_id", companyId).maybeSingle();
+    // Tokens are not readable via authenticated RLS — use admin client server-side
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: gi } = await supabaseAdmin.from("google_integration").select("*").eq("company_id", companyId).maybeSingle();
     if (!gi?.conectado) throw new Error("Google Agenda não conectado");
 
     // Refresh if needed
@@ -84,7 +87,7 @@ export const createGoogleCalendarEvent = createServerFn({ method: "POST" })
       const tok = await tokRes.json();
       if (tok.access_token) {
         accessToken = tok.access_token;
-        await supabase.from("google_integration").update({
+        await supabaseAdmin.from("google_integration").update({
           access_token: accessToken,
           expiry: new Date(Date.now() + (tok.expires_in ?? 3600) * 1000).toISOString(),
         }).eq("company_id", companyId);
