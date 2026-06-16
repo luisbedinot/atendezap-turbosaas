@@ -81,10 +81,16 @@ function ConexaoPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Conexão WhatsApp</h1>
-        <p className="text-sm text-muted-foreground">Conecte sua linha via Evolution API.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Conexão WhatsApp</h1>
+          <p className="text-sm text-muted-foreground">Conecte sua linha via Evolution API.</p>
+        </div>
+        {!plan.loading && (
+          <PlanUsageBadge label="números" used={plan.usage.instancias} limit={plan.limites.instancias} />
+        )}
       </div>
+
 
       <Card className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
