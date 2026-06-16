@@ -17,10 +17,12 @@ import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MasterPlanosRouteImport } from './routes/master/planos'
 import { Route as MasterPainelRouteImport } from './routes/master/painel'
 import { Route as MasterNovaEmpresaRouteImport } from './routes/master/nova-empresa'
 import { Route as MasterEmpresasRouteImport } from './routes/master/empresas'
 import { Route as MasterConfiguracoesRouteImport } from './routes/master/configuracoes'
+import { Route as MasterAssinaturasRouteImport } from './routes/master/assinaturas'
 import { Route as DemoRelatoriosRouteImport } from './routes/demo/relatorios'
 import { Route as DemoEquipeRouteImport } from './routes/demo/equipe'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
@@ -42,6 +44,7 @@ import { Route as AppConexaoRouteImport } from './routes/app/conexao'
 import { Route as AppAgenteRouteImport } from './routes/app/agente'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
 import { Route as ApiPublicGoogleCallbackRouteImport } from './routes/api/public/google-callback'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
   id: '/trocar-senha',
@@ -83,6 +86,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MasterPlanosRoute = MasterPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => MasterRoute,
+} as any)
 const MasterPainelRoute = MasterPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
@@ -101,6 +109,11 @@ const MasterEmpresasRoute = MasterEmpresasRouteImport.update({
 const MasterConfiguracoesRoute = MasterConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => MasterRoute,
+} as any)
+const MasterAssinaturasRoute = MasterAssinaturasRouteImport.update({
+  id: '/assinaturas',
+  path: '/assinaturas',
   getParentRoute: () => MasterRoute,
 } as any)
 const DemoRelatoriosRoute = DemoRelatoriosRouteImport.update({
@@ -209,6 +222,12 @@ const ApiPublicGoogleCallbackRoute = ApiPublicGoogleCallbackRouteImport.update({
   path: '/api/public/google-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -238,12 +257,15 @@ export interface FileRoutesByFullPath {
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
+  '/master/assinaturas': typeof MasterAssinaturasRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/master/planos': typeof MasterPlanosRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -273,12 +295,15 @@ export interface FileRoutesByTo {
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
+  '/master/assinaturas': typeof MasterAssinaturasRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/master/planos': typeof MasterPlanosRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -309,12 +334,15 @@ export interface FileRoutesById {
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
+  '/master/assinaturas': typeof MasterAssinaturasRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
   '/master/empresas': typeof MasterEmpresasRoute
   '/master/nova-empresa': typeof MasterNovaEmpresaRoute
   '/master/painel': typeof MasterPainelRoute
+  '/master/planos': typeof MasterPlanosRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -346,12 +374,15 @@ export interface FileRouteTypes {
     | '/demo/dashboard'
     | '/demo/equipe'
     | '/demo/relatorios'
+    | '/master/assinaturas'
     | '/master/configuracoes'
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/master/planos'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -381,12 +412,15 @@ export interface FileRouteTypes {
     | '/demo/dashboard'
     | '/demo/equipe'
     | '/demo/relatorios'
+    | '/master/assinaturas'
     | '/master/configuracoes'
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/master/planos'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -416,12 +450,15 @@ export interface FileRouteTypes {
     | '/demo/dashboard'
     | '/demo/equipe'
     | '/demo/relatorios'
+    | '/master/assinaturas'
     | '/master/configuracoes'
     | '/master/empresas'
     | '/master/nova-empresa'
     | '/master/painel'
+    | '/master/planos'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -435,6 +472,7 @@ export interface RootRouteChildren {
   TrocarSenhaRoute: typeof TrocarSenhaRoute
   ApiPublicGoogleCallbackRoute: typeof ApiPublicGoogleCallbackRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -495,6 +533,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/master/planos': {
+      id: '/master/planos'
+      path: '/planos'
+      fullPath: '/master/planos'
+      preLoaderRoute: typeof MasterPlanosRouteImport
+      parentRoute: typeof MasterRoute
+    }
     '/master/painel': {
       id: '/master/painel'
       path: '/painel'
@@ -521,6 +566,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/master/configuracoes'
       preLoaderRoute: typeof MasterConfiguracoesRouteImport
+      parentRoute: typeof MasterRoute
+    }
+    '/master/assinaturas': {
+      id: '/master/assinaturas'
+      path: '/assinaturas'
+      fullPath: '/master/assinaturas'
+      preLoaderRoute: typeof MasterAssinaturasRouteImport
       parentRoute: typeof MasterRoute
     }
     '/demo/relatorios': {
@@ -670,6 +722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -728,17 +787,21 @@ const DemoRouteChildren: DemoRouteChildren = {
 const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
 
 interface MasterRouteChildren {
+  MasterAssinaturasRoute: typeof MasterAssinaturasRoute
   MasterConfiguracoesRoute: typeof MasterConfiguracoesRoute
   MasterEmpresasRoute: typeof MasterEmpresasRoute
   MasterNovaEmpresaRoute: typeof MasterNovaEmpresaRoute
   MasterPainelRoute: typeof MasterPainelRoute
+  MasterPlanosRoute: typeof MasterPlanosRoute
 }
 
 const MasterRouteChildren: MasterRouteChildren = {
+  MasterAssinaturasRoute: MasterAssinaturasRoute,
   MasterConfiguracoesRoute: MasterConfiguracoesRoute,
   MasterEmpresasRoute: MasterEmpresasRoute,
   MasterNovaEmpresaRoute: MasterNovaEmpresaRoute,
   MasterPainelRoute: MasterPainelRoute,
+  MasterPlanosRoute: MasterPlanosRoute,
 }
 
 const MasterRouteWithChildren =
@@ -755,6 +818,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrocarSenhaRoute: TrocarSenhaRoute,
   ApiPublicGoogleCallbackRoute: ApiPublicGoogleCallbackRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

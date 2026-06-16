@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useLocation } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { brand } from "@/config/brand";
-import { Shield, LogOut, BarChart3, Building2, Plus, Settings, ArrowLeft } from "lucide-react";
+import { Shield, LogOut, BarChart3, Building2, Plus, Settings, ArrowLeft, Package, CreditCard } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
 
@@ -24,6 +24,13 @@ const sections = [
     items: [
       { to: "/master/painel", label: "Painel", icon: BarChart3 },
       { to: "/master/empresas", label: "Empresas", icon: Building2 },
+      { to: "/master/assinaturas", label: "Assinaturas", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Catálogo",
+    items: [
+      { to: "/master/planos", label: "Planos", icon: Package },
     ],
   },
   {
@@ -42,8 +49,8 @@ const RED_SOFT_STRONG = "rgba(220,38,38,.22)";
 const mobileItems: MobileNavItem[] = [
   { to: "/master/painel", label: "Painel", icon: BarChart3 },
   { to: "/master/empresas", label: "Empresas", icon: Building2 },
-  { to: "/master/nova-empresa", label: "Nova", icon: Plus },
-  { to: "/master/configuracoes", label: "Config", icon: Settings },
+  { to: "/master/assinaturas", label: "Assinat.", icon: CreditCard },
+  { to: "/master/planos", label: "Planos", icon: Package },
 ];
 
 function MasterLayout() {
