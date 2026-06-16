@@ -72,45 +72,34 @@ function ContatosPage() {
   }
 
   async function criarNovo() {
-    if (!companyId || !novoNumero.trim()) return;
-    const numero = novoNumero.trim().replace(/\D/g, "");
-    const firstStage = stages[0];
-    const { error } = await supabase.from("crm_cards").insert({
-      company_id: companyId, user_id: ctx.user.id,
-      numero, nome: novoNome.trim() || null,
-      status: firstStage?.nome?.toLowerCase() ?? "conversas",
-      stage_id: firstStage?.id ?? null,
-      ultima_em: new Date().toISOString(),
-    });
-    if (error) return toast.error(error.message);
-    toast.success("Contato criado");
-    setNovoNome(""); setNovoNumero(""); setNewOpen(false);
-    await load();
+    if (!novoNumero.trim()) return;
+    try {
+      await createContactFn({ data: { numero: novoNumero.trim(), nome: novoNome.trim() || null } });
+      toast.success("Contato criado");
+      setNovoNome(""); setNovoNumero(""); setNewOpen(false);
+      await Promise.all([load(), plan.refresh()]);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao criar");
+    }
   }
 
   function importCSV(file: File) {
     Papa.parse(file, {
       header: true, skipEmptyLines: true,
       complete: async (res) => {
-        if (!companyId) return;
-        const firstStage = stages[0];
         const rows = (res.data as any[]).map((r) => {
           const nome = (r.nome ?? r.name ?? r.Nome ?? "").toString().trim() || null;
           const numero = (r.telefone ?? r.phone ?? r.Telefone ?? r.numero ?? "").toString().replace(/\D/g, "");
           return { nome, numero };
         }).filter((r) => r.numero.length >= 8);
         if (rows.length === 0) return toast.error("Nenhuma linha válida (precisa de coluna nome/telefone).");
-        const payload = rows.map((r) => ({
-          company_id: companyId, user_id: ctx.user.id,
-          numero: r.numero, nome: r.nome,
-          status: firstStage?.nome?.toLowerCase() ?? "conversas",
-          stage_id: firstStage?.id ?? null,
-          ultima_em: new Date().toISOString(),
-        }));
-        const { error } = await supabase.from("crm_cards").upsert(payload, { onConflict: "company_id,numero" });
-        if (error) return toast.error(error.message);
-        toast.success(`${rows.length} contato(s) importado(s)`);
-        await load();
+        try {
+          const r = await importContactsFn({ data: { contatos: rows } });
+          toast.success(`${r.inseridos ?? rows.length} contato(s) importado(s)`);
+          await Promise.all([load(), plan.refresh()]);
+        } catch (e: any) {
+          toast.error(e?.message || "Falha ao importar");
+        }
       },
       error: (e) => toast.error(e.message),
     });
