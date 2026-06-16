@@ -232,45 +232,176 @@ export type Database = {
       }
       company: {
         Row: {
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          cnpj_cpf: string | null
+          complemento: string | null
           created_at: string
           created_by: string | null
+          email_corporativo: string | null
+          estado: string | null
           id: string
+          inscricao_estadual: string | null
           logo_url: string | null
           nome: string
+          nome_fantasia: string | null
+          numero: string | null
+          onboarding_completed: boolean
+          onboarding_step: number
+          pais: string | null
+          porte: string | null
           primary_color: string
+          razao_social: string | null
+          rua: string | null
+          segmento: string | null
+          site: string | null
           slug: string
           status_cobranca: string
           telefone: string | null
+          tipo_pessoa: string
           trial_ate: string
           updated_at: string
         }
         Insert: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          cnpj_cpf?: string | null
+          complemento?: string | null
           created_at?: string
           created_by?: string | null
+          email_corporativo?: string | null
+          estado?: string | null
           id?: string
+          inscricao_estadual?: string | null
           logo_url?: string | null
           nome: string
+          nome_fantasia?: string | null
+          numero?: string | null
+          onboarding_completed?: boolean
+          onboarding_step?: number
+          pais?: string | null
+          porte?: string | null
           primary_color?: string
+          razao_social?: string | null
+          rua?: string | null
+          segmento?: string | null
+          site?: string | null
           slug: string
           status_cobranca?: string
           telefone?: string | null
+          tipo_pessoa?: string
           trial_ate?: string
           updated_at?: string
         }
         Update: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          cnpj_cpf?: string | null
+          complemento?: string | null
           created_at?: string
           created_by?: string | null
+          email_corporativo?: string | null
+          estado?: string | null
           id?: string
+          inscricao_estadual?: string | null
           logo_url?: string | null
           nome?: string
+          nome_fantasia?: string | null
+          numero?: string | null
+          onboarding_completed?: boolean
+          onboarding_step?: number
+          pais?: string | null
+          porte?: string | null
           primary_color?: string
+          razao_social?: string | null
+          rua?: string | null
+          segmento?: string | null
+          site?: string | null
           slug?: string
           status_cobranca?: string
           telefone?: string | null
+          tipo_pessoa?: string
           trial_ate?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      company_billing: {
+        Row: {
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          cnpj_cpf: string | null
+          company_id: string
+          complemento: string | null
+          created_at: string
+          email_cobranca: string | null
+          estado: string | null
+          id: string
+          inscricao_estadual: string | null
+          nome_responsavel: string | null
+          numero: string | null
+          pais: string | null
+          razao_social: string | null
+          rua: string | null
+          telefone: string | null
+          tipo_pessoa: string
+          updated_at: string
+        }
+        Insert: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          cnpj_cpf?: string | null
+          company_id: string
+          complemento?: string | null
+          created_at?: string
+          email_cobranca?: string | null
+          estado?: string | null
+          id?: string
+          inscricao_estadual?: string | null
+          nome_responsavel?: string | null
+          numero?: string | null
+          pais?: string | null
+          razao_social?: string | null
+          rua?: string | null
+          telefone?: string | null
+          tipo_pessoa?: string
+          updated_at?: string
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          cnpj_cpf?: string | null
+          company_id?: string
+          complemento?: string | null
+          created_at?: string
+          email_cobranca?: string | null
+          estado?: string | null
+          id?: string
+          inscricao_estadual?: string | null
+          nome_responsavel?: string | null
+          numero?: string | null
+          pais?: string | null
+          razao_social?: string | null
+          rua?: string | null
+          telefone?: string | null
+          tipo_pessoa?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_billing_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       company_user: {
         Row: {
@@ -607,6 +738,81 @@ export type Database = {
         }
         Relationships: []
       }
+      plan: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          destaque: boolean
+          features: Json
+          id: string
+          intervalo: string
+          limite_contatos: number
+          limite_instancias: number
+          limite_mensagens: number
+          limite_usuarios: number
+          moeda: string
+          nome: string
+          ordem: number
+          paddle_price_id: string | null
+          paddle_product_id: string | null
+          preco_cents: number
+          slug: string
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          trial_days: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          destaque?: boolean
+          features?: Json
+          id?: string
+          intervalo?: string
+          limite_contatos?: number
+          limite_instancias?: number
+          limite_mensagens?: number
+          limite_usuarios?: number
+          moeda?: string
+          nome: string
+          ordem?: number
+          paddle_price_id?: string | null
+          paddle_product_id?: string | null
+          preco_cents?: number
+          slug: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          trial_days?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          destaque?: boolean
+          features?: Json
+          id?: string
+          intervalo?: string
+          limite_contatos?: number
+          limite_instancias?: number
+          limite_mensagens?: number
+          limite_usuarios?: number
+          moeda?: string
+          nome?: string
+          ordem?: number
+          paddle_price_id?: string | null
+          paddle_product_id?: string | null
+          preco_cents?: number
+          slug?: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          trial_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       produto: {
         Row: {
           ativo: boolean
@@ -650,27 +856,123 @@ export type Database = {
       }
       profiles: {
         Row: {
+          cargo: string | null
+          cpf: string | null
           created_at: string
           email: string | null
           nome: string | null
+          nome_completo: string | null
+          telefone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          cargo?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string | null
           nome?: string | null
+          nome_completo?: string | null
+          telefone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          cargo?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string | null
           nome?: string | null
+          nome_completo?: string | null
+          telefone?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      subscription: {
+        Row: {
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          company_id: string
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          metadata: Json
+          next_billing_amount_cents: number | null
+          paddle_customer_id: string | null
+          paddle_subscription_id: string | null
+          payment_method_brand: string | null
+          payment_method_exp: string | null
+          payment_method_last4: string | null
+          plan_id: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          company_id: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          metadata?: Json
+          next_billing_amount_cents?: number | null
+          paddle_customer_id?: string | null
+          paddle_subscription_id?: string | null
+          payment_method_brand?: string | null
+          payment_method_exp?: string | null
+          payment_method_last4?: string | null
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          company_id?: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          metadata?: Json
+          next_billing_amount_cents?: number | null
+          paddle_customer_id?: string | null
+          paddle_subscription_id?: string | null
+          payment_method_brand?: string | null
+          payment_method_exp?: string | null
+          payment_method_last4?: string | null
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plan"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
