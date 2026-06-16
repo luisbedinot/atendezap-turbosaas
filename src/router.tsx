@@ -12,8 +12,8 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     defaultPendingComponent: RoutePendingComponent,
-    defaultPendingMs: 200,
-    defaultPendingMinMs: 300,
+    defaultPendingMs: 0,
+    defaultPendingMinMs: 0,
     defaultErrorComponent: RouteErrorComponent,
   });
 
