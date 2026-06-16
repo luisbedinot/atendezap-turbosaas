@@ -244,14 +244,14 @@ function Header({
 }) {
   return (
     <header className="lp-header sticky top-0 z-50 backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8 h-16 flex items-center justify-between gap-3">
-        <a href="/" className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
-            <Zap className="size-4 text-black" strokeWidth={2.6} />
+      <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8 h-18 md:h-20 flex items-center justify-between gap-3">
+        <a href="/" className="flex items-center gap-3">
+          <span className="grid h-10 w-10 md:h-11 md:w-11 place-items-center rounded-2xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
+            <Zap className="size-5 text-black" strokeWidth={2.6} />
           </span>
-          <span className="font-display text-lg">{brand.name}</span>
+          <span className="font-display text-xl md:text-[1.4rem] tracking-tight">{brand.name}</span>
         </a>
-        <nav className="hidden md:flex items-center gap-7 text-sm text-white/70">
+        <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-white/70">
           <a href="#como" className="hover:text-white transition">Como funciona</a>
           <a href="#recursos" className="hover:text-white transition">Recursos</a>
           <a href="#planos" className="hover:text-white transition">Planos</a>
@@ -263,16 +263,16 @@ function Header({
             onClick={onToggleTheme}
             aria-label="Alternar tema"
             title={isDark ? "Tema claro" : "Tema escuro"}
-            className="size-9 grid place-items-center rounded-lg glass text-white/80 hover:text-white transition"
+            className="size-10 grid place-items-center rounded-xl glass text-white/80 hover:text-white transition"
           >
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <button onClick={() => onCta("/entrar")} className="hidden sm:inline text-sm px-4 py-2 rounded-lg text-white/80 hover:text-white">
+          <button onClick={() => onCta("/entrar")} className="hidden sm:inline text-[15px] font-medium px-4 py-2.5 rounded-xl text-white/80 hover:text-white">
             Entrar
           </button>
           <button
             onClick={() => onCta("/entrar")}
-            className="text-sm font-semibold px-4 py-2.5 rounded-lg text-black btn-glow"
+            className="text-[15px] font-semibold px-5 py-3 rounded-xl text-black btn-glow"
             style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}
           >
             Começar grátis
