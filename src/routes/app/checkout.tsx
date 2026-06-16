@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -7,10 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { brand } from "@/config/brand";
-import { slugify } from "@/lib/tenant";
 import { Loader2, ShieldCheck, CreditCard, Sparkles, ArrowLeft } from "lucide-react";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { createCheckoutCompany } from "@/lib/checkout.functions";
 
 type Search = { plano?: string };
 
@@ -41,6 +42,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/app/checkout" }) as Search;
   const { openCheckout, loading: paddleLoading } = usePaddleCheckout();
+  const createCompany = useServerFn(createCheckoutCompany);
 
   const [plans, setPlans] = useState<Plano[]>([]);
   const [selected, setSelected] = useState<string | null>(search.plano ?? null);
@@ -72,31 +74,7 @@ function CheckoutPage() {
     if (!nome.trim()) return toast.error("Informe o nome da sua empresa.");
     setCreating(true);
     try {
-      // Cria empresa sem depender de RETURNING, porque a política de leitura
-      // só libera depois que o vínculo owner existe.
-      const companyId = crypto.randomUUID();
-      const finalSlug = slugify(nome).slice(0, 48) + "-" + Math.random().toString(36).slice(2, 6);
-      const { error: e1 } = await supabase
-        .from("company")
-        .insert({
-          id: companyId,
-          nome: nome.trim(),
-          slug: finalSlug,
-          primary_color: "#25D366",
-          created_by: ctx.user.id,
-          status_cobranca: "checkout_pending",
-          onboarding_completed: false,
-          onboarding_step: 0,
-        });
-      if (e1) throw e1;
-
-      const { error: e2 } = await supabase.from("company_user").insert({
-        user_id: ctx.user.id,
-        company_id: companyId,
-        role: "owner",
-        ativo: true,
-      });
-      if (e2) throw e2;
+      const { companyId } = await createCompany({ data: { nome: nome.trim() } });
 
       // Abre Paddle Checkout (3d trial — cobrança após validar cartão)
       await openCheckout({
