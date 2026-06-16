@@ -786,7 +786,7 @@ function SectionTitle({ eyebrow, title, center }: { eyebrow: string; title: Reac
         <span className="h-px w-8 bg-[#25D366]/60" />
         {eyebrow}
       </div>
-      <h2 className="font-display text-4xl md:text-6xl leading-[1.02] tracking-tight mt-5 max-w-3xl">
+      <h2 className={`font-display text-4xl md:text-6xl leading-[1.02] tracking-tight mt-5 max-w-3xl ${center ? "mx-auto" : ""}`}>
         {title}
       </h2>
     </div>
