@@ -1,22 +1,21 @@
 import { createFileRoute, redirect, useNavigate, Link, useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { MessageSquareText, Sparkles } from "lucide-react";
+import { MessageSquareText, Sparkles, Loader2 } from "lucide-react";
 import { brand } from "@/config/brand";
 
 type Search = { modo?: "login" | "signup"; plano?: string };
 
 export const Route = createFileRoute("/entrar")({
   ssr: false,
-  head: () => ({ meta: [{ title: `${brand.name} — Entrar` }] }),
+  head: () => ({ meta: [{ title: `${brand.name} — Começar` }] }),
   validateSearch: (s: Record<string, unknown>): Search => ({
-    modo: s.modo === "signup" ? "signup" : s.modo === "login" ? "login" : undefined,
+    modo: s.modo === "login" ? "login" : "signup",
     plano: typeof s.plano === "string" ? s.plano : undefined,
   }),
   beforeLoad: async ({ search }) => {
@@ -35,34 +34,23 @@ const PLAN_LABEL: Record<string, { nome: string; preco: string }> = {
   business: { nome: "Business", preco: "R$ 497/mês" },
 };
 
-const schema = z.object({ email: z.string().email("E-mail inválido"), password: z.string().min(6, "Mínimo 6 caracteres") });
 const emailSchema = z.string().email("E-mail inválido");
+
+function genStrongPassword() {
+  const arr = new Uint8Array(24);
+  crypto.getRandomValues(arr);
+  return "Az9!" + btoa(String.fromCharCode(...arr)).replace(/[+/=]/g, "x").slice(0, 28);
+}
 
 function EntrarPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/entrar" }) as Search;
-  const [tab, setTab] = useState<"login" | "signup">(search.modo ?? "signup");
-  const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [needsPassword, setNeedsPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { if (search.modo) setTab(search.modo); }, [search.modo]);
-
   const planInfo = search.plano ? PLAN_LABEL[search.plano] : null;
-
-  function switchTab(v: "login" | "signup") {
-    setTab(v);
-    setStep(1);
-    setPassword("");
-  }
-
-  function goToPassword(e: React.FormEvent) {
-    e.preventDefault();
-    const v = emailSchema.safeParse(email);
-    if (!v.success) return toast.error(v.error.issues[0].message);
-    setStep(2);
-  }
 
   async function routeAfterAuth() {
     const { data: u } = await supabase.auth.getUser();
@@ -82,36 +70,58 @@ function EntrarPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const v = schema.safeParse({ email, password });
+    const v = emailSchema.safeParse(email);
     if (!v.success) return toast.error(v.error.issues[0].message);
     setLoading(true);
-    if (tab === "login") {
+
+    // Se já voltou pedindo senha (conta existente), faz login direto.
+    if (needsPassword) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
-      if (error) return toast.error(error.message);
-      toast.success("Bem-vindo!");
+      if (error) return toast.error("Senha incorreta. Tente novamente ou recupere sua senha.");
+      toast.success("Bem-vindo de volta!");
       return routeAfterAuth();
     }
-    const { error } = await supabase.auth.signUp({
+
+    // 1 clique: cria conta com senha forte gerada e já entra
+    const generated = genStrongPassword();
+    const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
       email,
-      password,
+      password: generated,
       options: { emailRedirectTo: window.location.origin + (search.plano ? `/app/checkout?plano=${search.plano}` : "/app/dashboard") },
     });
-    if (error) { setLoading(false); return toast.error(error.message); }
-    const { error: e2 } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (signUpErr) {
+      const msg = (signUpErr.message || "").toLowerCase();
+      // Email já existe: pede a senha
+      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+        setNeedsPassword(true);
+        setLoading(false);
+        toast.message("Já existe uma conta com esse e-mail.", { description: "Digite sua senha para continuar." });
+        return;
+      }
+      setLoading(false);
+      return toast.error(signUpErr.message);
+    }
+
+    // Se tem sessão já (auto_confirm), seguimos
+    if (signUpData.session) {
+      setLoading(false);
+      toast.success("Conta criada! Vamos para o pagamento.");
+      return routeAfterAuth();
+    }
+
+    // Tenta entrar imediatamente (caso de auto_confirm)
+    const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password: generated });
     setLoading(false);
-    if (e2) {
-      toast.success("Conta criada! Confirme seu e-mail e faça login.");
-      switchTab("login");
+    if (signInErr) {
+      // Provavelmente exige confirmação por e-mail
+      toast.success("Enviamos um link de confirmação para o seu e-mail.");
       return;
     }
     toast.success("Conta criada!");
-    await routeAfterAuth();
+    routeAfterAuth();
   }
-
-  const ctaLabel = tab === "signup"
-    ? (planInfo ? "Criar conta e ir para o pagamento" : "Criar conta")
-    : (planInfo ? "Entrar e continuar" : "Entrar");
 
   return (
     <div className="min-h-screen grid place-items-center p-4 relative overflow-hidden bg-background">
@@ -138,56 +148,53 @@ function EntrarPage() {
               <div className="font-display text-lg">{planInfo.nome}</div>
               <div className="text-sm font-semibold">{planInfo.preco}</div>
             </div>
-            <div className="text-xs text-muted-foreground mt-1">3 dias grátis • cancele antes e não pagamos nada</div>
+            <div className="text-xs text-muted-foreground mt-1">3 dias grátis • cancele antes e não paga nada</div>
           </div>
         )}
 
-        <Tabs value={tab} onValueChange={(v) => switchTab(v as any)}>
-          <TabsList className="grid grid-cols-2 mb-5 bg-muted/40 border border-border">
-            <TabsTrigger value="signup">Criar conta</TabsTrigger>
-            <TabsTrigger value="login">Entrar</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <h1 className="font-display text-2xl font-bold mb-1">
+          {needsPassword ? "Bem-vindo de volta" : "Comece em 1 clique"}
+        </h1>
+        <p className="text-sm text-muted-foreground mb-5">
+          {needsPassword ? "Você já tem conta — informe sua senha." : "Só precisamos do seu e-mail. Criamos sua conta na hora e te levamos para o pagamento."}
+        </p>
 
-        {step === 1 ? (
-          <form onSubmit={goToPassword} className="space-y-3">
-            <Field id="email-field" label="E-mail" type="email" value={email} onChange={setEmail} autoFocus />
-            <Button type="submit" className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold">
-              Continuar
-            </Button>
-            <p className="text-xs text-muted-foreground text-center pt-1">
-              {tab === "signup" ? "Leva 30 segundos. Sem cartão nos 3 dias grátis." : "Use o e-mail da sua conta."}
-            </p>
-          </form>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="rounded-lg border border-border bg-muted/30 px-3 py-2 flex items-center justify-between">
-              <div className="text-sm truncate">{email}</div>
-              <button type="button" onClick={() => setStep(1)} className="text-xs text-primary hover:underline shrink-0 ml-2">
-                trocar
-              </button>
-            </div>
-            <Field id="pwd-field" label={tab === "signup" ? "Crie uma senha (mín. 6)" : "Senha"} type="password" value={password} onChange={setPassword} autoFocus />
-            <Button type="submit" disabled={loading} className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold">
-              {loading ? "Aguarde…" : ctaLabel}
-            </Button>
-            {tab === "login" && (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="email">E-mail</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (needsPassword) setNeedsPassword(false); }}
+              required
+              autoFocus
+              placeholder="voce@empresa.com"
+            />
+          </div>
+
+          {needsPassword && (
+            <div className="space-y-1.5">
+              <Label htmlFor="pwd">Senha</Label>
+              <Input id="pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus required />
               <div className="text-right">
                 <Link to="/esqueci-senha" className="text-xs text-muted-foreground hover:text-foreground">Esqueci minha senha</Link>
               </div>
-            )}
-          </form>
-        )}
-      </div>
-    </div>
-  );
-}
+            </div>
+          )}
 
-function Field({ id, label, type, value, onChange, autoFocus }: { id: string; label: string; type: string; value: string; onChange: (v: string) => void; autoFocus?: boolean }) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} type={type} value={value} onChange={(e) => onChange(e.target.value)} required autoFocus={autoFocus} />
+          <Button type="submit" disabled={loading} size="lg" className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold">
+            {loading && <Loader2 className="size-4 mr-2 animate-spin" />}
+            {needsPassword ? "Entrar e continuar" : (planInfo ? "Continuar para o pagamento" : "Criar conta")}
+          </Button>
+
+          {!needsPassword && (
+            <p className="text-xs text-muted-foreground text-center pt-1">
+              Sem cartão para começar os 3 dias grátis. Cancele quando quiser.
+            </p>
+          )}
+        </form>
+      </div>
     </div>
   );
 }
