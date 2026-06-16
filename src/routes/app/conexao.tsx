@@ -20,6 +20,7 @@ function ConexaoPage() {
   const connect = useServerFn(connectWhatsapp);
   const check = useServerFn(checkWhatsappStatus);
   const disconnect = useServerFn(disconnectWhatsapp);
+  const plan = usePlanFeatures();
 
   const [loading, setLoading] = useState(false);
   const [qr, setQr] = useState<string | null>(null);
