@@ -169,6 +169,12 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const estagioAtual = cardRow?.status || stages[0]?.nome || "Conversas";
           const resumoContato = `${cardRow?.nome || pushName || "Contato"} (${number}), ${historico.length} mensagens trocadas`;
 
+          const { data: googleIntegration } = await supabaseAdmin
+            .from("google_integration")
+            .select("conectado")
+            .eq("company_id", companyId)
+            .maybeSingle();
+
           const responderEmPartes = cfg?.responder_em_partes ?? true;
           const system = buildSystemPrompt(cfg ?? {}, {
             responderEmPartes,
@@ -176,6 +182,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             resumoContato,
             produtos,
             stages: stages.map((s) => ({ nome: s.nome, tipo: s.tipo })),
+            googleConectado: !!googleIntegration?.conectado,
           });
 
           const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
