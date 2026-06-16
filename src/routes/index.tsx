@@ -759,20 +759,50 @@ function FinalCta({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard") => void
 /* ===================== FOOTER ===================== */
 function Footer() {
   return (
-    <footer className="px-5 md:px-8 py-12 border-t border-white/5">
-      <div className="mx-auto max-w-6xl flex flex-col md:flex-row gap-6 items-center justify-between text-sm text-white/50">
-        <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
-            <Zap className="size-3.5 text-black" strokeWidth={2.6} />
-          </span>
-          <span className="font-display text-base text-white/90">{brand.name}</span>
-          <span className="text-white/30">© {new Date().getFullYear()}</span>
+    <footer className="px-5 md:px-8 pt-16 md:pt-20 pb-10 border-t border-white/5">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-10 md:gap-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-2xl btn-glow" style={{ background: "linear-gradient(135deg,#25D366,#16a34a)" }}>
+                <Zap className="size-4 text-black" strokeWidth={2.6} />
+              </span>
+              <span className="font-display text-xl">{brand.name}</span>
+            </div>
+            <p className="mt-4 text-sm text-white/55 leading-relaxed max-w-xs">
+              IA que atende seu WhatsApp 24h, qualifica e organiza o CRM sozinha. Você só fecha.
+            </p>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-[0.2em] text-white/45 font-bold">Produto</div>
+            <ul className="mt-4 space-y-2.5 text-sm text-white/65">
+              <li><a href="#recursos" className="hover:text-white">Recursos</a></li>
+              <li><a href="#como" className="hover:text-white">Como funciona</a></li>
+              <li><a href="#planos" className="hover:text-white">Planos</a></li>
+              <li><a href="/demo/dashboard" className="hover:text-white">Demonstração</a></li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-[0.2em] text-white/45 font-bold">Empresa</div>
+            <ul className="mt-4 space-y-2.5 text-sm text-white/65">
+              <li><a href="#faq" className="hover:text-white">Dúvidas</a></li>
+              <li><a href="#" className="hover:text-white">Contato</a></li>
+              <li><a href="#" className="hover:text-white">Suporte</a></li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-[0.2em] text-white/45 font-bold">Legal</div>
+            <ul className="mt-4 space-y-2.5 text-sm text-white/65">
+              <li><a href="#" className="hover:text-white">Termos</a></li>
+              <li><a href="#" className="hover:text-white">Privacidade</a></li>
+              <li><a href="#" className="hover:text-white">LGPD</a></li>
+            </ul>
+          </div>
         </div>
-        <nav className="flex items-center gap-6">
-          <a href="#" className="hover:text-white">Termos</a>
-          <a href="#" className="hover:text-white">Privacidade</a>
-          <a href="#" className="hover:text-white">Suporte</a>
-        </nav>
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row gap-3 items-center justify-between text-xs text-white/40">
+          <span>© {new Date().getFullYear()} {brand.name}. Todos os direitos reservados.</span>
+          <span>Feito no Brasil com ☕ e WhatsApp.</span>
+        </div>
       </div>
     </footer>
   );
