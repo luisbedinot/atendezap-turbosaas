@@ -809,16 +809,32 @@ function Footer() {
 }
 
 /* ===================== HELPERS ===================== */
-function SectionTitle({ eyebrow, title, center }: { eyebrow: string; title: React.ReactNode; center?: boolean }) {
+function SectionTitle({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  /** @deprecated kept for API compat — sempre centralizado agora */
+  center?: boolean;
+}) {
   return (
-    <div className={`reveal ${center ? "text-center" : ""}`} data-reveal>
-      <div className={`inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.25em] text-white/55 font-bold ${center ? "" : ""}`}>
+    <div className="reveal text-center mx-auto max-w-4xl" data-reveal>
+      <div className="inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.28em] text-white/55 font-bold">
         <span className="h-px w-8 bg-[#25D366]/60" />
         {eyebrow}
+        <span className="h-px w-8 bg-[#25D366]/60" />
       </div>
-      <h2 className={`font-display text-4xl md:text-6xl leading-[1.02] tracking-tight mt-5 max-w-3xl ${center ? "mx-auto" : ""}`}>
+      <h2 className="font-display text-[clamp(2.4rem,6.5vw,5.5rem)] leading-[0.98] tracking-tight mt-6 mx-auto">
         {title}
       </h2>
+      {subtitle && (
+        <p className="mt-5 text-lg md:text-xl text-white/65 leading-relaxed max-w-2xl mx-auto">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }
