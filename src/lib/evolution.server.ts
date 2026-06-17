@@ -1,3 +1,5 @@
+import QRCode from "qrcode";
+
 // Wrapper server-only para a Evolution API v2.
 // Arquivo *.server.ts é bloqueado do bundle client — seguro para fallback.
 // Prioridade: process.env (override via Lovable Cloud Secrets) → fallback hardcoded.
@@ -68,6 +70,49 @@ export async function evoCreateInstance(instanceName: string, webhookUrl?: strin
 export async function evoConnect(instanceName: string): Promise<{ base64?: string; code?: string; pairingCode?: string }> {
   // GET /instance/connect/{instance} → { base64, code, pairingCode }
   return evo(`/instance/connect/${encodeURIComponent(instanceName)}`, { method: "GET" });
+}
+
+function asImageDataUrl(value: unknown): string | null {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (!text) return null;
+  if (text.startsWith("data:image/")) return text;
+  const base64 = text.includes("base64,") ? text.split("base64,").pop()?.trim() : text;
+  if (base64 && base64.length > 120 && /^[A-Za-z0-9+/=\s]+$/.test(base64)) {
+    return `data:image/png;base64,${base64.replace(/\s/g, "")}`;
+  }
+  return null;
+}
+
+function extractQrCode(payload: any): string | null {
+  const candidates = [
+    payload?.code,
+    payload?.qrcode?.code,
+    payload?.qrCode,
+    payload?.qrcode,
+    payload?.qr,
+  ];
+  for (const value of candidates) {
+    if (typeof value === "string" && value.trim() && !asImageDataUrl(value)) return value.trim();
+  }
+  return null;
+}
+
+export async function evoGetQr(instanceName: string): Promise<{ qrBase64: string | null; code: string | null; pairingCode: string | null }> {
+  const payload: any = await evoConnect(instanceName);
+  const image =
+    asImageDataUrl(payload?.base64) ||
+    asImageDataUrl(payload?.qrcode?.base64) ||
+    asImageDataUrl(payload?.qr?.base64) ||
+    asImageDataUrl(payload?.qrcode) ||
+    asImageDataUrl(payload?.qr);
+  const code = extractQrCode(payload);
+
+  if (image) return { qrBase64: image, code, pairingCode: payload?.pairingCode ?? payload?.qrcode?.pairingCode ?? null };
+  if (code) {
+    const qrBase64 = await QRCode.toDataURL(code, { width: 320, margin: 2, errorCorrectionLevel: "M" });
+    return { qrBase64, code, pairingCode: payload?.pairingCode ?? payload?.qrcode?.pairingCode ?? null };
+  }
+  return { qrBase64: null, code: null, pairingCode: payload?.pairingCode ?? payload?.qrcode?.pairingCode ?? null };
 }
 
 export async function evoState(instanceName: string): Promise<{ instance?: { state?: string }; state?: string }> {
