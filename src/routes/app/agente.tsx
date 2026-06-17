@@ -10,11 +10,11 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Bot, Loader2, Save, Send, Sparkles, Wand2, ChevronDown, Settings2, RefreshCcw } from "lucide-react";
+import { Bot, Loader2, Save, Send, Sparkles, Wand2, ChevronDown, Settings2, RefreshCcw, HelpCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { brand } from "@/config/brand";
 import { buildSystemPrompt } from "@/lib/ai-prompt";
 import { testAiReply } from "@/lib/evolution.functions";
-import { generateAgentConfig } from "@/lib/agent-ai.functions";
+import { generateAgentConfig, analyzeBusinessBrief, type BriefQuestion } from "@/lib/agent-ai.functions";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 
 export const Route = createFileRoute("/app/agente")({
@@ -32,6 +32,7 @@ function AgentePage() {
   const ctx = Route.useRouteContext();
   const companyId = ctx.company?.id;
   const generate = useServerFn(generateAgentConfig);
+  const analyze = useServerFn(analyzeBusinessBrief);
   const test = useServerFn(testAiReply);
 
   const [loading, setLoading] = useState(true);
@@ -39,8 +40,17 @@ function AgentePage() {
   const [cfg, setCfg] = useState<any>(null);
   const [descricao, setDescricao] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [promptPreview, setPromptPreview] = useState("");
+
+  // PRD interview flow
+  type Step = "descrever" | "entrevista" | "pronto";
+  const [step, setStep] = useState<Step>("descrever");
+  const [perguntas, setPerguntas] = useState<BriefQuestion[]>([]);
+  const [respostas, setRespostas] = useState<Record<string, string>>({});
+  const [resumoIA, setResumoIA] = useState("");
+  const [cobertura, setCobertura] = useState(0);
 
   // Ajustes finos
   const [tamanhoResposta, setTamanhoResposta] = useState<"curtas" | "medias" | "longas">("curtas");
@@ -72,23 +82,55 @@ function AgentePage() {
   }
   useEffect(() => { void reload(); }, [companyId]);
 
-  async function runGenerate() {
+  async function runAnalyze() {
     if (descricao.trim().length < 20) {
       return toast.error("Conte um pouco mais sobre o negócio (mínimo ~20 caracteres).");
     }
+    setAnalyzing(true);
+    try {
+      const a: any = await analyze({ data: { descricao, respostas: {} } });
+      setResumoIA(a.resumo || "");
+      setCobertura(a.cobertura || 0);
+      setPerguntas(a.perguntas || []);
+      if (a.pronto || !a.perguntas?.length) {
+        // já dá pra gerar direto
+        await runGenerate({});
+      } else {
+        setStep("entrevista");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao analisar");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function runGenerate(extraRespostas: Record<string, string>) {
     setGenerating(true);
     try {
-      const r: any = await generate({ data: { descricao } });
+      const merged = { ...respostas, ...extraRespostas };
+      const r: any = await generate({ data: { descricao, respostas: merged } });
       setCfg((prev: any) => ({ ...(prev || {}), ...r.config }));
       setPromptPreview(r.promptPreview);
       setHasConfig(true);
-      toast.success("Pronto! Sua IA foi montada.");
+      setStep("pronto");
+      toast.success("Pronto! Sua IA foi montada com base no seu negócio.");
     } catch (e: any) {
       toast.error(e?.message || "Falha ao gerar configuração");
     } finally {
       setGenerating(false);
     }
   }
+
+  async function submitEntrevista() {
+    // valida obrigatórias
+    const faltando = perguntas.filter((q) => q.obrigatoria && !(respostas[q.id] || "").trim());
+    if (faltando.length) {
+      return toast.error(`Faltou responder: ${faltando[0].pergunta}`);
+    }
+    await runGenerate(respostas);
+  }
+
 
   async function save() {
     if (!companyId || !cfg) return;
@@ -123,8 +165,85 @@ function AgentePage() {
 
   if (loading) return <div className="grid place-items-center h-40 text-muted-foreground"><Loader2 className="animate-spin" /></div>;
 
-  // ---------- Tela inicial: descrição livre ----------
+  // ---------- Tela inicial: descrição livre → análise PRD ----------
   if (!hasConfig) {
+    if (step === "entrevista") {
+      return (
+        <div className="space-y-6 max-w-2xl mx-auto">
+          <header className="space-y-2 pt-2">
+            <button
+              onClick={() => setStep("descrever")}
+              className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+            >
+              <ArrowLeft className="size-3" /> Voltar e reescrever
+            </button>
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--brand-text)]">
+              <HelpCircle className="size-3.5" /> Faltam alguns detalhes
+            </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold">
+              Pra IA não responder torto, me ajuda com isso
+            </h1>
+            {resumoIA && (
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Entendi até aqui:</span> {resumoIA}
+              </p>
+            )}
+            <div className="flex items-center gap-2 pt-1">
+              <div className="h-1.5 flex-1 rounded-full bg-[var(--panel-2)] overflow-hidden">
+                <div
+                  className="h-full bg-[var(--brand)] transition-all"
+                  style={{ width: `${Math.max(15, cobertura)}%` }}
+                />
+              </div>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{cobertura}%</span>
+            </div>
+          </header>
+
+          <div className="space-y-3">
+            {perguntas.map((q) => (
+              <div
+                key={q.id}
+                className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 space-y-2"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <Label className="text-sm font-medium leading-snug">
+                    {q.pergunta}
+                    {q.obrigatoria && <span className="text-[var(--brand-text)] ml-1">*</span>}
+                  </Label>
+                </div>
+                {q.porque && (
+                  <p className="text-[11.5px] text-muted-foreground">
+                    <span className="font-medium">Por que importa:</span> {q.porque}
+                  </p>
+                )}
+                <Textarea
+                  value={respostas[q.id] || ""}
+                  onChange={(e) => setRespostas((r) => ({ ...r, [q.id]: e.target.value }))}
+                  placeholder={q.exemplo ? `Ex: ${q.exemplo}` : ""}
+                  rows={2}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between gap-3 flex-wrap pt-2">
+            <button
+              onClick={() => runGenerate(respostas)}
+              disabled={generating}
+              className="text-xs text-muted-foreground underline disabled:opacity-50"
+            >
+              Pular e gerar com o que tenho
+            </button>
+            <Button onClick={submitEntrevista} disabled={generating} size="lg">
+              {generating ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Wand2 className="size-4 mr-2" />}
+              Gerar atendimento da IA
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6 max-w-3xl mx-auto">
         <header className="space-y-2 text-center pt-4">
@@ -133,7 +252,7 @@ function AgentePage() {
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-bold">Conte sobre o seu negócio</h1>
           <p className="text-sm text-muted-foreground">
-            Escreva em uma frase ou em um parágrafo — a IA monta tudo pra você. Você ajusta depois se quiser.
+            Escreva do seu jeito. A IA vai ler, ver o que falta e te perguntar antes de montar — pra não responder torto depois.
           </p>
         </header>
 
@@ -148,13 +267,16 @@ function AgentePage() {
             rows={10}
             className="text-sm leading-relaxed"
           />
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <p className="text-xs text-muted-foreground">
-              Inclua: o que vende, horário, região, diferenciais e o tipo de atendimento que quer.
-            </p>
-            <Button onClick={runGenerate} disabled={generating} size="lg">
-              {generating ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Wand2 className="size-4 mr-2" />}
-              Gerar atendimento com IA
+          <div className="grid sm:grid-cols-4 gap-2 text-[11px] text-muted-foreground">
+            <Hint icon={<CheckCircle2 className="size-3" />} text="O que vende e preço" />
+            <Hint icon={<CheckCircle2 className="size-3" />} text="Região e horário" />
+            <Hint icon={<CheckCircle2 className="size-3" />} text="Como atende (entrega/agenda)" />
+            <Hint icon={<CheckCircle2 className="size-3" />} text="Formas de pagamento" />
+          </div>
+          <div className="flex items-center justify-end gap-3 flex-wrap pt-1">
+            <Button onClick={runAnalyze} disabled={analyzing || generating} size="lg">
+              {analyzing ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Wand2 className="size-4 mr-2" />}
+              Analisar e treinar IA
             </Button>
           </div>
         </div>
@@ -167,6 +289,7 @@ function AgentePage() {
       </div>
     );
   }
+
 
   // ---------- Tela com config: resumo + ajustes finos + teste ----------
   return (
@@ -181,7 +304,7 @@ function AgentePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => { setHasConfig(false); setDescricao(""); }}>
+          <Button variant="outline" size="sm" onClick={() => { setHasConfig(false); setDescricao(""); setStep("descrever"); setPerguntas([]); setRespostas({}); setResumoIA(""); setCobertura(0); }}>
             <RefreshCcw className="size-3.5 mr-1.5" /> Refazer
           </Button>
           <Button onClick={save} disabled={saving}>
@@ -321,3 +444,13 @@ function SummaryRow({ label, value, multiline }: { label: string; value?: string
     </div>
   );
 }
+
+function Hint({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <div className="flex items-center gap-1.5 rounded-lg bg-[var(--panel-2)] px-2 py-1.5">
+      <span className="text-[var(--brand-text)]">{icon}</span>
+      <span className="truncate">{text}</span>
+    </div>
+  );
+}
+
