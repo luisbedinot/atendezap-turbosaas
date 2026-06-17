@@ -269,7 +269,7 @@ function Onboarding() {
                 <Input type="email" value={emailCorp} onChange={(e) => setEmailCorp(e.target.value)} />
               </Row>
               <Row label="Telefone">
-                <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(11) 99999-9999" />
+                <Input value={telefone} onChange={(e) => setTelefone(maskPhone(e.target.value))} placeholder="(11) 99999-9999" inputMode="tel" />
               </Row>
             </div>
 
