@@ -208,6 +208,7 @@ function MasterLayout() {
       </div>
 
       <MobileBottomNav items={mobileItems} accent={RED} />
+      </div>
     </div>
   );
 }
