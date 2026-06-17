@@ -23,6 +23,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const data = payload?.data ?? payload;
           const key = data?.key ?? {};
           const fromMe: boolean = !!key.fromMe;
+          const whatsappMessageId: string | null = typeof key.id === "string" && key.id.trim() ? key.id.trim() : null;
           const remoteJid: string = key.remoteJid || "";
           if (!remoteJid) return new Response("no jid", { status: 200 });
           if (remoteJid.endsWith("@g.us")) return new Response("group", { status: 200 });
@@ -39,17 +40,31 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             "";
           if (!text || !text.trim()) return new Response("no text", { status: 200 });
 
-          const { data: inst } = await supabaseAdmin
+          const suppliedToken = new URL(request.url).searchParams.get("t") || request.headers.get("x-webhook-token") || "";
+          const { data: inst } = await (supabaseAdmin as any)
             .from("whatsapp_instances")
-            .select("company_id, user_id, instance_name")
+            .select("company_id, user_id, instance_name, webhook_token")
             .eq("instance_name", instanceName)
             .maybeSingle();
           if (!inst) return new Response("unknown instance", { status: 200 });
+          if (!suppliedToken || suppliedToken !== (inst as any).webhook_token) {
+            return new Response("invalid webhook", { status: 401 });
+          }
           const companyId = (inst as any).company_id as string;
           const userId = (inst as any).user_id as string;
 
+          if (whatsappMessageId) {
+            const { data: duplicate } = await (supabaseAdmin as any)
+              .from("mensagens")
+              .select("id")
+              .eq("company_id", companyId)
+              .eq("whatsapp_message_id", whatsappMessageId)
+              .maybeSingle();
+            if (duplicate) return new Response("duplicate", { status: 200 });
+          }
+
           const insertedAt = new Date().toISOString();
-          const { data: inserted } = await supabaseAdmin
+          const { data: inserted } = await (supabaseAdmin as any)
             .from("mensagens")
             .insert({
               company_id: companyId,
@@ -59,6 +74,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
               direcao: "entrada",
               autor: "contato",
               texto: text,
+              whatsapp_message_id: whatsappMessageId,
               created_at: insertedAt,
             })
             .select("id, created_at")
@@ -95,6 +111,14 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             preco: p.preco,
             descricao: p.descricao,
           }));
+
+          if (isOptOutMessage(lower)) {
+            await supabaseAdmin
+              .from("contact_pause")
+              .upsert({ company_id: companyId, user_id: userId, numero: number, pausado: true }, { onConflict: "company_id,numero" });
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+            return new Response("opt-out", { status: 200 });
+          }
 
           if (lower === palavraPausar) {
             await supabaseAdmin
@@ -206,6 +230,12 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             console.warn("[plan] limite de mensagens atingido — IA não respondeu", companyId);
             return new Response("limit", { status: 200 });
           }
+          const throttleReason = await getAiThrottleReason(supabaseAdmin, companyId, number);
+          if (throttleReason) {
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+            console.warn("[whatsapp.safety] resposta pausada", throttleReason, companyId, number);
+            return new Response(throttleReason, { status: 200 });
+          }
           const plan = await getCompanyPlan(companyId);
           let providerChoice = ((cfg as any)?.ai_provider || "gemini") as string;
           let modelChoice = ((cfg as any)?.ai_model || "google/gemini-2.5-flash") as string;
@@ -227,7 +257,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           }
 
           const { parts, stage, agendar } = parseAiOutput(rawReply, stages.map((s) => ({ nome: s.nome, tipo: s.tipo })));
-          const finalParts = responderEmPartes ? parts : [parts.join(" ")];
+          const finalParts = sanitizeAiParts(responderEmPartes ? parts : [parts.join(" ")]);
 
           // Cria evento no Google Agenda se a IA marcou [AGENDAR: ...]
           if (agendar && googleIntegration?.conectado) {
@@ -290,6 +320,46 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
     },
   },
 });
+
+const OPT_OUT_WORDS = ["parar", "pare", "cancelar", "sair", "remover", "descadastrar", "stop", "unsubscribe"];
+
+function isOptOutMessage(text: string) {
+  const normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+  return OPT_OUT_WORDS.some((word) => normalized === word || normalized.includes(` ${word} `));
+}
+
+function sanitizeAiParts(parts: string[]) {
+  return parts
+    .map((part) => part.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .map((part) => (part.length > 700 ? `${part.slice(0, 697).trim()}...` : part))
+    .slice(0, 2);
+}
+
+async function getAiThrottleReason(admin: any, companyId: string, numero: string): Promise<string | null> {
+  const now = Date.now();
+  const [contactRecent, companyRecent] = await Promise.all([
+    admin
+      .from("mensagens")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", companyId)
+      .eq("numero", numero)
+      .eq("direcao", "saida")
+      .eq("autor", "ia")
+      .gte("created_at", new Date(now - 10 * 60_000).toISOString()),
+    admin
+      .from("mensagens")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", companyId)
+      .eq("direcao", "saida")
+      .eq("autor", "ia")
+      .gte("created_at", new Date(now - 60_000).toISOString()),
+  ]);
+
+  if ((contactRecent.count ?? 0) >= 6) return "contact-rate-limit";
+  if ((companyRecent.count ?? 0) >= 20) return "company-rate-limit";
+  return null;
+}
 
 async function upsertCard(
   admin: any,

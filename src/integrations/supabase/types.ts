@@ -760,6 +760,7 @@ export type Database = {
           numero: string
           texto: string
           user_id: string
+          whatsapp_message_id: string | null
         }
         Insert: {
           autor: string
@@ -771,6 +772,7 @@ export type Database = {
           numero: string
           texto: string
           user_id: string
+          whatsapp_message_id?: string | null
         }
         Update: {
           autor?: string
@@ -782,6 +784,7 @@ export type Database = {
           numero?: string
           texto?: string
           user_id?: string
+          whatsapp_message_id?: string | null
         }
         Relationships: []
       }
@@ -1065,6 +1068,8 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          webhook_configured_at: string | null
+          webhook_token: string
         }
         Insert: {
           company_id: string
@@ -1073,6 +1078,8 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          webhook_configured_at?: string | null
+          webhook_token?: string
         }
         Update: {
           company_id?: string
@@ -1081,6 +1088,8 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          webhook_configured_at?: string | null
+          webhook_token?: string
         }
         Relationships: []
       }
