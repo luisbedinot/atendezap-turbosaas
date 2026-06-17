@@ -52,6 +52,7 @@ import { Route as AppAgenteAvancadoRouteImport } from './routes/app/agente.avanc
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
 import { Route as ApiPublicGoogleCallbackRouteImport } from './routes/api/public/google-callback'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicBillingWebhookRouteImport } from './routes/api/public/billing/webhook'
 
 const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
   id: '/trocar-senha',
@@ -270,6 +271,11 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicBillingWebhookRoute = ApiPublicBillingWebhookRouteImport.update({
+  id: '/api/public/billing/webhook',
+  path: '/api/public/billing/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -314,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
+  '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -357,6 +364,7 @@ export interface FileRoutesByTo {
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
+  '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -403,6 +411,7 @@ export interface FileRoutesById {
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
+  '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
+    | '/api/public/billing/webhook'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -493,6 +503,7 @@ export interface FileRouteTypes {
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
+    | '/api/public/billing/webhook'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -538,6 +549,7 @@ export interface FileRouteTypes {
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
+    | '/api/public/billing/webhook'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -555,6 +567,7 @@ export interface RootRouteChildren {
   TrocarSenhaRoute: typeof TrocarSenhaRoute
   ApiPublicGoogleCallbackRoute: typeof ApiPublicGoogleCallbackRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
+  ApiPublicBillingWebhookRoute: typeof ApiPublicBillingWebhookRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -861,6 +874,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/billing/webhook': {
+      id: '/api/public/billing/webhook'
+      path: '/api/public/billing/webhook'
+      fullPath: '/api/public/billing/webhook'
+      preLoaderRoute: typeof ApiPublicBillingWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -971,6 +991,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrocarSenhaRoute: TrocarSenhaRoute,
   ApiPublicGoogleCallbackRoute: ApiPublicGoogleCallbackRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
+  ApiPublicBillingWebhookRoute: ApiPublicBillingWebhookRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
