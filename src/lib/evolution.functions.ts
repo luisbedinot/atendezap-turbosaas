@@ -120,11 +120,11 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const companyId = await resolveCompanyId(supabase, userId);
-    const { evoState, evoFetchNumberFromInstance } = await import("./evolution.server");
+    const { evoState, evoFetchNumberFromInstance, evoSetWebhook } = await import("./evolution.server");
 
-    const { data: row } = await supabase
+    const { data: row } = await (supabase as any)
       .from("whatsapp_instances")
-      .select("instance_name,status,numero")
+      .select("instance_name,status,numero,webhook_token")
       .eq("company_id", companyId)
       .maybeSingle();
     if (!row) return { status: "disconnected", state: null, numero: null, qrBase64: null, code: null };
@@ -159,6 +159,12 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
     let numero: string | null = row.numero ?? null;
     if (newStatus === "connected" && !numero) {
       try { numero = await evoFetchNumberFromInstance(row.instance_name); } catch {}
+    }
+    if (newStatus === "connected" && row.webhook_token) {
+      const webhookUrl = buildWebhookUrl(row.webhook_token);
+      if (webhookUrl) {
+        try { await evoSetWebhook(row.instance_name, webhookUrl); } catch (e) { console.warn("[evolution.setWebhook]", e); }
+      }
     }
 
     if (newStatus !== row.status || (numero && numero !== row.numero)) {
