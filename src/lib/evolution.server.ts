@@ -77,10 +77,23 @@ function asImageDataUrl(value: unknown, allowRawBase64 = false): string | null {
   if (!text) return null;
   if (text.startsWith("data:image/")) return text;
   const base64 = text.includes("base64,") ? text.split("base64,").pop()?.trim() : text;
-  if (allowRawBase64 && base64 && base64.length > 120 && /^[A-Za-z0-9+/=\s]+$/.test(base64)) {
+  if (allowRawBase64 && base64 && base64.length > 120 && /^[A-Za-z0-9+/=\s]+$/.test(base64) && looksLikeImageBase64(base64)) {
     return `data:image/png;base64,${base64.replace(/\s/g, "")}`;
   }
   return null;
+}
+
+function looksLikeImageBase64(base64: string) {
+  try {
+    const bin = atob(base64.replace(/\s/g, "").slice(0, 64));
+    return (
+      (bin.charCodeAt(0) === 0x89 && bin.slice(1, 4) === "PNG") ||
+      (bin.charCodeAt(0) === 0xff && bin.charCodeAt(1) === 0xd8) ||
+      (bin.slice(0, 4) === "RIFF" && bin.slice(8, 12) === "WEBP")
+    );
+  } catch {
+    return false;
+  }
 }
 
 function extractQrCode(payload: any): string | null {
@@ -103,8 +116,8 @@ export async function evoGetQr(instanceName: string): Promise<{ qrBase64: string
     asImageDataUrl(payload?.base64, true) ||
     asImageDataUrl(payload?.qrcode?.base64, true) ||
     asImageDataUrl(payload?.qr?.base64, true) ||
-    asImageDataUrl(payload?.qrcode, false) ||
-    asImageDataUrl(payload?.qr, false);
+    asImageDataUrl(payload?.qrcode, true) ||
+    asImageDataUrl(payload?.qr, true);
   const code = extractQrCode(payload);
 
   if (image) return { qrBase64: image, code, pairingCode: payload?.pairingCode ?? payload?.qrcode?.pairingCode ?? null };
