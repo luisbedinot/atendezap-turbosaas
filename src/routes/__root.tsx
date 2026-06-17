@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
 
 function NotFoundComponent() {
   return (
@@ -30,6 +31,12 @@ function NotFoundComponent() {
             Go home
           </Link>
         </div>
+        <p className="mt-6 text-xs text-muted-foreground">
+          Precisa de ajuda?{" "}
+          <a href={supportWhatsappUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+            Falar com suporte ({supportWhatsappDisplay})
+          </a>
+        </p>
       </div>
     </div>
   );
@@ -68,6 +75,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             Go home
           </a>
         </div>
+        <p className="mt-6 text-xs text-muted-foreground">
+          Precisa de ajuda?{" "}
+          <a href={supportWhatsappUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+            Falar com suporte ({supportWhatsappDisplay})
+          </a>
+        </p>
       </div>
     </div>
   );
