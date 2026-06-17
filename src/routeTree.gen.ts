@@ -17,6 +17,7 @@ import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MasterIndexRouteImport } from './routes/master/index'
 import { Route as DemoIndexRouteImport } from './routes/demo/index'
 import { Route as MasterPlanosRouteImport } from './routes/master/planos'
 import { Route as MasterPainelRouteImport } from './routes/master/painel'
@@ -88,6 +89,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MasterIndexRoute = MasterIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MasterRoute,
 } as any)
 const DemoIndexRoute = DemoIndexRouteImport.update({
   id: '/',
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/master/painel': typeof MasterPainelRoute
   '/master/planos': typeof MasterPlanosRoute
   '/demo/': typeof DemoIndexRoute
+  '/master/': typeof MasterIndexRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
@@ -293,7 +300,6 @@ export interface FileRoutesByTo {
   '/app': typeof AppRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
-  '/master': typeof MasterRouteWithChildren
   '/reset-senha': typeof ResetSenhaRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRouteWithChildren
@@ -323,6 +329,7 @@ export interface FileRoutesByTo {
   '/master/painel': typeof MasterPainelRoute
   '/master/planos': typeof MasterPlanosRoute
   '/demo': typeof DemoIndexRoute
+  '/master': typeof MasterIndexRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
@@ -365,6 +372,7 @@ export interface FileRoutesById {
   '/master/painel': typeof MasterPainelRoute
   '/master/planos': typeof MasterPlanosRoute
   '/demo/': typeof DemoIndexRoute
+  '/master/': typeof MasterIndexRoute
   '/api/public/google-callback': typeof ApiPublicGoogleCallbackRoute
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
@@ -408,6 +416,7 @@ export interface FileRouteTypes {
     | '/master/painel'
     | '/master/planos'
     | '/demo/'
+    | '/master/'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
@@ -418,7 +427,6 @@ export interface FileRouteTypes {
     | '/app'
     | '/entrar'
     | '/esqueci-senha'
-    | '/master'
     | '/reset-senha'
     | '/trocar-senha'
     | '/app/agente'
@@ -448,6 +456,7 @@ export interface FileRouteTypes {
     | '/master/painel'
     | '/master/planos'
     | '/demo'
+    | '/master'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
@@ -489,6 +498,7 @@ export interface FileRouteTypes {
     | '/master/painel'
     | '/master/planos'
     | '/demo/'
+    | '/master/'
     | '/api/public/google-callback'
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
@@ -566,6 +576,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/master/': {
+      id: '/master/'
+      path: '/'
+      fullPath: '/master/'
+      preLoaderRoute: typeof MasterIndexRouteImport
+      parentRoute: typeof MasterRoute
     }
     '/demo/': {
       id: '/demo/'
@@ -864,6 +881,7 @@ interface MasterRouteChildren {
   MasterNovaEmpresaRoute: typeof MasterNovaEmpresaRoute
   MasterPainelRoute: typeof MasterPainelRoute
   MasterPlanosRoute: typeof MasterPlanosRoute
+  MasterIndexRoute: typeof MasterIndexRoute
 }
 
 const MasterRouteChildren: MasterRouteChildren = {
@@ -873,6 +891,7 @@ const MasterRouteChildren: MasterRouteChildren = {
   MasterNovaEmpresaRoute: MasterNovaEmpresaRoute,
   MasterPainelRoute: MasterPainelRoute,
   MasterPlanosRoute: MasterPlanosRoute,
+  MasterIndexRoute: MasterIndexRoute,
 }
 
 const MasterRouteWithChildren =
