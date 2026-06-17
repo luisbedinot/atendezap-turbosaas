@@ -866,9 +866,9 @@ function Footer() {
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-white/45 font-bold">Legal</div>
             <ul className="mt-4 space-y-2.5 text-sm text-white/65">
-              <li><a href="#" className="hover:text-white">Termos</a></li>
-              <li><a href="#" className="hover:text-white">Privacidade</a></li>
-              <li><a href="#" className="hover:text-white">LGPD</a></li>
+              <li><a href="/termos" className="hover:text-white">Termos</a></li>
+              <li><a href="/privacidade" className="hover:text-white">Privacidade</a></li>
+              <li><a href="/reembolso" className="hover:text-white">Reembolso</a></li>
             </ul>
           </div>
         </div>
