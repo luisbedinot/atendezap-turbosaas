@@ -95,7 +95,7 @@ function PlanosPage() {
       intervalo: editing.intervalo ?? "month",
       trial_days: Number(editing.trial_days ?? 0),
       limite_mensagens: Number(editing.limite_mensagens ?? 0),
-      limite_instancias: Number(editing.limite_instancias ?? 0),
+      limite_instancias: 1,
       limite_usuarios: Number(editing.limite_usuarios ?? 0),
       limite_contatos: Number(editing.limite_contatos ?? 0),
       features: featuresText.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -170,7 +170,7 @@ function PlanosPage() {
               {p.descricao && <p className="text-xs text-muted-foreground line-clamp-2">{p.descricao}</p>}
               <div className="grid grid-cols-2 gap-2 text-[11px] mt-1">
                 <Limit label="Msgs" v={p.limite_mensagens} />
-                <Limit label="WhatsApp" v={p.limite_instancias} />
+                <Limit label="WhatsApp" v={1} />
                 <Limit label="Usuários" v={p.limite_usuarios} />
                 <Limit label="Contatos" v={p.limite_contatos} />
               </div>
@@ -224,11 +224,11 @@ function PlanosPage() {
               <Field label="Dias de trial"><Input type="number" value={editing.trial_days ?? 0} onChange={(e) => setEditing({ ...editing, trial_days: Number(e.target.value) })} /></Field>
               <Field label="Ordem"><Input type="number" value={editing.ordem ?? 0} onChange={(e) => setEditing({ ...editing, ordem: Number(e.target.value) })} /></Field>
               <Field label="Limite msgs/mês"><Input type="number" value={editing.limite_mensagens ?? 0} onChange={(e) => setEditing({ ...editing, limite_mensagens: Number(e.target.value) })} /></Field>
-              <Field label="Limite instâncias"><Input type="number" value={editing.limite_instancias ?? 0} onChange={(e) => setEditing({ ...editing, limite_instancias: Number(e.target.value) })} /></Field>
+              <Field label="Limite instâncias"><Input type="number" value={1} disabled /></Field>
               <Field label="Limite usuários"><Input type="number" value={editing.limite_usuarios ?? 0} onChange={(e) => setEditing({ ...editing, limite_usuarios: Number(e.target.value) })} /></Field>
               <Field label="Limite contatos"><Input type="number" value={editing.limite_contatos ?? 0} onChange={(e) => setEditing({ ...editing, limite_contatos: Number(e.target.value) })} /></Field>
               <Field label="Features (uma por linha)" full>
-                <Textarea rows={5} value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="3 números de WhatsApp&#10;Integração Google Agenda&#10;..." />
+                <Textarea rows={5} value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="1 número de WhatsApp&#10;Integração Google Agenda&#10;..." />
               </Field>
               <Field label="URL de checkout (Kiwify / Cakto / Perfectpay)" full>
                 <Input

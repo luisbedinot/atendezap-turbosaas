@@ -70,6 +70,10 @@ function featureIcon(text: string) {
   return <Check className="size-4" />;
 }
 
+function normalizeFeatureText(text: string) {
+  return /n[úu]meros? de whatsapp/i.test(text) ? "1 número de WhatsApp" : text;
+}
+
 function buildCheckoutUrl(base: string, email?: string | null, companyId?: string | null) {
   try {
     const u = new URL(base);
@@ -223,7 +227,7 @@ function CheckoutPage() {
                       <Limit label="Contatos" v={p.limite_contatos} />
                     </div>
                     <ul className="space-y-2.5 text-sm flex-1 mb-6">
-                      {(p.features || []).map((f) => (
+                      {(p.features || []).map((f) => normalizeFeatureText(f)).map((f) => (
                         <li key={f} className="flex items-start gap-2.5">
                           <span className="mt-0.5 size-5 rounded-full bg-primary/10 text-primary grid place-items-center shrink-0">
                             {featureIcon(f)}
