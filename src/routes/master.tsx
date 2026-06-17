@@ -12,7 +12,10 @@ export const Route = createFileRoute("/master")({
     if (!u.user) throw redirect({ to: "/entrar" });
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
     const isSuper = (roles ?? []).some((r: any) => r.role === "super_admin");
-    if (!isSuper) throw redirect({ to: "/app/dashboard" });
+    if (!isSuper) {
+      await supabase.auth.signOut();
+      throw redirect({ to: "/entrar", search: { modo: "login" } });
+    }
     return { user: u.user };
   },
   component: MasterLayout,

@@ -47,7 +47,7 @@ function EntrarPage() {
   const search = useSearch({ from: "/entrar" }) as Search;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [needsPassword, setNeedsPassword] = useState(false);
+  const [needsPassword, setNeedsPassword] = useState(search.modo === "login");
   const [loading, setLoading] = useState(false);
 
   const planInfo = search.plano ? PLAN_LABEL[search.plano] : null;
