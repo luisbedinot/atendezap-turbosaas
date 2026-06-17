@@ -100,14 +100,14 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const companyId = await resolveCompanyId(supabase, userId);
-    const { evoState, evoFetchNumberFromInstance, evoSetWebhook } = await import("./evolution.server");
+    const { evoState, evoConnect, evoFetchNumberFromInstance, evoSetWebhook } = await import("./evolution.server");
 
     const { data: row } = await supabase
       .from("whatsapp_instances")
       .select("instance_name,status")
       .eq("company_id", companyId)
       .maybeSingle();
-    if (!row) return { status: "disconnected", state: null, numero: null };
+    if (!row) return { status: "disconnected", state: null, numero: null, qrBase64: null, code: null };
 
     let state: string | null = null;
     try {
@@ -119,12 +119,21 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
       state === "open" ? "connected" : state === "connecting" ? "connecting" : "disconnected";
 
     let numero: string | null = null;
+    let qrBase64: string | null = null;
+    let code: string | null = null;
     if (newStatus === "connected") {
       numero = await evoFetchNumberFromInstance(row.instance_name);
       const webhookUrl = buildWebhookUrl();
       if (webhookUrl) {
         try { await evoSetWebhook(row.instance_name, webhookUrl); } catch {}
       }
+    } else {
+      // tenta buscar QR caso ainda esteja conectando
+      try {
+        const qr: any = await evoConnect(row.instance_name);
+        qrBase64 = qr?.base64 ?? qr?.qrcode?.base64 ?? null;
+        code = qr?.code ?? qr?.qrcode?.code ?? null;
+      } catch {}
     }
 
     await supabase
@@ -132,7 +141,7 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
       .update({ status: newStatus, ...(numero ? { numero } : {}) })
       .eq("company_id", companyId);
 
-    return { status: newStatus, state, numero };
+    return { status: newStatus, state, numero, qrBase64, code };
   });
 
 export const disconnectWhatsapp = createServerFn({ method: "POST" })
