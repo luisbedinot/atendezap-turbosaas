@@ -230,6 +230,53 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_event_log: {
+        Row: {
+          buyer_email: string | null
+          created_at: string
+          error: string | null
+          event_type: string | null
+          external_id: string | null
+          id: string
+          matched_company_id: string | null
+          payload: Json
+          processed: boolean
+          provider: string
+        }
+        Insert: {
+          buyer_email?: string | null
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          external_id?: string | null
+          id?: string
+          matched_company_id?: string | null
+          payload?: Json
+          processed?: boolean
+          provider: string
+        }
+        Update: {
+          buyer_email?: string | null
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          external_id?: string | null
+          id?: string
+          matched_company_id?: string | null
+          payload?: Json
+          processed?: boolean
+          provider?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_event_log_matched_company_id_fkey"
+            columns: ["matched_company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company: {
         Row: {
           bairro: string | null
@@ -741,6 +788,7 @@ export type Database = {
       plan: {
         Row: {
           ativo: boolean
+          checkout_url: string | null
           created_at: string
           descricao: string | null
           destaque: boolean
@@ -765,6 +813,7 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean
+          checkout_url?: string | null
           created_at?: string
           descricao?: string | null
           destaque?: boolean
@@ -789,6 +838,7 @@ export type Database = {
         }
         Update: {
           ativo?: boolean
+          checkout_url?: string | null
           created_at?: string
           descricao?: string | null
           destaque?: boolean
@@ -892,12 +942,15 @@ export type Database = {
       }
       subscription: {
         Row: {
+          buyer_email: string | null
           cancel_at_period_end: boolean
           canceled_at: string | null
           company_id: string
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
+          external_customer_id: string | null
+          external_subscription_id: string | null
           id: string
           metadata: Json
           next_billing_amount_cents: number | null
@@ -907,6 +960,7 @@ export type Database = {
           payment_method_exp: string | null
           payment_method_last4: string | null
           plan_id: string | null
+          provider: string
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -914,12 +968,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          buyer_email?: string | null
           cancel_at_period_end?: boolean
           canceled_at?: string | null
           company_id: string
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          external_customer_id?: string | null
+          external_subscription_id?: string | null
           id?: string
           metadata?: Json
           next_billing_amount_cents?: number | null
@@ -929,6 +986,7 @@ export type Database = {
           payment_method_exp?: string | null
           payment_method_last4?: string | null
           plan_id?: string | null
+          provider?: string
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -936,12 +994,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          buyer_email?: string | null
           cancel_at_period_end?: boolean
           canceled_at?: string | null
           company_id?: string
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          external_customer_id?: string | null
+          external_subscription_id?: string | null
           id?: string
           metadata?: Json
           next_billing_amount_cents?: number | null
@@ -951,6 +1012,7 @@ export type Database = {
           payment_method_exp?: string | null
           payment_method_last4?: string | null
           plan_id?: string | null
+          provider?: string
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
