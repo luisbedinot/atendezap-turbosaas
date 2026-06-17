@@ -217,7 +217,7 @@ function CheckoutPage() {
                       <p className="text-sm text-muted-foreground mt-2 min-h-[2.5rem]">{p.descricao}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-5">
-                      <Limit label="WhatsApp" v={p.limite_instancias} />
+                      <Limit label="WhatsApp" v={1} />
                       <Limit label="Usuários" v={p.limite_usuarios} />
                       <Limit label="Conversas/mês" v={p.limite_mensagens} />
                       <Limit label="Contatos" v={p.limite_contatos} />
