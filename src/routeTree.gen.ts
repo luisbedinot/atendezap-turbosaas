@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrocarSenhaRouteImport } from './routes/trocar-senha'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as ResetSenhaRouteImport } from './routes/reset-senha'
+import { Route as ReembolsoRouteImport } from './routes/reembolso'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as MasterRouteImport } from './routes/master'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as EntrarRouteImport } from './routes/entrar'
@@ -55,9 +58,24 @@ const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
   path: '/trocar-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetSenhaRoute = ResetSenhaRouteImport.update({
   id: '/reset-senha',
   path: '/reset-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReembolsoRoute = ReembolsoRouteImport.update({
+  id: '/reembolso',
+  path: '/reembolso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MasterRoute = MasterRouteImport.update({
@@ -260,7 +278,10 @@ export interface FileRoutesByFullPath {
   '/entrar': typeof EntrarRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/master': typeof MasterRouteWithChildren
+  '/privacidade': typeof PrivacidadeRoute
+  '/reembolso': typeof ReembolsoRoute
   '/reset-senha': typeof ResetSenhaRoute
+  '/termos': typeof TermosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRouteWithChildren
   '/app/checkout': typeof AppCheckoutRoute
@@ -300,7 +321,10 @@ export interface FileRoutesByTo {
   '/app': typeof AppRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
+  '/privacidade': typeof PrivacidadeRoute
+  '/reembolso': typeof ReembolsoRoute
   '/reset-senha': typeof ResetSenhaRoute
+  '/termos': typeof TermosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRouteWithChildren
   '/app/checkout': typeof AppCheckoutRoute
@@ -343,7 +367,10 @@ export interface FileRoutesById {
   '/entrar': typeof EntrarRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/master': typeof MasterRouteWithChildren
+  '/privacidade': typeof PrivacidadeRoute
+  '/reembolso': typeof ReembolsoRoute
   '/reset-senha': typeof ResetSenhaRoute
+  '/termos': typeof TermosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRouteWithChildren
   '/app/checkout': typeof AppCheckoutRoute
@@ -387,7 +414,10 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/esqueci-senha'
     | '/master'
+    | '/privacidade'
+    | '/reembolso'
     | '/reset-senha'
+    | '/termos'
     | '/trocar-senha'
     | '/app/agente'
     | '/app/checkout'
@@ -427,7 +457,10 @@ export interface FileRouteTypes {
     | '/app'
     | '/entrar'
     | '/esqueci-senha'
+    | '/privacidade'
+    | '/reembolso'
     | '/reset-senha'
+    | '/termos'
     | '/trocar-senha'
     | '/app/agente'
     | '/app/checkout'
@@ -469,7 +502,10 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/esqueci-senha'
     | '/master'
+    | '/privacidade'
+    | '/reembolso'
     | '/reset-senha'
+    | '/termos'
     | '/trocar-senha'
     | '/app/agente'
     | '/app/checkout'
@@ -512,7 +548,10 @@ export interface RootRouteChildren {
   EntrarRoute: typeof EntrarRoute
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   MasterRoute: typeof MasterRouteWithChildren
+  PrivacidadeRoute: typeof PrivacidadeRoute
+  ReembolsoRoute: typeof ReembolsoRoute
   ResetSenhaRoute: typeof ResetSenhaRoute
+  TermosRoute: typeof TermosRoute
   TrocarSenhaRoute: typeof TrocarSenhaRoute
   ApiPublicGoogleCallbackRoute: typeof ApiPublicGoogleCallbackRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
@@ -528,11 +567,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrocarSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-senha': {
       id: '/reset-senha'
       path: '/reset-senha'
       fullPath: '/reset-senha'
       preLoaderRoute: typeof ResetSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reembolso': {
+      id: '/reembolso'
+      path: '/reembolso'
+      fullPath: '/reembolso'
+      preLoaderRoute: typeof ReembolsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/master': {
@@ -904,7 +964,10 @@ const rootRouteChildren: RootRouteChildren = {
   EntrarRoute: EntrarRoute,
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   MasterRoute: MasterRouteWithChildren,
+  PrivacidadeRoute: PrivacidadeRoute,
+  ReembolsoRoute: ReembolsoRoute,
   ResetSenhaRoute: ResetSenhaRoute,
+  TermosRoute: TermosRoute,
   TrocarSenhaRoute: TrocarSenhaRoute,
   ApiPublicGoogleCallbackRoute: ApiPublicGoogleCallbackRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
