@@ -194,3 +194,52 @@ export const setSuperAdminEmails = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+export const resetCompanyOwnerPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { companyId: string; newPassword?: string }) => ({
+    companyId: String(d.companyId),
+    newPassword: d.newPassword ? String(d.newPassword) : undefined,
+  }))
+  .handler(async ({ context, data }) => {
+    await assertSuper(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Descobre o owner ativo
+    const { data: cu } = await supabaseAdmin
+      .from("company_user")
+      .select("user_id, role")
+      .eq("company_id", data.companyId)
+      .eq("ativo", true)
+      .order("created_at", { ascending: true });
+    const owner = (cu ?? []).find((r: any) => r.role === "owner") ?? (cu ?? [])[0];
+    if (!owner) throw new Error("Empresa sem usuário responsável");
+
+    const password =
+      data.newPassword && data.newPassword.length >= 8
+        ? data.newPassword
+        : Math.random().toString(36).slice(2, 10) + "A1!";
+
+    const { error: uErr } = await supabaseAdmin.auth.admin.updateUserById(owner.user_id, {
+      password,
+      email_confirm: true,
+    });
+    if (uErr) throw uErr;
+
+    // Força troca no próximo login (se foi senha auto-gerada)
+    if (!data.newPassword) {
+      await supabaseAdmin
+        .from("company_user")
+        .update({ forcar_troca_senha: true })
+        .eq("company_id", data.companyId)
+        .eq("user_id", owner.user_id);
+    }
+
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("email")
+      .eq("user_id", owner.user_id)
+      .maybeSingle();
+
+    return { ok: true, tempPassword: data.newPassword ? null : password, ownerEmail: prof?.email ?? null };
+  });
