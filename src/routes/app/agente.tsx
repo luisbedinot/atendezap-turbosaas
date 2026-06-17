@@ -165,8 +165,85 @@ function AgentePage() {
 
   if (loading) return <div className="grid place-items-center h-40 text-muted-foreground"><Loader2 className="animate-spin" /></div>;
 
-  // ---------- Tela inicial: descrição livre ----------
+  // ---------- Tela inicial: descrição livre → análise PRD ----------
   if (!hasConfig) {
+    if (step === "entrevista") {
+      return (
+        <div className="space-y-6 max-w-2xl mx-auto">
+          <header className="space-y-2 pt-2">
+            <button
+              onClick={() => setStep("descrever")}
+              className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+            >
+              <ArrowLeft className="size-3" /> Voltar e reescrever
+            </button>
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--brand-text)]">
+              <HelpCircle className="size-3.5" /> Faltam alguns detalhes
+            </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold">
+              Pra IA não responder torto, me ajuda com isso
+            </h1>
+            {resumoIA && (
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Entendi até aqui:</span> {resumoIA}
+              </p>
+            )}
+            <div className="flex items-center gap-2 pt-1">
+              <div className="h-1.5 flex-1 rounded-full bg-[var(--panel-2)] overflow-hidden">
+                <div
+                  className="h-full bg-[var(--brand)] transition-all"
+                  style={{ width: `${Math.max(15, cobertura)}%` }}
+                />
+              </div>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{cobertura}%</span>
+            </div>
+          </header>
+
+          <div className="space-y-3">
+            {perguntas.map((q) => (
+              <div
+                key={q.id}
+                className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4 space-y-2"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <Label className="text-sm font-medium leading-snug">
+                    {q.pergunta}
+                    {q.obrigatoria && <span className="text-[var(--brand-text)] ml-1">*</span>}
+                  </Label>
+                </div>
+                {q.porque && (
+                  <p className="text-[11.5px] text-muted-foreground">
+                    <span className="font-medium">Por que importa:</span> {q.porque}
+                  </p>
+                )}
+                <Textarea
+                  value={respostas[q.id] || ""}
+                  onChange={(e) => setRespostas((r) => ({ ...r, [q.id]: e.target.value }))}
+                  placeholder={q.exemplo ? `Ex: ${q.exemplo}` : ""}
+                  rows={2}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between gap-3 flex-wrap pt-2">
+            <button
+              onClick={() => runGenerate(respostas)}
+              disabled={generating}
+              className="text-xs text-muted-foreground underline disabled:opacity-50"
+            >
+              Pular e gerar com o que tenho
+            </button>
+            <Button onClick={submitEntrevista} disabled={generating} size="lg">
+              {generating ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Wand2 className="size-4 mr-2" />}
+              Gerar atendimento da IA
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6 max-w-3xl mx-auto">
         <header className="space-y-2 text-center pt-4">
@@ -175,7 +252,7 @@ function AgentePage() {
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-bold">Conte sobre o seu negócio</h1>
           <p className="text-sm text-muted-foreground">
-            Escreva em uma frase ou em um parágrafo — a IA monta tudo pra você. Você ajusta depois se quiser.
+            Escreva do seu jeito. A IA vai ler, ver o que falta e te perguntar antes de montar — pra não responder torto depois.
           </p>
         </header>
 
@@ -190,13 +267,16 @@ function AgentePage() {
             rows={10}
             className="text-sm leading-relaxed"
           />
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <p className="text-xs text-muted-foreground">
-              Inclua: o que vende, horário, região, diferenciais e o tipo de atendimento que quer.
-            </p>
-            <Button onClick={runGenerate} disabled={generating} size="lg">
-              {generating ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Wand2 className="size-4 mr-2" />}
-              Gerar atendimento com IA
+          <div className="grid sm:grid-cols-4 gap-2 text-[11px] text-muted-foreground">
+            <Hint icon={<CheckCircle2 className="size-3" />} text="O que vende e preço" />
+            <Hint icon={<CheckCircle2 className="size-3" />} text="Região e horário" />
+            <Hint icon={<CheckCircle2 className="size-3" />} text="Como atende (entrega/agenda)" />
+            <Hint icon={<CheckCircle2 className="size-3" />} text="Formas de pagamento" />
+          </div>
+          <div className="flex items-center justify-end gap-3 flex-wrap pt-1">
+            <Button onClick={runAnalyze} disabled={analyzing || generating} size="lg">
+              {analyzing ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Wand2 className="size-4 mr-2" />}
+              Analisar e treinar IA
             </Button>
           </div>
         </div>
@@ -209,6 +289,7 @@ function AgentePage() {
       </div>
     );
   }
+
 
   // ---------- Tela com config: resumo + ajustes finos + teste ----------
   return (
