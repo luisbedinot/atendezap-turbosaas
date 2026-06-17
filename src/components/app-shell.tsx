@@ -2,10 +2,10 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import {
   LayoutDashboard, Bot, KanbanSquare, LogOut, Smartphone, Shield,
-  Inbox, Users, BarChart3, Settings, Contact, Zap,
+  Inbox, Users, BarChart3, Settings, Contact, Zap, MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { brand } from "@/config/brand";
+import { brand, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
 import { TrialBanner } from "@/components/trial-banner";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
@@ -214,6 +214,15 @@ function Sidebar({
             <LogOut className="size-4" />
           </button>
         </div>
+        <a
+          href={supportWhatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 flex items-center gap-1.5 px-2 text-[11px] text-muted-foreground hover:text-foreground"
+        >
+          <MessageCircle className="size-3" />
+          <span>Suporte: {supportWhatsappDisplay}</span>
+        </a>
       </div>
     </aside>
   );
