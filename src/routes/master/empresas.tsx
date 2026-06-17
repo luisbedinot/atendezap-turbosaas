@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { LogIn, Pause, Play, CalendarClock, Loader2 } from "lucide-react";
+import { LogIn, Pause, Play, CalendarClock, Loader2, KeyRound } from "lucide-react";
 import { brand } from "@/config/brand";
-import { listCompanies, suspendCompany, extendTrial } from "@/lib/master.functions";
+import { listCompanies, suspendCompany, extendTrial, resetCompanyOwnerPassword } from "@/lib/master.functions";
 
 export const Route = createFileRoute("/master/empresas")({
   head: () => ({ meta: [{ title: `${brand.name} — Empresas` }] }),
@@ -20,6 +20,7 @@ function EmpresasPage() {
   const list = useServerFn(listCompanies);
   const suspend = useServerFn(suspendCompany);
   const extend = useServerFn(extendTrial);
+  const resetPwd = useServerFn(resetCompanyOwnerPassword);
   const [rows, setRows] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [pageSize, setPageSize] = useState(20);
@@ -59,6 +60,30 @@ function EmpresasPage() {
     await extend({ data: { companyId: c.id, days } });
     toast.success(`Trial estendido +${days}d`);
     reload();
+  }
+
+  async function doResetPassword(c: any) {
+    const custom = prompt(
+      `Definir senha do responsável de "${c.nome}".\n\nDeixe em branco para gerar uma senha temporária (forçará troca no próximo login).\nOu digite uma senha (mín. 8 caracteres):`,
+      "",
+    );
+    if (custom === null) return;
+    const newPassword = custom.trim();
+    if (newPassword && newPassword.length < 8) return toast.error("Mínimo 8 caracteres");
+    try {
+      const r: any = await resetPwd({ data: { companyId: c.id, newPassword: newPassword || undefined } });
+      if (r.tempPassword) {
+        try { await navigator.clipboard.writeText(r.tempPassword); } catch {}
+        toast.success(
+          `Senha temporária para ${r.ownerEmail ?? "responsável"}: ${r.tempPassword} (copiada)`,
+          { duration: 20000 },
+        );
+      } else {
+        toast.success(`Senha atualizada para ${r.ownerEmail ?? "responsável"}`);
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao redefinir senha");
+    }
   }
 
   const pages = Math.ceil(total / pageSize);
@@ -110,6 +135,9 @@ function EmpresasPage() {
                   {c.ultima_atividade ? new Date(c.ultima_atividade).toLocaleDateString("pt-BR") : "—"}
                 </div>
                 <div className="col-span-2 flex justify-end gap-1">
+                  <Button size="sm" variant="outline" onClick={() => doResetPassword(c)} title="Redefinir senha do responsável">
+                    <KeyRound className="size-3.5" />
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => doExtend(c)} title="Estender trial">
                     <CalendarClock className="size-3.5" />
                   </Button>
