@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { brand } from "@/config/brand";
 import { Loader2, Check, Building2, MapPin, Palette, Bot, PartyPopper } from "lucide-react";
+import { maskCpf, maskCnpj, maskPhone, maskCep } from "@/lib/masks";
 
 type Search = { checkout?: string };
 
@@ -245,7 +246,12 @@ function Onboarding() {
             </div>
 
             <Row label={tipoPessoa === "pj" ? "CNPJ" : "CPF"}>
-              <Input value={cnpjCpf} onChange={(e) => setCnpjCpf(e.target.value)} placeholder={tipoPessoa === "pj" ? "00.000.000/0000-00" : "000.000.000-00"} />
+              <Input
+                value={cnpjCpf}
+                onChange={(e) => setCnpjCpf(tipoPessoa === "pj" ? maskCnpj(e.target.value) : maskCpf(e.target.value))}
+                placeholder={tipoPessoa === "pj" ? "00.000.000/0000-00" : "000.000.000-00"}
+                inputMode="numeric"
+              />
             </Row>
 
             {tipoPessoa === "pj" && (
@@ -263,7 +269,7 @@ function Onboarding() {
                 <Input type="email" value={emailCorp} onChange={(e) => setEmailCorp(e.target.value)} />
               </Row>
               <Row label="Telefone">
-                <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(11) 99999-9999" />
+                <Input value={telefone} onChange={(e) => setTelefone(maskPhone(e.target.value))} placeholder="(11) 99999-9999" inputMode="tel" />
               </Row>
             </div>
 
@@ -295,7 +301,7 @@ function Onboarding() {
         {step === 1 && (
           <>
             <div className="grid sm:grid-cols-3 gap-3">
-              <Row label="CEP"><Input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="00000-000" /></Row>
+              <Row label="CEP"><Input value={cep} onChange={(e) => setCep(maskCep(e.target.value))} placeholder="00000-000" inputMode="numeric" /></Row>
               <div className="sm:col-span-2"><Row label="Rua"><Input value={rua} onChange={(e) => setRua(e.target.value)} /></Row></div>
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
@@ -317,9 +323,6 @@ function Onboarding() {
                 <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-14 rounded border" />
                 <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
               </div>
-            </Row>
-            <Row label="URL do logo (opcional)">
-              <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://…/logo.png" />
             </Row>
             <p className="text-xs text-muted-foreground">Você pode trocar isso depois em Configurações.</p>
           </>

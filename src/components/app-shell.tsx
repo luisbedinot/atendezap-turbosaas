@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
 import { toast } from "sonner";
 import type { CompanyRow, Membership } from "@/lib/tenant";
+import { useWhatsappStatus } from "@/hooks/use-whatsapp-status";
 
 type NavItem = {
   to: string;
@@ -132,10 +133,7 @@ export function AppShell({
         />
         <main className="flex-1 px-4 pt-4 pb-28 md:p-8 md:pb-8 max-w-7xl w-full mx-auto">
           <div className="hidden md:flex items-center justify-between gap-3 mb-6">
-            <div className="flex items-center gap-2 text-[13.5px] text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-[color:var(--panel)] border border-[color:var(--hairline)]">
-              <span className="size-1.5 rounded-full bg-[color:var(--brand)] shadow-[0_0_10px_var(--brand)]" />
-              Agente conectado
-            </div>
+            <WhatsappStatusPill />
             <div className="flex items-center gap-2 ml-auto">
               <ThemeToggle />
               <div
@@ -268,5 +266,22 @@ function NavLink({ item, active, primary }: { item: NavItem; active: boolean; pr
         </span>
       )}
     </Link>
+  );
+}
+
+function WhatsappStatusPill() {
+  const status = useWhatsappStatus();
+  const connected = status === "connected";
+  const connecting = status === "connecting";
+  const label = connected ? "WhatsApp conectado" : connecting ? "Conectando…" : "WhatsApp desconectado";
+  const color = connected ? "#16a34a" : connecting ? "#f59e0b" : "#dc2626";
+  return (
+    <div
+      className="flex items-center gap-2 text-[13.5px] font-medium px-3 py-1.5 rounded-full bg-[color:var(--panel)] border border-[color:var(--hairline)]"
+      style={{ color }}
+    >
+      <span className="size-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}` }} />
+      {label}
+    </div>
   );
 }

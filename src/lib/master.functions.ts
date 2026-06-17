@@ -79,16 +79,26 @@ export const listCompanies = createServerFn({ method: "POST" })
     const pageSize = 20;
     let q = supabaseAdmin
       .from("company")
-      .select("*, mensagens:mensagens(created_at)", { count: "exact" })
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(data.page * pageSize, data.page * pageSize + pageSize - 1);
     if (data.search) q = q.ilike("nome", `%${data.search}%`);
     const { data: rows, count, error } = await q;
     if (error) throw error;
-    const list = (rows ?? []).map((c: any) => {
-      const ult = (c.mensagens ?? []).reduce((a: number, m: any) => Math.max(a, new Date(m.created_at).getTime()), 0);
-      return { ...c, mensagens: undefined, ultima_atividade: ult ? new Date(ult).toISOString() : null };
-    });
+    const ids = (rows ?? []).map((c: any) => c.id);
+    let ultByCompany: Record<string, string> = {};
+    if (ids.length) {
+      const { data: msgs } = await supabaseAdmin
+        .from("mensagens")
+        .select("company_id, created_at")
+        .in("company_id", ids)
+        .order("created_at", { ascending: false })
+        .limit(500);
+      for (const m of msgs ?? []) {
+        if (!ultByCompany[(m as any).company_id]) ultByCompany[(m as any).company_id] = (m as any).created_at;
+      }
+    }
+    const list = (rows ?? []).map((c: any) => ({ ...c, ultima_atividade: ultByCompany[c.id] ?? null }));
     return { rows: list, total: count ?? 0, pageSize };
   });
 
