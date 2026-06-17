@@ -36,6 +36,7 @@ type Plan = {
   ordem: number;
   paddle_product_id: string | null;
   paddle_price_id: string | null;
+  checkout_url: string | null;
 };
 
 const empty: Partial<Plan> = {
@@ -103,6 +104,7 @@ function PlanosPage() {
       ordem: Number(editing.ordem ?? 0),
       paddle_product_id: editing.paddle_product_id ?? null,
       paddle_price_id: editing.paddle_price_id ?? null,
+      checkout_url: (editing.checkout_url ?? "").trim() || null,
     };
     const op = (editing as any).id
       ? supabase.from("plan").update(payload).eq("id", (editing as any).id)
@@ -182,9 +184,16 @@ function PlanosPage() {
                   <Button variant="ghost" size="sm" onClick={() => remove(p.id)}><Trash2 className="size-3.5 text-destructive" /></Button>
                 </div>
               </div>
-              {p.paddle_price_id && (
-                <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 -mt-1">
-                  <Package className="size-3" /> {p.paddle_price_id}
+              {p.checkout_url ? (
+                <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 -mt-1 truncate">
+                  <Package className="size-3 shrink-0" />
+                  <a href={p.checkout_url} target="_blank" rel="noreferrer" className="truncate hover:underline">
+                    {p.checkout_url}
+                  </a>
+                </div>
+              ) : (
+                <div className="text-[10px] text-amber-600 flex items-center gap-1.5 -mt-1">
+                  <Package className="size-3" /> Sem URL de checkout — clientes não conseguem assinar
                 </div>
               )}
             </Card>
@@ -221,8 +230,17 @@ function PlanosPage() {
               <Field label="Features (uma por linha)" full>
                 <Textarea rows={5} value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="3 números de WhatsApp&#10;Integração Google Agenda&#10;..." />
               </Field>
-              <Field label="Paddle product_id (external)"><Input value={editing.paddle_product_id ?? ""} onChange={(e) => setEditing({ ...editing, paddle_product_id: e.target.value })} placeholder="pro_plan" /></Field>
-              <Field label="Paddle price_id (external)"><Input value={editing.paddle_price_id ?? ""} onChange={(e) => setEditing({ ...editing, paddle_price_id: e.target.value })} placeholder="pro_monthly" /></Field>
+              <Field label="URL de checkout (Kiwify / Cakto / Perfectpay)" full>
+                <Input
+                  value={editing.checkout_url ?? ""}
+                  onChange={(e) => setEditing({ ...editing, checkout_url: e.target.value })}
+                  placeholder="https://pay.kiwify.com.br/abc123"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Link para onde o cliente é enviado ao clicar em "Assinar". O sistema adiciona o e-mail dele automaticamente
+                  (<code>?email=</code>) pra liberar a assinatura quando o webhook chegar.
+                </p>
+              </Field>
               <div className="col-span-2 flex items-center gap-6 pt-1">
                 <label className="flex items-center gap-2 text-sm"><Switch checked={!!editing.destaque} onCheckedChange={(v) => setEditing({ ...editing, destaque: v })} /> Destaque (mais popular)</label>
                 <label className="flex items-center gap-2 text-sm"><Switch checked={!!editing.ativo} onCheckedChange={(v) => setEditing({ ...editing, ativo: v })} /> Ativo</label>
