@@ -75,10 +75,16 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
     }
 
     let qrBase64: string | null = null;
-    try {
-      const qr = await evoConnect(instanceName);
-      qrBase64 = qr?.base64 ?? null;
-    } catch (e) { console.warn("[evolution.connect]", e); }
+    let code: string | null = null;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const qr: any = await evoConnect(instanceName);
+        qrBase64 = qr?.base64 ?? qr?.qrcode?.base64 ?? null;
+        code = qr?.code ?? qr?.qrcode?.code ?? null;
+        if (qrBase64 || code) break;
+      } catch (e) { console.warn("[evolution.connect]", e); }
+      await new Promise((r) => setTimeout(r, 800));
+    }
 
     let state: string | undefined;
     try {
@@ -86,7 +92,7 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
       state = s?.instance?.state || (s as any)?.state;
     } catch {}
 
-    return { instanceName, qrBase64, state, webhookUrl };
+    return { instanceName, qrBase64, code, state, webhookUrl };
   });
 
 export const checkWhatsappStatus = createServerFn({ method: "POST" })
