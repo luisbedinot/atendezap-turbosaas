@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
 function getInitialTheme(): "dark" | "light" {
-  if (typeof document === "undefined") return "dark";
+  if (typeof document === "undefined") return "light";
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
 
   useEffect(() => {
     setTheme(getInitialTheme());
