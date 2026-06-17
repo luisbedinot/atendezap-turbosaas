@@ -1,14 +1,16 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, CreditCard, Sparkles, AlertTriangle } from "lucide-react";
 import { brand } from "@/config/brand";
+import { trialDaysLeft } from "@/lib/tenant";
 
 export const Route = createFileRoute("/app/configuracoes")({
   head: () => ({ meta: [{ title: `${brand.name} — Configurações` }] }),
