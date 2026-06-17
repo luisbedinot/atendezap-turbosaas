@@ -82,23 +82,55 @@ function AgentePage() {
   }
   useEffect(() => { void reload(); }, [companyId]);
 
-  async function runGenerate() {
+  async function runAnalyze() {
     if (descricao.trim().length < 20) {
       return toast.error("Conte um pouco mais sobre o negócio (mínimo ~20 caracteres).");
     }
+    setAnalyzing(true);
+    try {
+      const a: any = await analyze({ data: { descricao, respostas: {} } });
+      setResumoIA(a.resumo || "");
+      setCobertura(a.cobertura || 0);
+      setPerguntas(a.perguntas || []);
+      if (a.pronto || !a.perguntas?.length) {
+        // já dá pra gerar direto
+        await runGenerate({});
+      } else {
+        setStep("entrevista");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao analisar");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function runGenerate(extraRespostas: Record<string, string>) {
     setGenerating(true);
     try {
-      const r: any = await generate({ data: { descricao } });
+      const merged = { ...respostas, ...extraRespostas };
+      const r: any = await generate({ data: { descricao, respostas: merged } });
       setCfg((prev: any) => ({ ...(prev || {}), ...r.config }));
       setPromptPreview(r.promptPreview);
       setHasConfig(true);
-      toast.success("Pronto! Sua IA foi montada.");
+      setStep("pronto");
+      toast.success("Pronto! Sua IA foi montada com base no seu negócio.");
     } catch (e: any) {
       toast.error(e?.message || "Falha ao gerar configuração");
     } finally {
       setGenerating(false);
     }
   }
+
+  async function submitEntrevista() {
+    // valida obrigatórias
+    const faltando = perguntas.filter((q) => q.obrigatoria && !(respostas[q.id] || "").trim());
+    if (faltando.length) {
+      return toast.error(`Faltou responder: ${faltando[0].pergunta}`);
+    }
+    await runGenerate(respostas);
+  }
+
 
   async function save() {
     if (!companyId || !cfg) return;
