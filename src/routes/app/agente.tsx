@@ -32,6 +32,7 @@ function AgentePage() {
   const ctx = Route.useRouteContext();
   const companyId = ctx.company?.id;
   const generate = useServerFn(generateAgentConfig);
+  const analyze = useServerFn(analyzeBusinessBrief);
   const test = useServerFn(testAiReply);
 
   const [loading, setLoading] = useState(true);
@@ -39,8 +40,17 @@ function AgentePage() {
   const [cfg, setCfg] = useState<any>(null);
   const [descricao, setDescricao] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [promptPreview, setPromptPreview] = useState("");
+
+  // PRD interview flow
+  type Step = "descrever" | "entrevista" | "pronto";
+  const [step, setStep] = useState<Step>("descrever");
+  const [perguntas, setPerguntas] = useState<BriefQuestion[]>([]);
+  const [respostas, setRespostas] = useState<Record<string, string>>({});
+  const [resumoIA, setResumoIA] = useState("");
+  const [cobertura, setCobertura] = useState(0);
 
   // Ajustes finos
   const [tamanhoResposta, setTamanhoResposta] = useState<"curtas" | "medias" | "longas">("curtas");
