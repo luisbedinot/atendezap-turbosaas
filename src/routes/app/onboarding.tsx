@@ -246,7 +246,12 @@ function Onboarding() {
             </div>
 
             <Row label={tipoPessoa === "pj" ? "CNPJ" : "CPF"}>
-              <Input value={cnpjCpf} onChange={(e) => setCnpjCpf(e.target.value)} placeholder={tipoPessoa === "pj" ? "00.000.000/0000-00" : "000.000.000-00"} />
+              <Input
+                value={cnpjCpf}
+                onChange={(e) => setCnpjCpf(tipoPessoa === "pj" ? maskCnpj(e.target.value) : maskCpf(e.target.value))}
+                placeholder={tipoPessoa === "pj" ? "00.000.000/0000-00" : "000.000.000-00"}
+                inputMode="numeric"
+              />
             </Row>
 
             {tipoPessoa === "pj" && (
