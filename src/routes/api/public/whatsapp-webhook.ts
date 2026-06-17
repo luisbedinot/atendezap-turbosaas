@@ -23,6 +23,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const data = payload?.data ?? payload;
           const key = data?.key ?? {};
           const fromMe: boolean = !!key.fromMe;
+          const whatsappMessageId: string | null = typeof key.id === "string" && key.id.trim() ? key.id.trim() : null;
           const remoteJid: string = key.remoteJid || "";
           if (!remoteJid) return new Response("no jid", { status: 200 });
           if (remoteJid.endsWith("@g.us")) return new Response("group", { status: 200 });
@@ -52,8 +53,18 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const companyId = (inst as any).company_id as string;
           const userId = (inst as any).user_id as string;
 
+          if (whatsappMessageId) {
+            const { data: duplicate } = await (supabaseAdmin as any)
+              .from("mensagens")
+              .select("id")
+              .eq("company_id", companyId)
+              .eq("whatsapp_message_id", whatsappMessageId)
+              .maybeSingle();
+            if (duplicate) return new Response("duplicate", { status: 200 });
+          }
+
           const insertedAt = new Date().toISOString();
-          const { data: inserted } = await supabaseAdmin
+          const { data: inserted } = await (supabaseAdmin as any)
             .from("mensagens")
             .insert({
               company_id: companyId,
@@ -63,6 +74,7 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
               direcao: "entrada",
               autor: "contato",
               texto: text,
+              whatsapp_message_id: whatsappMessageId,
               created_at: insertedAt,
             })
             .select("id, created_at")
