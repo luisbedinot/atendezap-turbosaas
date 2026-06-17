@@ -133,10 +133,7 @@ export function AppShell({
         />
         <main className="flex-1 px-4 pt-4 pb-28 md:p-8 md:pb-8 max-w-7xl w-full mx-auto">
           <div className="hidden md:flex items-center justify-between gap-3 mb-6">
-            <div className="flex items-center gap-2 text-[13.5px] text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-[color:var(--panel)] border border-[color:var(--hairline)]">
-              <span className="size-1.5 rounded-full bg-[color:var(--brand)] shadow-[0_0_10px_var(--brand)]" />
-              Agente conectado
-            </div>
+            <WhatsappStatusPill />
             <div className="flex items-center gap-2 ml-auto">
               <ThemeToggle />
               <div
