@@ -47,6 +47,18 @@ function ConfigPage() {
       const { data } = await supabase.from("profiles").select("nome").eq("user_id", userId).maybeSingle();
       if (data) setPerfil((p) => ({ ...p, nome: data.nome ?? "" }));
     })();
+    if (companyId) {
+      void (async () => {
+        const { data } = await supabase
+          .from("subscription")
+          .select("*, plan:plan(id,nome,preco_cents,moeda,intervalo)")
+          .eq("company_id", companyId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        setSub(data);
+      })();
+    }
   }, [companyId, userId]);
 
   async function saveEmpresa() {
