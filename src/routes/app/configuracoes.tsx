@@ -26,6 +26,7 @@ function ConfigPage() {
   const ctx = Route.useRouteContext();
   const companyId = ctx.company?.id;
   const userId = ctx.user.id;
+  const company = ctx.company;
 
   const [empresa, setEmpresa] = useState({ nome: "", telefone: "" });
   const [identidade, setIdentidade] = useState({ primary_color: "#22C55E", logo_url: "" });
@@ -35,6 +36,7 @@ function ConfigPage() {
   const [savingI, setSavingI] = useState(false);
   const [savingP, setSavingP] = useState(false);
   const [savingS, setSavingS] = useState(false);
+  const [sub, setSub] = useState<any>(null);
 
   useEffect(() => {
     if (ctx.company) {
