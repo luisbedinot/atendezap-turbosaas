@@ -37,7 +37,7 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
     const companyId = await resolveCompanyId(supabase, userId);
     const {
       evoCreateInstance,
-      evoConnect,
+      evoGetQr,
       evoSetWebhook,
       evoState,
     } = await import("./evolution.server");
@@ -45,15 +45,19 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
     const instanceName = deriveInstanceName(companyId);
     const webhookUrl = buildWebhookUrl();
 
-    // Plan enforcement: só conta como "nova" se ainda não há instância vinculada.
     const { data: existing } = await supabase
       .from("whatsapp_instances")
-      .select("instance_name")
+      .select("instance_name,status,numero")
       .eq("company_id", companyId)
       .maybeSingle();
-    if (!existing) {
-      const { assertWithinLimit } = await import("./plan-limits.server");
-      await assertWithinLimit(companyId, "instancias");
+    if (existing?.status === "connected") {
+      try {
+        const s = await evoState(existing.instance_name);
+        const existingState = s?.instance?.state || (s as any)?.state;
+        if (existingState === "open") {
+          return { instanceName: existing.instance_name, qrBase64: null, code: null, state: "open", webhookUrl };
+        }
+      } catch {}
     }
 
     await supabase
@@ -76,11 +80,11 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
 
     let qrBase64: string | null = null;
     let code: string | null = null;
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       try {
-        const qr: any = await evoConnect(instanceName);
-        qrBase64 = qr?.base64 ?? qr?.qrcode?.base64 ?? null;
-        code = qr?.code ?? qr?.qrcode?.code ?? null;
+        const qr = await evoGetQr(instanceName);
+        qrBase64 = qr.qrBase64;
+        code = qr.code;
         if (qrBase64 || code) break;
       } catch (e) { console.warn("[evolution.connect]", e); }
       await new Promise((r) => setTimeout(r, 800));
@@ -100,7 +104,7 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const companyId = await resolveCompanyId(supabase, userId);
-    const { evoState, evoConnect, evoFetchNumberFromInstance, evoSetWebhook } = await import("./evolution.server");
+    const { evoState, evoGetQr, evoFetchNumberFromInstance, evoSetWebhook } = await import("./evolution.server");
 
     const { data: row } = await supabase
       .from("whatsapp_instances")
@@ -130,9 +134,9 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
     } else {
       // tenta buscar QR caso ainda esteja conectando
       try {
-        const qr: any = await evoConnect(row.instance_name);
-        qrBase64 = qr?.base64 ?? qr?.qrcode?.base64 ?? null;
-        code = qr?.code ?? qr?.qrcode?.code ?? null;
+        const qr = await evoGetQr(row.instance_name);
+        qrBase64 = qr.qrBase64;
+        code = qr.code;
       } catch {}
     }
 

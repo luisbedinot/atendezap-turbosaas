@@ -626,7 +626,7 @@ function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard" | "#plano
       p: "R$ 197",
       d: "Pra time que já vende todo dia. O mais escolhido.",
       f: [
-        "3 números de WhatsApp",
+        "1 número de WhatsApp",
         "5 usuários no painel",
         "6.000 conversas/mês",
         "5.000 contatos",
@@ -644,7 +644,7 @@ function Pricing({ onCta }: { onCta: (p: "/entrar" | "/demo/dashboard" | "#plano
       p: "R$ 497",
       d: "Pra operação alta performance e múltiplas equipes.",
       f: [
-        "10 números de WhatsApp",
+        "1 número de WhatsApp",
         "20 usuários no painel",
         "30.000 conversas/mês",
         "25.000 contatos",
