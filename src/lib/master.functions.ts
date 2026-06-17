@@ -128,12 +128,22 @@ export const extendTrial = createServerFn({ method: "POST" })
 
 export const createCompanyWithOwner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { nome: string; ownerEmail: string }) => {
+  .inputValidator((d: {
+    nome: string; ownerEmail: string;
+    planId?: string | null; trialDays?: number; password?: string | null;
+  }) => {
     const nome = String(d.nome || "").trim();
     const ownerEmail = String(d.ownerEmail || "").trim().toLowerCase();
     if (nome.length < 2) throw new Error("Nome inválido");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail)) throw new Error("Email inválido");
-    return { nome, ownerEmail };
+    const password = d.password ? String(d.password) : null;
+    if (password && password.length < 8) throw new Error("Senha mínima de 8 caracteres");
+    return {
+      nome, ownerEmail,
+      planId: d.planId || null,
+      trialDays: Math.max(0, Math.min(90, Math.floor(d.trialDays ?? 3))),
+      password,
+    };
   })
   .handler(async ({ context, data }) => {
     await assertSuper(context.supabase, context.userId);
@@ -145,13 +155,20 @@ export const createCompanyWithOwner = createServerFn({ method: "POST" })
     if (prof) ownerId = prof.user_id;
     let tempPassword: string | null = null;
     if (!ownerId) {
-      tempPassword = Math.random().toString(36).slice(2, 10) + "A1!";
+      tempPassword = data.password ?? (Math.random().toString(36).slice(2, 10) + "A1!");
       const { data: c, error } = await supabaseAdmin.auth.admin.createUser({
         email: data.ownerEmail, password: tempPassword, email_confirm: true,
       });
       if (error || !c.user) throw new Error(error?.message || "Falha ao criar usuário");
       ownerId = c.user.id;
       await supabaseAdmin.from("profiles").upsert({ user_id: ownerId, email: data.ownerEmail });
+    } else if (data.password) {
+      // Reset de senha do owner já existente
+      const { error: upErr } = await supabaseAdmin.auth.admin.updateUserById(ownerId, {
+        password: data.password, email_confirm: true,
+      });
+      if (upErr) throw upErr;
+      tempPassword = data.password;
     }
 
     // company com slug único
@@ -162,17 +179,50 @@ export const createCompanyWithOwner = createServerFn({ method: "POST" })
       if (!ex) break;
       slug = `${baseSlug}-${i}`;
     }
+    const trialMs = data.trialDays * 86400000;
+    const trialEnd = new Date(Date.now() + trialMs).toISOString();
     const { data: comp, error: cErr } = await supabaseAdmin
       .from("company")
-      .insert({ nome: data.nome, slug, created_by: ownerId })
+      .insert({
+        nome: data.nome,
+        slug,
+        created_by: ownerId,
+        status_cobranca: data.trialDays > 0 ? "trial" : "ativo",
+        trial_ate: trialEnd,
+      })
       .select("id")
       .single();
     if (cErr || !comp) throw new Error(cErr?.message || "Falha ao criar empresa");
 
     await supabaseAdmin.from("company_user").insert({
-      company_id: comp.id, user_id: ownerId, role: "owner", ativo: true, forcar_troca_senha: !!tempPassword,
+      company_id: comp.id, user_id: ownerId, role: "owner", ativo: true, forcar_troca_senha: !data.password && !!tempPassword,
     });
+
+    // Cria subscription em trialing já com o plano selecionado
+    if (data.planId) {
+      await supabaseAdmin.from("subscription").insert({
+        company_id: comp.id,
+        plan_id: data.planId,
+        status: data.trialDays > 0 ? "trialing" : "active",
+        trial_ends_at: trialEnd,
+        current_period_end: trialEnd,
+      });
+    }
+
     return { ok: true, companyId: comp.id, tempPassword };
+  });
+
+export const listPlansBasic = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuper(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("plan")
+      .select("id, nome, preco_cents, moeda, intervalo, trial_days")
+      .eq("ativo", true)
+      .order("preco_cents", { ascending: true });
+    return { plans: data ?? [] };
   });
 
 export const getSuperAdminEmails = createServerFn({ method: "POST" })
