@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
 import { toast } from "sonner";
 import type { CompanyRow, Membership } from "@/lib/tenant";
+import { useWhatsappStatus } from "@/hooks/use-whatsapp-status";
 
 type NavItem = {
   to: string;
