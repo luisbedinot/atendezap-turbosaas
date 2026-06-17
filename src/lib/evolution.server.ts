@@ -1,14 +1,15 @@
 // Wrapper server-only para a Evolution API v2.
-// Lê secrets em runtime; nunca expor ao client.
+// Arquivo *.server.ts é bloqueado do bundle client — seguro para fallback.
+// Prioridade: process.env (override via Lovable Cloud Secrets) → fallback hardcoded.
+// O fallback garante que clones do projeto herdem a integração sem precisar configurar.
+
+const FALLBACK_EVOLUTION_URL = "http://187.77.59.202:8080";
+const FALLBACK_EVOLUTION_KEY = "jEpxtxy82V61ueUen5AinQWpa6SSNwLF";
+const SUPPORT_SUFFIX = " Se persistir, fale com o suporte: https://wa.me/5551982913030";
 
 function env() {
-  const url = process.env.EVOLUTION_API_URL;
-  const key = process.env.EVOLUTION_API_KEY;
-  if (!url || !key) {
-    throw new Error(
-      "Secrets EVOLUTION_API_URL e/ou EVOLUTION_API_KEY não configurados. Adicione no Lovable Cloud (Settings > Secrets).",
-    );
-  }
+  const url = process.env.EVOLUTION_API_URL || FALLBACK_EVOLUTION_URL;
+  const key = process.env.EVOLUTION_API_KEY || FALLBACK_EVOLUTION_KEY;
   return { url: url.replace(/\/+$/, ""), key };
 }
 
