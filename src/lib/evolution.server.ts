@@ -1,4 +1,4 @@
-import QRCode from "qrcode";
+import * as QRCode from "qrcode";
 
 // Wrapper server-only para a Evolution API v2.
 // Arquivo *.server.ts é bloqueado do bundle client — seguro para fallback.
