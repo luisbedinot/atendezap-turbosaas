@@ -324,9 +324,6 @@ function Onboarding() {
                 <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
               </div>
             </Row>
-            <Row label="URL do logo (opcional)">
-              <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://…/logo.png" />
-            </Row>
             <p className="text-xs text-muted-foreground">Você pode trocar isso depois em Configurações.</p>
           </>
         )}
