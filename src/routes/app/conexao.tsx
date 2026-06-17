@@ -47,7 +47,10 @@ function ConexaoPage() {
       const r: any = await check();
       setStatus(r.status);
       setNumero(r.numero ?? null);
-      if (r.qrBase64 && r.status !== "connected") setQr(r.qrBase64);
+      if (r.qrBase64 && r.status !== "connected") {
+        setQr(r.qrBase64);
+        if (!pollRef.current) startPolling();
+      }
       if (r.status === "connected") { setQr(null); stopPolling(); if (!silent) toast.success("WhatsApp conectado!"); }
     } catch (e: any) { if (!silent) toast.error(e?.message || "Erro ao consultar status"); }
   }
