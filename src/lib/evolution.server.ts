@@ -23,11 +23,16 @@ async function evo<T = any>(
     "Content-Type": "application/json",
     ...(init.headers as Record<string, string> | undefined),
   };
-  const res = await fetch(`${url}${path}`, {
-    ...init,
-    headers,
-    body: init.json !== undefined ? JSON.stringify(init.json) : init.body,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${url}${path}`, {
+      ...init,
+      headers,
+      body: init.json !== undefined ? JSON.stringify(init.json) : init.body,
+    });
+  } catch (e: any) {
+    throw new Error(`Evolution API indisponível: ${e?.message || "falha de rede"}.${SUPPORT_SUFFIX}`);
+  }
   const text = await res.text();
   let data: any = null;
   try {
@@ -37,7 +42,7 @@ async function evo<T = any>(
   }
   if (!res.ok) {
     const msg = data?.message || data?.error || text || `HTTP ${res.status}`;
-    throw new Error(`Evolution API: ${msg}`);
+    throw new Error(`Evolution API: ${msg}.${SUPPORT_SUFFIX}`);
   }
   return data as T;
 }
