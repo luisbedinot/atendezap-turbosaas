@@ -304,7 +304,7 @@ function AgentePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => { setHasConfig(false); setDescricao(""); }}>
+          <Button variant="outline" size="sm" onClick={() => { setHasConfig(false); setDescricao(""); setStep("descrever"); setPerguntas([]); setRespostas({}); setResumoIA(""); setCobertura(0); }}>
             <RefreshCcw className="size-3.5 mr-1.5" /> Refazer
           </Button>
           <Button onClick={save} disabled={saving}>
