@@ -139,6 +139,9 @@ function EmpresasPage() {
                   {c.ultima_atividade ? new Date(c.ultima_atividade).toLocaleDateString("pt-BR") : "—"}
                 </div>
                 <div className="col-span-2 flex justify-end gap-1">
+                  <Button size="sm" variant="outline" onClick={() => openDetails(c.id)} title="Ver detalhes">
+                    <Eye className="size-3.5" />
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => doResetPassword(c)} title="Redefinir senha do responsável">
                     <KeyRound className="size-3.5" />
                   </Button>
