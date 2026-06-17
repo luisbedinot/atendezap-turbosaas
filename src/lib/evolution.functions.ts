@@ -72,6 +72,7 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
     } catch (e: any) {
       const msg = String(e?.message || "");
       if (!/exists|already/i.test(msg)) console.warn("[evolution.create]", msg);
+      if (!/exists|already/i.test(msg)) throw e;
     }
 
     if (webhookUrl) {
@@ -80,14 +81,19 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
 
     let qrBase64: string | null = null;
     let code: string | null = null;
+    let lastQrError: unknown = null;
     for (let i = 0; i < 6; i++) {
       try {
         const qr = await evoGetQr(instanceName);
         qrBase64 = qr.qrBase64;
         code = qr.code;
         if (qrBase64 || code) break;
-      } catch (e) { console.warn("[evolution.connect]", e); }
+      } catch (e) { lastQrError = e; console.warn("[evolution.connect]", e); }
       await new Promise((r) => setTimeout(r, 800));
+    }
+
+    if (!qrBase64 && !code && lastQrError) {
+      throw lastQrError;
     }
 
     let state: string | undefined;
