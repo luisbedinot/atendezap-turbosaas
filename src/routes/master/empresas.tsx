@@ -90,6 +90,20 @@ function EmpresasPage() {
     }
   }
 
+  async function openDetails(companyId: string) {
+    setDetail({ loading: true });
+    setDetailLoading(true);
+    try {
+      const r = await details({ data: { companyId } });
+      setDetail(r);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao carregar detalhes");
+      setDetail(null);
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
   const pages = Math.ceil(total / pageSize);
 
   return (
