@@ -444,3 +444,13 @@ function SummaryRow({ label, value, multiline }: { label: string; value?: string
     </div>
   );
 }
+
+function Hint({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <div className="flex items-center gap-1.5 rounded-lg bg-[var(--panel-2)] px-2 py-1.5">
+      <span className="text-[var(--brand-text)]">{icon}</span>
+      <span className="truncate">{text}</span>
+    </div>
+  );
+}
+
