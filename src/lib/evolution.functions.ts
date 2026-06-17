@@ -51,7 +51,13 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
       .eq("company_id", companyId)
       .maybeSingle();
     if (existing?.status === "connected") {
-      return { instanceName: existing.instance_name, qrBase64: null, code: null, state: "open", webhookUrl };
+      try {
+        const s = await evoState(existing.instance_name);
+        const existingState = s?.instance?.state || (s as any)?.state;
+        if (existingState === "open") {
+          return { instanceName: existing.instance_name, qrBase64: null, code: null, state: "open", webhookUrl };
+        }
+      } catch {}
     }
 
     await supabase
