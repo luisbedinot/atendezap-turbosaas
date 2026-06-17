@@ -22,6 +22,9 @@ function EmpresasPage() {
   const suspend = useServerFn(suspendCompany);
   const extend = useServerFn(extendTrial);
   const resetPwd = useServerFn(resetCompanyOwnerPassword);
+  const details = useServerFn(getCompanyDetails);
+  const [detail, setDetail] = useState<any | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [pageSize, setPageSize] = useState(20);
