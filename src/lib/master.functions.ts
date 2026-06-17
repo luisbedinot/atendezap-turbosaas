@@ -321,3 +321,62 @@ export const resetCompanyOwnerPassword = createServerFn({ method: "POST" })
 
     return { ok: true, tempPassword: data.newPassword ? null : password, ownerEmail: prof?.email ?? null };
   });
+
+export const getCompanyDetails = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { companyId: string }) => ({ companyId: String(d.companyId) }))
+  .handler(async ({ context, data }) => {
+    await assertSuper(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: company, error } = await supabaseAdmin
+      .from("company")
+      .select("*")
+      .eq("id", data.companyId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!company) throw new Error("Empresa não encontrada");
+
+    const { data: members } = await supabaseAdmin
+      .from("company_user")
+      .select("user_id, role, ativo, created_at")
+      .eq("company_id", data.companyId)
+      .order("created_at", { ascending: true });
+
+    const userIds = (members ?? []).map((m: any) => m.user_id);
+    let profilesById: Record<string, any> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("user_id, email, nome, telefone")
+        .in("user_id", userIds);
+      for (const p of profs ?? []) profilesById[(p as any).user_id] = p;
+    }
+    const membersFull = (members ?? []).map((m: any) => ({
+      ...m,
+      profile: profilesById[m.user_id] ?? null,
+    }));
+
+    const { data: subscription } = await supabaseAdmin
+      .from("subscription")
+      .select("*, plan:plan(nome, preco_cents, moeda, intervalo)")
+      .eq("company_id", data.companyId)
+      .maybeSingle();
+
+    const [{ count: msgCount }, { count: contactsCount }, { count: cardsCount }] = await Promise.all([
+      supabaseAdmin.from("mensagens").select("id", { count: "exact", head: true }).eq("company_id", data.companyId),
+      supabaseAdmin.from("crm_cards").select("id", { count: "exact", head: true }).eq("company_id", data.companyId),
+      supabaseAdmin.from("crm_cards").select("id", { count: "exact", head: true }).eq("company_id", data.companyId),
+    ]);
+
+    return {
+      company,
+      members: membersFull,
+      subscription,
+      stats: {
+        mensagens: msgCount ?? 0,
+        contatos: contactsCount ?? 0,
+        cards: cardsCount ?? 0,
+      },
+    };
+  });
