@@ -18,14 +18,16 @@ export const masterKpis = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await assertSuper(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [{ data: companies }, { count: msgCount }, { count: cardsCount }] = await Promise.all([
+    const [{ data: companies }, { count: msgCount }, { count: cardsCount }, { data: subscriptions }] = await Promise.all([
       supabaseAdmin.from("company").select("id, status_cobranca, trial_ate, created_at"),
       supabaseAdmin.from("mensagens").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("crm_cards").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("subscription").select("status, plan:plan(preco_cents)"),
     ]);
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
     const all = companies ?? [];
+    const subs = subscriptions ?? [];
     const stats = {
       total: all.length,
       ativas: all.filter((c: any) => c.status_cobranca === "ativo").length,
@@ -34,6 +36,9 @@ export const masterKpis = createServerFn({ method: "POST" })
       novasMes: all.filter((c: any) => new Date(c.created_at).getTime() >= monthStart).length,
       mensagens: msgCount ?? 0,
       cards: cardsCount ?? 0,
+      assinaturasAtivas: subs.filter((s: any) => s.status === "active").length,
+      assinaturasTrial: subs.filter((s: any) => s.status === "trialing").length,
+      mrr: subs.filter((s: any) => s.status === "active").reduce((sum: number, s: any) => sum + (s.plan?.preco_cents ?? 0), 0),
     };
     // Crescimento (últimos 12 meses)
     const series: { mes: string; total: number }[] = [];
@@ -47,6 +52,19 @@ export const masterKpis = createServerFn({ method: "POST" })
       series.push({ mes: d.toLocaleDateString("pt-BR", { month: "short" }), total: count });
     }
     return { stats, series };
+  });
+
+export const listMasterSubscriptions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuper(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("subscription")
+      .select("*, plan:plan(nome,preco_cents,moeda,intervalo), company:company(nome,status_cobranca,email_corporativo)")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return { rows: data ?? [] };
   });
 
 export const listCompanies = createServerFn({ method: "POST" })

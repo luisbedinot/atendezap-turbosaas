@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { brand } from "@/config/brand";
 import { Loader2, Search, CreditCard, Building2 } from "lucide-react";
+import { listMasterSubscriptions } from "@/lib/master.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/master/assinaturas")({
   head: () => ({ meta: [{ title: `${brand.name} — Assinaturas` }] }),
@@ -38,6 +40,7 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 };
 
 function AssinaturasPage() {
+  const fetchSubscriptions = useServerFn(listMasterSubscriptions);
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -45,15 +48,19 @@ function AssinaturasPage() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("subscription")
-      .select("*, plan:plan(nome,preco_cents,moeda,intervalo), company:company(nome,status_cobranca,email_corporativo)")
-      .order("created_at", { ascending: false });
-    if (error) console.error(error);
-    setRows((data ?? []) as any);
+    try {
+      const { rows } = await fetchSubscriptions();
+      setRows(rows as any);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao carregar assinaturas");
+    }
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const timer = window.setInterval(load, 5000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
