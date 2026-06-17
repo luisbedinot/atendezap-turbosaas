@@ -62,7 +62,7 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
           if (existing.status !== "connected") {
             await supabase
               .from("whatsapp_instances")
-              .update({ status: "connected", webhook_token: webhookToken } as any)
+              .update({ status: "connected", webhook_token: webhookToken, webhook_configured_at: new Date().toISOString() } as any)
               .eq("company_id", companyId);
           }
           return { instanceName: existing.instance_name, qrBase64: null, code: null, state: "open", webhookUrl };
@@ -124,7 +124,7 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
 
     const { data: row } = await (supabase as any)
       .from("whatsapp_instances")
-      .select("instance_name,status,numero,webhook_token")
+      .select("instance_name,status,numero,webhook_token,webhook_configured_at")
       .eq("company_id", companyId)
       .maybeSingle();
     if (!row) return { status: "disconnected", state: null, numero: null, qrBase64: null, code: null };
@@ -160,10 +160,13 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
     if (newStatus === "connected" && !numero) {
       try { numero = await evoFetchNumberFromInstance(row.instance_name); } catch {}
     }
-    if (newStatus === "connected" && row.webhook_token) {
+    if (newStatus === "connected" && row.webhook_token && !row.webhook_configured_at) {
       const webhookUrl = buildWebhookUrl(row.webhook_token);
       if (webhookUrl) {
-        try { await evoSetWebhook(row.instance_name, webhookUrl); } catch (e) { console.warn("[evolution.setWebhook]", e); }
+        try {
+          await evoSetWebhook(row.instance_name, webhookUrl);
+          await supabase.from("whatsapp_instances").update({ webhook_configured_at: new Date().toISOString() } as any).eq("company_id", companyId);
+        } catch (e) { console.warn("[evolution.setWebhook]", e); }
       }
     }
 
