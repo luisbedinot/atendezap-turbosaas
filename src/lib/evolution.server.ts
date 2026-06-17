@@ -72,12 +72,12 @@ export async function evoConnect(instanceName: string): Promise<{ base64?: strin
   return evo(`/instance/connect/${encodeURIComponent(instanceName)}`, { method: "GET" });
 }
 
-function asImageDataUrl(value: unknown): string | null {
+function asImageDataUrl(value: unknown, allowRawBase64 = false): string | null {
   const text = typeof value === "string" ? value.trim() : "";
   if (!text) return null;
   if (text.startsWith("data:image/")) return text;
   const base64 = text.includes("base64,") ? text.split("base64,").pop()?.trim() : text;
-  if (base64 && base64.length > 120 && /^[A-Za-z0-9+/=\s]+$/.test(base64)) {
+  if (allowRawBase64 && base64 && base64.length > 120 && /^[A-Za-z0-9+/=\s]+$/.test(base64)) {
     return `data:image/png;base64,${base64.replace(/\s/g, "")}`;
   }
   return null;
@@ -92,7 +92,7 @@ function extractQrCode(payload: any): string | null {
     payload?.qr,
   ];
   for (const value of candidates) {
-    if (typeof value === "string" && value.trim() && !asImageDataUrl(value)) return value.trim();
+    if (typeof value === "string" && value.trim() && !asImageDataUrl(value, false)) return value.trim();
   }
   return null;
 }
@@ -100,11 +100,11 @@ function extractQrCode(payload: any): string | null {
 export async function evoGetQr(instanceName: string): Promise<{ qrBase64: string | null; code: string | null; pairingCode: string | null }> {
   const payload: any = await evoConnect(instanceName);
   const image =
-    asImageDataUrl(payload?.base64) ||
-    asImageDataUrl(payload?.qrcode?.base64) ||
-    asImageDataUrl(payload?.qr?.base64) ||
-    asImageDataUrl(payload?.qrcode) ||
-    asImageDataUrl(payload?.qr);
+    asImageDataUrl(payload?.base64, true) ||
+    asImageDataUrl(payload?.qrcode?.base64, true) ||
+    asImageDataUrl(payload?.qr?.base64, true) ||
+    asImageDataUrl(payload?.qrcode, false) ||
+    asImageDataUrl(payload?.qr, false);
   const code = extractQrCode(payload);
 
   if (image) return { qrBase64: image, code, pairingCode: payload?.pairingCode ?? payload?.qrcode?.pairingCode ?? null };
