@@ -301,7 +301,7 @@ function Onboarding() {
         {step === 1 && (
           <>
             <div className="grid sm:grid-cols-3 gap-3">
-              <Row label="CEP"><Input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="00000-000" /></Row>
+              <Row label="CEP"><Input value={cep} onChange={(e) => setCep(maskCep(e.target.value))} placeholder="00000-000" inputMode="numeric" /></Row>
               <div className="sm:col-span-2"><Row label="Rua"><Input value={rua} onChange={(e) => setRua(e.target.value)} /></Row></div>
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
