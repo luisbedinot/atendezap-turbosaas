@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { brand } from "@/config/brand";
 import { Loader2, Check, Building2, MapPin, Palette, Bot, PartyPopper } from "lucide-react";
+import { maskCpf, maskCnpj, maskPhone, maskCep } from "@/lib/masks";
 
 type Search = { checkout?: string };
 
