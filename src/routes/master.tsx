@@ -63,7 +63,19 @@ function MasterLayout() {
   const userName = (email || "Master").split("@")[0];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground relative overflow-hidden">
+      {/* Master ambient glows */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-40 -right-32 h-[520px] w-[520px] rounded-full blur-3xl opacity-25"
+          style={{ background: `radial-gradient(circle, ${RED} 0%, transparent 60%)` }}
+        />
+        <div
+          className="absolute top-[40%] -left-40 h-[480px] w-[480px] rounded-full blur-3xl opacity-15"
+          style={{ background: `radial-gradient(circle, ${RED} 0%, transparent 65%)` }}
+        />
+      </div>
+      <div className="relative z-10 flex flex-col min-h-screen">
       {/* Mobile top bar */}
       <header className="md:hidden sticky top-0 z-30 flex items-center justify-between gap-3 px-4 py-3 bg-[color:var(--panel)]/80 backdrop-blur-xl border-b border-[color:var(--hairline)]">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -196,6 +208,7 @@ function MasterLayout() {
       </div>
 
       <MobileBottomNav items={mobileItems} accent={RED} />
+      </div>
     </div>
   );
 }
