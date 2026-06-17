@@ -1,106 +1,87 @@
 
-# Diagnóstico — Modo Plan (nada alterado)
+## O que vai mudar
 
-## 1) Signup e confirmação de e-mail
+Substituir o checkout Paddle por **link externo** (Kiwify/Cakto/Perfectpay) configurado por plano no Painel Master, e abrir **webhooks públicos** que recebem a confirmação de pagamento e ativam/renovam/cancelam a assinatura ligando pelo **e-mail do comprador**.
 
-**Estado atual no Supabase Auth deste projeto:**
-- `auto_confirm_email` está **DESLIGADO**. Tenho evidência empírica: dos 10 últimos cadastros, 8 confirmaram em segundos (clicaram no link) e 2 (`reinaldo.santos240884@gmail.com`, `lilliancarrilho2@gmail.com`) estão com `email_confirmed_at = NULL` há horas — ou seja, o sistema realmente exige confirmação.
-- O provedor SMTP padrão do Lovable Cloud está ativo (é por isso que a maioria recebe e confirma). **Não estamos sem provedor** — é o SMTP compartilhado da plataforma. Para usar `from` próprio precisaria escalar domínio (Cloud → Emails), mas hoje funciona.
+## 1. Banco de dados (migração)
 
-**Como o `src/routes/entrar.tsx` lida com isso (linhas 95-118):**
-1. Faz `supabase.auth.signUp(email, senhaGerada)`.
-2. Se vier `signUpData.session` → loga e segue (cenário auto-confirm).
-3. Se NÃO vier sessão → tenta `signInWithPassword` imediatamente.
-4. Se falhar → mostra toast "Enviamos um link de confirmação".
+Alterar `plan`:
+- `checkout_url text` (link da Kiwify/Cakto onde o cliente paga)
 
-Como `auto_confirm` está OFF, o caminho real é o passo 4: **o usuário precisa abrir o e-mail e clicar no link** antes de conseguir entrar. Se o e-mail demorar/cair no spam, ele fica preso na tela "verifique seu e-mail".
+Alterar `subscription` (tornar genérica, sem quebrar o que já existe):
+- `provider text not null default 'manual'` (`'kiwify' | 'cakto' | 'perfectpay' | 'manual' | 'paddle'`)
+- `external_subscription_id text` (id da venda/assinatura externa)
+- `external_customer_id text`
+- `buyer_email text` (chave de vínculo)
+- Paddle columns viram nullable (não removo agora pra não quebrar registros antigos).
+- Índice `(provider, external_subscription_id)` e `(buyer_email)`.
 
-**Como contornar (3 opções, da mais simples à mais cirúrgica):**
-- **A) Ligar `auto_confirm_email = true`** via `supabase--configure_auth`. Resolve 100% — signup já entra logado, sem depender de e-mail. Trade-off: aceita e-mails não verificados (qualquer string@dominio funciona). Para o seu cenário de demo/gravação, é o ideal.
-- **B) Manter confirmação obrigatória, mas adicionar um botão "reenviar e-mail de confirmação"** na tela de login quando detectar `email_not_confirmed`. Resolve quando o e-mail atrasa, mas ainda depende do SMTP.
-- **C) Endpoint admin (server fn protegida por super_admin) "confirmar usuário manualmente"** — útil para emergência (você confirma na mão pelo painel master), mas não resolve para o usuário comum.
+## 2. Webhook público
 
-**Recomendação:** **A** agora (para você gravar tranquilo) + **B** como UX adicional depois.
+`src/routes/api/public/billing/webhook.ts` — um único endpoint, multiplataforma:
 
----
-
-## 2) Atribuição do papel `super_admin`
-
-**Como funciona hoje:**
-
-Existem **dois mecanismos**, ambos em SQL (functions `SECURITY DEFINER`):
-
-a) **`public.handle_new_user()`** — trigger `on auth.users` no INSERT. Quando um novo usuário se cadastra:
-   - Cria linha em `profiles`.
-   - Se **ainda não existe nenhum super_admin no projeto**, promove esse novo usuário a `super_admin` e grava o e-mail em `app_config.super_admin_emails`.
-   - **Importante:** roda apenas no primeiro usuário do clone. A partir do segundo, ninguém é promovido automaticamente.
-
-b) **`public.claim_super_admin_if_empty()`** — function `RPC` (não tem trigger automático). Roda **só se algum código do front chamar `supabase.rpc('claim_super_admin_if_empty')`**. Pelo que vasculhei (`rg "claim_super_admin"` no src), **nada chama essa RPC hoje**. Ou seja: ela existe como "rede de segurança" para o caso de o trigger ter falhado, mas hoje é código morto.
-
-**Estado do `luis.bedinot@gmail.com` no banco AGORA:**
 ```
-auth.users:      confirmed_at = 2026-06-17 16:13 (confirmado)
-user_roles:      role = super_admin  ✓
-app_config:      super_admin_emails = ['luis.bedinot@gmail.com']  ✓
-company_user:    0 linhas (não pertence a nenhuma empresa)
+POST /api/public/billing/webhook?provider=kiwify&token=...
+POST /api/public/billing/webhook?provider=cakto&token=...
+POST /api/public/billing/webhook?provider=perfectpay&token=...
 ```
 
-**Então por que cai no onboarding / é jogado pra fora do /master?**
+- Verifica token no query string contra secret (`KIWIFY_WEBHOOK_TOKEN`, `CAKTO_WEBHOOK_TOKEN`, `PERFECTPAY_WEBHOOK_TOKEN`).
+- Normaliza o payload da plataforma para `{ event, buyerEmail, externalId, productRef, status, periodEnd }`.
+- Localiza a empresa: `profiles.email = buyerEmail` → `company_user.user_id` → `company`.
+  - Se não achar: registra `pending_billing_event` (criar tabela simples de log) e responde 200 (Kiwify retenta de outra forma).
+- Localiza o plano: tenta `plan.slug = productRef` ou `plan.checkout_url contém productRef`. Fallback: mantém plano atual.
+- Mapeia evento:
+  - `purchase_approved` / `subscription_renewed` → `subscription.status='active'`, `company.status_cobranca='ativo'`, atualiza `current_period_end`.
+  - `subscription_canceled` / `chargeback` → `status='canceled'`, `status_cobranca='suspenso'`.
+  - `payment_failed` → `status='past_due'`, `status_cobranca='pendente'`.
+- Upsert por `(provider, external_subscription_id)`.
 
-Lendo `src/routes/master.tsx` (linha 13) e `src/routes/app.tsx` (linha 23), os dois fazem o **mesmo query** para checar a role:
-```ts
-supabase.from("user_roles").select("role").eq("user_id", u.user.id)
+## 3. UI Master
+
+`src/routes/master/planos.tsx`: adicionar campo **"URL de checkout (Kiwify/Cakto)"** em cada plano. Persistir em `plan.checkout_url`.
+
+`src/routes/master/configuracoes.tsx`: mostrar as **URLs de webhook** prontas pra copiar/colar em cada plataforma:
 ```
-Esse SELECT é gated por **RLS na tabela `user_roles`** (só 1 policy, conforme `<supabase-tables>`). Se a policy não permite o próprio usuário ler suas roles, o array volta `[]`, `isSuperAdmin = false`, e:
-- `/master` → redirect para `/app/dashboard`
-- `/app` → como ele não tem `company_user`, e `isSuperAdmin` (falso) cai no else → redirect para `/app/checkout` (não onboarding, mas é o "fora do master" que você descreveu).
+https://<dominio>/api/public/billing/webhook?provider=kiwify&token=<KIWIFY_WEBHOOK_TOKEN>
+https://<dominio>/api/public/billing/webhook?provider=cakto&token=<CAKTO_WEBHOOK_TOKEN>
+```
+Também exibir status `Aguardando 1º webhook` ou `Recebido em <data>` (de uma tabela `billing_event_log`).
 
-Outra causa possível e mais provável: **a sessão do navegador é de OUTRO usuário** (não a do luis). Os logs de auth mostram um login recente de `teste@teste.com` (16:18:44) e tentativa fracassada de login (16:19:28, `invalid_credentials`). Você pode estar logado como `teste@teste.com` no preview enquanto tenta acessar /master — esse usuário não tem role super_admin, por isso é expulso.
+## 4. Checkout do cliente
 
-**Plano de investigação (sem alterar nada):**
-1. Confirmar quem está logado no navegador (rodar `supabase.auth.getUser()` no console do preview, ou só conferir o badge no canto superior).
-2. Se for o luis, testar o SELECT com RLS ativa: rodar como o user dele (impersonate via service role) para ver se a policy de `user_roles` retorna a linha.
-3. Se a policy estiver bloqueando, ajustar (`USING (user_id = auth.uid())`). Migration simples.
+`src/routes/app/checkout.tsx`: remover Paddle. Continua mostrando os 3 planos (UI atual), mas o botão **"Assinar"** vira:
+- `<a href={plano.checkout_url} target="_blank">` com `?email={userEmail}` pré-preenchido (Kiwify/Cakto suportam querystring de e-mail).
+- Mostra um painel "Aguardando confirmação do pagamento" com polling a cada 5s na `subscription` da empresa do usuário. Quando vier `active` → redireciona para `/app/dashboard`.
+- Mantém aviso: **use o mesmo e-mail do cadastro pra liberação automática**.
 
----
+## 5. Limpeza Paddle
 
-## 3) Definir/redefinir senha DENTRO do sistema (sem e-mail)
+- Tirar `usePaddleCheckout`, `PaymentTestModeBanner`, `paddle.ts`, `paddle.server.ts` dos imports ativos (deixo os arquivos no repo por enquanto, sem uso).
+- O webhook `src/routes/api/public/payments/webhook.ts` (Paddle) eu deixo no lugar mas inerte (não chamamos mais). Posso deletar depois se você quiser.
 
-**Estado atual:**
+## 6. Secrets que vou pedir
 
-| Tela | Arquivo | Precisa e-mail? | O que faz |
-|---|---|---|---|
-| Esqueci minha senha | `src/routes/esqueci-senha.tsx` | **Sim** | Chama `supabase.auth.resetPasswordForEmail` → manda link |
-| Definir nova senha (após clicar no link) | `src/routes/reset-senha.tsx` | **Sim** (precisa do token no hash) | `supabase.auth.updateUser({password})` |
-| Trocar senha (logado) | `src/routes/trocar-senha.tsx` | **Não** | Usuário JÁ LOGADO define nova senha. Usado quando `forcar_troca_senha=true` em `company_user`. |
+Após você aprovar este plano vou chamar `add_secret` para:
+- `KIWIFY_WEBHOOK_TOKEN` — token livre que você cola na URL na Kiwify (vou gerar uma string sugerida)
+- `CAKTO_WEBHOOK_TOKEN`
+- `PERFECTPAY_WEBHOOK_TOKEN`
 
-**O que NÃO existe hoje:**
-- Não há fluxo super-admin → "definir senha do usuário X manualmente" pelo painel master.
-- Não há "trocar minha senha" acessível a qualquer momento via Configurações (só dispara via `forcar_troca_senha`).
-- Não há "esqueci senha sem e-mail" (autoatendimento via outro fator).
+Você pode usar a mesma string nos 3 se quiser simplificar.
 
-**Como você (super admin) já consegue resetar senha de alguém HOJE:**
-- Não pela UI. Só via Admin API (foi o que eu fiz com seu usuário ontem usando `service_role_key` num endpoint temporário). Não existe botão "resetar senha" em `/master/empresas`.
+## Detalhes técnicos
 
-**Opções para fechar essa lacuna:**
-- **D) Adicionar botão "Definir nova senha" em `/master/empresas/[id]`** que chama uma server fn protegida (`requireSupabaseAuth` + check de super_admin) e usa `supabaseAdmin.auth.admin.updateUserById`. Gera senha temporária + marca `forcar_troca_senha=true` para a próxima sessão.
-- **E) Adicionar link "Trocar senha" em `/app/configuracoes`** (qualquer usuário logado) reutilizando a tela `trocar-senha.tsx` já existente.
+- Webhook em `/api/public/*` (bypass de auth na publicação).
+- Uso `supabaseAdmin` dentro do handler (carregado via `await import`).
+- Eventos normalizados em `src/lib/billing/normalize.ts` (um arquivo por plataforma).
+- Tabela `billing_event_log(id, provider, event_type, payload jsonb, processed_at, matched_company_id, created_at)` pra auditoria e debug.
+- Polling no cliente usa `useQuery` com `refetchInterval: 5000` enquanto status ≠ active.
 
----
+## Ordem de execução
 
-## Resumo executivo para decidir o próximo passo
-
-| Pergunta | Resposta curta |
-|---|---|
-| Confirmação de e-mail está ligada? | **Sim**, e o e-mail está sendo entregue (80% confirma) |
-| Como entrar sem depender do e-mail? | Ligar `auto_confirm_email` (recomendado p/ demo) |
-| Por que o luis é expulso do /master? | Mais provável: você está logado como `teste@teste.com` no navegador, não como luis. Segunda hipótese: RLS de `user_roles` bloqueando o SELECT |
-| Existe redefinir senha sem e-mail? | Só `trocar-senha.tsx` (precisa estar logado). Não há ação de super admin pela UI |
-
----
-
-## Próximos passos sugeridos (espero sua escolha — nada será alterado ainda)
-
-1. **Ligo `auto_confirm_email = true`** para destravar signups na gravação? (Sim/Não)
-2. **Investigo a RLS de `user_roles`** e/ou confirmo quem está logado no navegador agora? (Sim/Não)
-3. **Crio a tela super-admin "definir senha do usuário"** + atalho "trocar senha" em `/app/configuracoes`? (Sim/Não)
+1. Migração SQL (plan + subscription + billing_event_log).
+2. `add_secret` dos 3 tokens.
+3. Webhook + normalizadores.
+4. UI Master (campo checkout_url + tela de webhook URLs).
+5. Refatorar `/app/checkout` (link externo + polling).
+6. Publicar e testar com uma venda real em modo cartão de teste da Kiwify.
