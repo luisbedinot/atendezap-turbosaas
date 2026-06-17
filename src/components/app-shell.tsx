@@ -268,3 +268,20 @@ function NavLink({ item, active, primary }: { item: NavItem; active: boolean; pr
     </Link>
   );
 }
+
+function WhatsappStatusPill() {
+  const status = useWhatsappStatus();
+  const connected = status === "connected";
+  const connecting = status === "connecting";
+  const label = connected ? "WhatsApp conectado" : connecting ? "Conectando…" : "WhatsApp desconectado";
+  const color = connected ? "#16a34a" : connecting ? "#f59e0b" : "#dc2626";
+  return (
+    <div
+      className="flex items-center gap-2 text-[13.5px] font-medium px-3 py-1.5 rounded-full bg-[color:var(--panel)] border border-[color:var(--hairline)]"
+      style={{ color }}
+    >
+      <span className="size-1.5 rounded-full" style={{ background: color, boxShadow: `0 0 10px ${color}` }} />
+      {label}
+    </div>
+  );
+}
