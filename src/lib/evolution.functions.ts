@@ -6,11 +6,12 @@ function deriveInstanceName(companyId: string) {
   return `atendezap_${companyId.replace(/-/g, "").slice(0, 16)}`;
 }
 
-function buildWebhookUrl() {
+function buildWebhookUrl(token?: string | null) {
   try {
     const req = getRequest();
     const url = new URL(req.url);
-    return `${url.protocol}//${url.host}/api/public/whatsapp-webhook`;
+    const tokenQuery = token ? `?t=${encodeURIComponent(token)}` : "";
+    return `${url.protocol}//${url.host}/api/public/whatsapp-webhook${tokenQuery}`;
   } catch {
     return "";
   }
@@ -42,19 +43,28 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
       evoState,
     } = await import("./evolution.server");
 
-    const instanceName = deriveInstanceName(companyId);
-    const webhookUrl = buildWebhookUrl();
-
-    const { data: existing } = await supabase
+    const { data: existing } = await (supabase as any)
       .from("whatsapp_instances")
-      .select("instance_name,status,numero")
+      .select("instance_name,status,numero,webhook_token")
       .eq("company_id", companyId)
       .maybeSingle();
-    if (existing?.status === "connected") {
+    const instanceName = existing?.instance_name || deriveInstanceName(companyId);
+    const webhookToken = existing?.webhook_token || crypto.randomUUID();
+    const webhookUrl = buildWebhookUrl(webhookToken);
+    if (existing?.instance_name) {
       try {
         const s = await evoState(existing.instance_name);
         const existingState = s?.instance?.state || (s as any)?.state;
         if (existingState === "open") {
+          if (webhookUrl) {
+            try { await evoSetWebhook(existing.instance_name, webhookUrl); } catch (e) { console.warn("[evolution.setWebhook]", e); }
+          }
+          if (existing.status !== "connected") {
+            await supabase
+              .from("whatsapp_instances")
+              .update({ status: "connected", webhook_token: webhookToken } as any)
+              .eq("company_id", companyId);
+          }
           return { instanceName: existing.instance_name, qrBase64: null, code: null, state: "open", webhookUrl };
         }
       } catch {}
@@ -63,7 +73,7 @@ export const connectWhatsapp = createServerFn({ method: "POST" })
     await supabase
       .from("whatsapp_instances")
       .upsert(
-        { company_id: companyId, user_id: userId, instance_name: instanceName, status: "connecting" },
+        { company_id: companyId, user_id: userId, instance_name: instanceName, status: "connecting", webhook_token: webhookToken } as any,
         { onConflict: "company_id" },
       );
 
@@ -191,6 +201,28 @@ export const sendWhatsappText = createServerFn({ method: "POST" })
     const { data: inst } = await supabase
       .from("whatsapp_instances").select("instance_name,status").eq("company_id", companyId).maybeSingle();
     if (!inst?.instance_name) throw new Error("WhatsApp não conectado");
+    const { data: recentInbound } = await supabase
+      .from("mensagens")
+      .select("id")
+      .eq("company_id", companyId)
+      .eq("numero", data.numero)
+      .eq("direcao", "entrada")
+      .gte("created_at", new Date(Date.now() - 24 * 60 * 60_000).toISOString())
+      .limit(1);
+    if (!recentInbound?.length) {
+      throw new Error("Por segurança, só é possível responder contatos que mandaram mensagem nas últimas 24h. Para iniciar conversa, use a API oficial com template aprovado.");
+    }
+    const { data: recentOutbound } = await supabase
+      .from("mensagens")
+      .select("id")
+      .eq("company_id", companyId)
+      .eq("numero", data.numero)
+      .eq("direcao", "saida")
+      .gte("created_at", new Date(Date.now() - 10 * 60_000).toISOString())
+      .limit(6);
+    if ((recentOutbound?.length ?? 0) >= 6) {
+      throw new Error("Envio pausado por alguns minutos para proteger a qualidade do número.");
+    }
     const { assertWithinLimit } = await import("./plan-limits.server");
     await assertWithinLimit(companyId, "mensagens");
     const { evoSendText } = await import("./evolution.server");

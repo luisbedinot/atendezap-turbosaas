@@ -1065,6 +1065,7 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          webhook_token: string
         }
         Insert: {
           company_id: string
@@ -1073,6 +1074,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          webhook_token?: string
         }
         Update: {
           company_id?: string
@@ -1081,6 +1083,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          webhook_token?: string
         }
         Relationships: []
       }
