@@ -14,7 +14,7 @@ export function useWhatsappStatus(intervalMs = 30000) {
         const r = await check();
         if (alive) setStatus((r.status as any) || "disconnected");
       } catch {
-        if (alive) setStatus("disconnected");
+        // erro transitório: NÃO derruba o status — só ignora esse ciclo
       }
     }
     void run();

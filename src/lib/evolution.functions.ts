@@ -110,48 +110,55 @@ export const checkWhatsappStatus = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const companyId = await resolveCompanyId(supabase, userId);
-    const { evoState, evoGetQr, evoFetchNumberFromInstance, evoSetWebhook } = await import("./evolution.server");
+    const { evoState, evoFetchNumberFromInstance } = await import("./evolution.server");
 
     const { data: row } = await supabase
       .from("whatsapp_instances")
-      .select("instance_name,status")
+      .select("instance_name,status,numero")
       .eq("company_id", companyId)
       .maybeSingle();
     if (!row) return { status: "disconnected", state: null, numero: null, qrBase64: null, code: null };
 
     let state: string | null = null;
+    let stateError = false;
     try {
       const s = await evoState(row.instance_name);
       state = s?.instance?.state || (s as any)?.state || null;
-    } catch (e) { console.warn("[evolution.state]", e); }
+    } catch (e) {
+      stateError = true;
+      console.warn("[evolution.state]", e);
+    }
+
+    // IMPORTANTE: NUNCA chamar evoGetQr aqui. Chamar /instance/connect em sessão
+    // ativa DERRUBA a sessão do WhatsApp pra gerar um QR novo. QR só é buscado
+    // explicitamente em connectWhatsapp (botão "Conectar"). Em erro transitório,
+    // preservar o último status conhecido pra não causar "flicker" de desconexão.
+    if (stateError) {
+      return {
+        status: row.status || "disconnected",
+        state: null,
+        numero: row.numero ?? null,
+        qrBase64: null,
+        code: null,
+      };
+    }
 
     const newStatus =
       state === "open" ? "connected" : state === "connecting" ? "connecting" : "disconnected";
 
-    let numero: string | null = null;
-    let qrBase64: string | null = null;
-    let code: string | null = null;
-    if (newStatus === "connected") {
-      numero = await evoFetchNumberFromInstance(row.instance_name);
-      const webhookUrl = buildWebhookUrl();
-      if (webhookUrl) {
-        try { await evoSetWebhook(row.instance_name, webhookUrl); } catch {}
-      }
-    } else {
-      // tenta buscar QR caso ainda esteja conectando
-      try {
-        const qr = await evoGetQr(row.instance_name);
-        qrBase64 = qr.qrBase64;
-        code = qr.code;
-      } catch {}
+    let numero: string | null = row.numero ?? null;
+    if (newStatus === "connected" && !numero) {
+      try { numero = await evoFetchNumberFromInstance(row.instance_name); } catch {}
     }
 
-    await supabase
-      .from("whatsapp_instances")
-      .update({ status: newStatus, ...(numero ? { numero } : {}) })
-      .eq("company_id", companyId);
+    if (newStatus !== row.status || (numero && numero !== row.numero)) {
+      await supabase
+        .from("whatsapp_instances")
+        .update({ status: newStatus, ...(numero ? { numero } : {}) })
+        .eq("company_id", companyId);
+    }
 
-    return { status: newStatus, state, numero, qrBase64, code };
+    return { status: newStatus, state, numero, qrBase64: null, code: null };
   });
 
 export const disconnectWhatsapp = createServerFn({ method: "POST" })
