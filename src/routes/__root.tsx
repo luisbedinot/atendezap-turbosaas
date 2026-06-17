@@ -124,7 +124,7 @@ const NO_FLASH_THEME = `(()=>{try{var t=localStorage.getItem('theme');var d=docu
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
 
       <head>
         <script dangerouslySetInnerHTML={{ __html: NO_FLASH_THEME }} />
