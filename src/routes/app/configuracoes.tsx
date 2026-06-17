@@ -106,12 +106,17 @@ function ConfigPage() {
         <h1 className="text-2xl font-bold tracking-tight">Configurações</h1>
         <p className="text-sm text-muted-foreground">Empresa, identidade e perfil.</p>
       </div>
-      <Tabs defaultValue="empresa">
+      <Tabs defaultValue="plano">
         <TabsList>
+          <TabsTrigger value="plano">Plano</TabsTrigger>
           <TabsTrigger value="empresa">Empresa</TabsTrigger>
           <TabsTrigger value="identidade">Identidade</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="plano">
+          <PlanoCard company={company} sub={sub} />
+        </TabsContent>
 
         <TabsContent value="empresa">
           <Card className="p-5 space-y-4 max-w-xl">
