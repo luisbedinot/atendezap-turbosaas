@@ -280,6 +280,53 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          acao: string
+          actor_email: string | null
+          company_id: string
+          created_at: string
+          detalhes: Json | null
+          id: string
+          ip: string | null
+          recurso: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          actor_email?: string | null
+          company_id: string
+          created_at?: string
+          detalhes?: Json | null
+          id?: string
+          ip?: string | null
+          recurso?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          actor_email?: string | null
+          company_id?: string
+          created_at?: string
+          detalhes?: Json | null
+          id?: string
+          ip?: string | null
+          recurso?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_event_log: {
         Row: {
           buyer_email: string | null
