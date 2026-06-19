@@ -164,6 +164,42 @@ function ConversasPage() {
   const activeStage = activeCard?.stage_id ? stages.find((s) => s.id === activeCard.stage_id) : null;
   const iaAtivaAqui = active ? !(pauses[active] ?? false) : true;
 
+  // Keyboard shortcuts (after conversations is declared)
+  useEffect(() => {
+    function onKey(ev: KeyboardEvent) {
+      const t = ev.target as HTMLElement | null;
+      const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || (t as any).isContentEditable);
+      if (ev.key === "/" && t === composerRef.current && (composerRef.current?.value ?? "") === "") {
+        ev.preventDefault();
+        setShowTemplatePicker(true);
+        return;
+      }
+      if (ev.key === "Escape") setShowTemplatePicker(false);
+      if (typing) return;
+      if (ev.key === "j" || ev.key === "k") {
+        ev.preventDefault();
+        const idx = conversations.findIndex((c) => c.numero === active);
+        const next = ev.key === "j" ? Math.min(conversations.length - 1, idx + 1) : Math.max(0, idx - 1);
+        const target = conversations[next];
+        if (target) setActive(target.numero);
+      } else if (ev.key === "r" && active) {
+        ev.preventDefault();
+        composerRef.current?.focus();
+      } else if (ev.key === "e" && active) {
+        ev.preventDefault();
+        void toggleIa(false);
+      } else if (ev.key === "/") {
+        ev.preventDefault();
+        composerRef.current?.focus();
+        setShowTemplatePicker(true);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line
+  }, [active, conversations.length]);
+
+
   async function toggleIa(v: boolean) {
     if (!active) return;
     setPauses((p) => ({ ...p, [active]: !v })); // optimistic
