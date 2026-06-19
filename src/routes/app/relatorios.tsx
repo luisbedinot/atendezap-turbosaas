@@ -6,7 +6,7 @@ import {
 } from "recharts";
 import { brand } from "@/config/brand";
 import { KpiCard } from "@/components/dashboard/kpi-card";
-import { Bot, MessageCircle, Target, DollarSign, Download, Clock } from "lucide-react";
+import { Bot, MessageCircle, Target, DollarSign, Download, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/relatorios")({
@@ -37,21 +37,24 @@ function RelatoriosPage() {
   const [cards, setCards] = useState<{ status: string; stage_id: string | null; valor: number; owner_id: string | null; ultima_em: string }[]>([]);
   const [stages, setStages] = useState<{ id: string; nome: string; cor: string; tipo: string }[]>([]);
   const [members, setMembers] = useState<{ user_id: string; nome: string | null; email: string | null }[]>([]);
+  const [csat, setCsat] = useState<{ score: number | null; respondido_em: string | null }[]>([]);
 
   const range = useMemo(() => rangeOf(period, from, to), [period, from, to]);
 
   useEffect(() => {
     if (!companyId) return;
     void (async () => {
-      const [{ data: m }, { data: c }, { data: st }, { data: cu }] = await Promise.all([
+      const [{ data: m }, { data: c }, { data: st }, { data: cu }, { data: cs }] = await Promise.all([
         supabase.from("mensagens").select("created_at,direcao,autor,user_id").eq("company_id", companyId).gte("created_at", range.start.toISOString()).lte("created_at", range.end.toISOString()),
         supabase.from("crm_cards").select("status,stage_id,valor,owner_id,ultima_em").eq("company_id", companyId),
         supabase.from("crm_stage").select("id,nome,cor,tipo,ordem").eq("company_id", companyId).order("ordem", { ascending: true }),
         supabase.from("company_user").select("user_id,profiles(nome,email)").eq("company_id", companyId).eq("ativo", true),
+        supabase.from("csat_response").select("score,respondido_em").eq("company_id", companyId).gte("enviado_em", range.start.toISOString()).lte("enviado_em", range.end.toISOString()),
       ]);
       setMsgs((m ?? []) as any);
       setCards((c ?? []) as any);
       setStages((st ?? []) as any);
+      setCsat(((cs ?? []) as any).map((r: any) => ({ score: r.score, respondido_em: r.respondido_em })));
       setMembers(((cu ?? []) as any[]).map((r) => ({
         user_id: r.user_id, nome: r.profiles?.nome ?? null, email: r.profiles?.email ?? null,
       })));
@@ -81,6 +84,9 @@ function RelatoriosPage() {
   const ganho = cards.filter((c) => c.stage_id && stageMap.get(c.stage_id)?.tipo === "ganho");
   const receita = ganho.reduce((s, c) => s + Number(c.valor ?? 0), 0);
   const conversao = cards.length ? Math.round((ganho.length / cards.length) * 100) : 0;
+  const csatRespondidos = csat.filter((c) => c.score != null);
+  const csatMedia = csatRespondidos.length ? (csatRespondidos.reduce((s, c) => s + (c.score ?? 0), 0) / csatRespondidos.length) : 0;
+  const csatTaxa = csat.length ? Math.round((csatRespondidos.length / csat.length) * 100) : 0;
 
   const perDay = useMemo(() => {
     const days = Math.min(30, Math.max(1, Math.ceil((+range.end - +range.start) / 86400000)));
