@@ -283,6 +283,137 @@ export type Database = {
           },
         ]
       }
+      campaign: {
+        Row: {
+          agendado_para: string | null
+          company_id: string
+          concluido_em: string | null
+          created_at: string
+          created_by: string | null
+          filtro_tags: string[] | null
+          id: string
+          iniciado_em: string | null
+          intervalo_max_seg: number
+          intervalo_min_seg: number
+          media_url: string | null
+          mensagem: string
+          nome: string
+          pausa_apos_envios: number
+          pausa_duracao_min: number
+          proximo_envio_em: string | null
+          status: Database["public"]["Enums"]["campaign_status"]
+          total_destinatarios: number
+          total_enviados: number
+          total_falhas: number
+          updated_at: string
+        }
+        Insert: {
+          agendado_para?: string | null
+          company_id: string
+          concluido_em?: string | null
+          created_at?: string
+          created_by?: string | null
+          filtro_tags?: string[] | null
+          id?: string
+          iniciado_em?: string | null
+          intervalo_max_seg?: number
+          intervalo_min_seg?: number
+          media_url?: string | null
+          mensagem: string
+          nome: string
+          pausa_apos_envios?: number
+          pausa_duracao_min?: number
+          proximo_envio_em?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          total_destinatarios?: number
+          total_enviados?: number
+          total_falhas?: number
+          updated_at?: string
+        }
+        Update: {
+          agendado_para?: string | null
+          company_id?: string
+          concluido_em?: string | null
+          created_at?: string
+          created_by?: string | null
+          filtro_tags?: string[] | null
+          id?: string
+          iniciado_em?: string | null
+          intervalo_max_seg?: number
+          intervalo_min_seg?: number
+          media_url?: string | null
+          mensagem?: string
+          nome?: string
+          pausa_apos_envios?: number
+          pausa_duracao_min?: number
+          proximo_envio_em?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          total_destinatarios?: number
+          total_enviados?: number
+          total_falhas?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_target: {
+        Row: {
+          campaign_id: string
+          company_id: string
+          contato_nome: string | null
+          contato_numero: string
+          created_at: string
+          enviado_em: string | null
+          erro: string | null
+          id: string
+          status: Database["public"]["Enums"]["campaign_target_status"]
+        }
+        Insert: {
+          campaign_id: string
+          company_id: string
+          contato_nome?: string | null
+          contato_numero: string
+          created_at?: string
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["campaign_target_status"]
+        }
+        Update: {
+          campaign_id?: string
+          company_id?: string
+          contato_nome?: string | null
+          contato_numero?: string
+          created_at?: string
+          enviado_em?: string | null
+          erro?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["campaign_target_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_target_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_target_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company: {
         Row: {
           bairro: string | null
@@ -1153,6 +1284,14 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin"
+      campaign_status:
+        | "rascunho"
+        | "agendada"
+        | "enviando"
+        | "pausada"
+        | "concluida"
+        | "cancelada"
+      campaign_target_status: "pendente" | "enviado" | "falhou" | "pulado"
       stage_tipo: "normal" | "ganho" | "perda"
       tenant_role: "owner" | "admin" | "atendente"
     }
@@ -1283,6 +1422,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin"],
+      campaign_status: [
+        "rascunho",
+        "agendada",
+        "enviando",
+        "pausada",
+        "concluida",
+        "cancelada",
+      ],
+      campaign_target_status: ["pendente", "enviado", "falhou", "pulado"],
       stage_tipo: ["normal", "ganho", "perda"],
       tenant_role: ["owner", "admin", "atendente"],
     },

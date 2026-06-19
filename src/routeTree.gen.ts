@@ -47,10 +47,12 @@ import { Route as AppContatosRouteImport } from './routes/app/contatos'
 import { Route as AppConfiguracoesRouteImport } from './routes/app/configuracoes'
 import { Route as AppConexaoRouteImport } from './routes/app/conexao'
 import { Route as AppCheckoutRouteImport } from './routes/app/checkout'
+import { Route as AppCampanhasRouteImport } from './routes/app/campanhas'
 import { Route as AppAgenteRouteImport } from './routes/app/agente'
 import { Route as AppAgenteAvancadoRouteImport } from './routes/app/agente.avancado'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
 import { Route as ApiPublicGoogleCallbackRouteImport } from './routes/api/public/google-callback'
+import { Route as ApiPublicHooksProcessCampaignsRouteImport } from './routes/api/public/hooks/process-campaigns'
 import { Route as ApiPublicBillingWebhookRouteImport } from './routes/api/public/billing/webhook'
 
 const TrocarSenhaRoute = TrocarSenhaRouteImport.update({
@@ -243,6 +245,11 @@ const AppCheckoutRoute = AppCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCampanhasRoute = AppCampanhasRouteImport.update({
+  id: '/campanhas',
+  path: '/campanhas',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAgenteRoute = AppAgenteRouteImport.update({
   id: '/agente',
   path: '/agente',
@@ -264,6 +271,12 @@ const ApiPublicGoogleCallbackRoute = ApiPublicGoogleCallbackRouteImport.update({
   path: '/api/public/google-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksProcessCampaignsRoute =
+  ApiPublicHooksProcessCampaignsRouteImport.update({
+    id: '/api/public/hooks/process-campaigns',
+    path: '/api/public/hooks/process-campaigns',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicBillingWebhookRoute = ApiPublicBillingWebhookRouteImport.update({
   id: '/api/public/billing/webhook',
   path: '/api/public/billing/webhook',
@@ -283,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRouteWithChildren
+  '/app/campanhas': typeof AppCampanhasRoute
   '/app/checkout': typeof AppCheckoutRoute
   '/app/conexao': typeof AppConexaoRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
@@ -314,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
   '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
+  '/api/public/hooks/process-campaigns': typeof ApiPublicHooksProcessCampaignsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -326,6 +341,7 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRouteWithChildren
+  '/app/campanhas': typeof AppCampanhasRoute
   '/app/checkout': typeof AppCheckoutRoute
   '/app/conexao': typeof AppConexaoRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
@@ -357,6 +373,7 @@ export interface FileRoutesByTo {
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
   '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
+  '/api/public/hooks/process-campaigns': typeof ApiPublicHooksProcessCampaignsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -372,6 +389,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/trocar-senha': typeof TrocarSenhaRoute
   '/app/agente': typeof AppAgenteRouteWithChildren
+  '/app/campanhas': typeof AppCampanhasRoute
   '/app/checkout': typeof AppCheckoutRoute
   '/app/conexao': typeof AppConexaoRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
@@ -403,6 +421,7 @@ export interface FileRoutesById {
   '/api/public/whatsapp-webhook': typeof ApiPublicWhatsappWebhookRoute
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
   '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
+  '/api/public/hooks/process-campaigns': typeof ApiPublicHooksProcessCampaignsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -419,6 +438,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/trocar-senha'
     | '/app/agente'
+    | '/app/campanhas'
     | '/app/checkout'
     | '/app/conexao'
     | '/app/configuracoes'
@@ -450,6 +470,7 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
     | '/api/public/billing/webhook'
+    | '/api/public/hooks/process-campaigns'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -462,6 +483,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/trocar-senha'
     | '/app/agente'
+    | '/app/campanhas'
     | '/app/checkout'
     | '/app/conexao'
     | '/app/configuracoes'
@@ -493,6 +515,7 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
     | '/api/public/billing/webhook'
+    | '/api/public/hooks/process-campaigns'
   id:
     | '__root__'
     | '/'
@@ -507,6 +530,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/trocar-senha'
     | '/app/agente'
+    | '/app/campanhas'
     | '/app/checkout'
     | '/app/conexao'
     | '/app/configuracoes'
@@ -538,6 +562,7 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp-webhook'
     | '/app/agente/avancado'
     | '/api/public/billing/webhook'
+    | '/api/public/hooks/process-campaigns'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -555,6 +580,7 @@ export interface RootRouteChildren {
   ApiPublicGoogleCallbackRoute: typeof ApiPublicGoogleCallbackRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
   ApiPublicBillingWebhookRoute: typeof ApiPublicBillingWebhookRoute
+  ApiPublicHooksProcessCampaignsRoute: typeof ApiPublicHooksProcessCampaignsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -825,6 +851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCheckoutRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/campanhas': {
+      id: '/app/campanhas'
+      path: '/campanhas'
+      fullPath: '/app/campanhas'
+      preLoaderRoute: typeof AppCampanhasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/agente': {
       id: '/app/agente'
       path: '/agente'
@@ -853,6 +886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/process-campaigns': {
+      id: '/api/public/hooks/process-campaigns'
+      path: '/api/public/hooks/process-campaigns'
+      fullPath: '/api/public/hooks/process-campaigns'
+      preLoaderRoute: typeof ApiPublicHooksProcessCampaignsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/billing/webhook': {
       id: '/api/public/billing/webhook'
       path: '/api/public/billing/webhook'
@@ -877,6 +917,7 @@ const AppAgenteRouteWithChildren = AppAgenteRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAgenteRoute: typeof AppAgenteRouteWithChildren
+  AppCampanhasRoute: typeof AppCampanhasRoute
   AppCheckoutRoute: typeof AppCheckoutRoute
   AppConexaoRoute: typeof AppConexaoRoute
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
@@ -891,6 +932,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAgenteRoute: AppAgenteRouteWithChildren,
+  AppCampanhasRoute: AppCampanhasRoute,
   AppCheckoutRoute: AppCheckoutRoute,
   AppConexaoRoute: AppConexaoRoute,
   AppConfiguracoesRoute: AppConfiguracoesRoute,
@@ -971,6 +1013,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGoogleCallbackRoute: ApiPublicGoogleCallbackRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
   ApiPublicBillingWebhookRoute: ApiPublicBillingWebhookRoute,
+  ApiPublicHooksProcessCampaignsRoute: ApiPublicHooksProcessCampaignsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
