@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Loader2, Save, CreditCard, Sparkles, AlertTriangle } from "lucide-react";
 import { brand } from "@/config/brand";
 import { trialDaysLeft } from "@/lib/tenant";
+import { TemplatesTab } from "@/components/config/templates-tab";
+import { HorariosTab } from "@/components/config/horarios-tab";
 
 export const Route = createFileRoute("/app/configuracoes")({
   head: () => ({ meta: [{ title: `${brand.name} — Configurações` }] }),
@@ -111,12 +113,24 @@ function ConfigPage() {
           <TabsTrigger value="plano">Plano</TabsTrigger>
           <TabsTrigger value="empresa">Empresa</TabsTrigger>
           <TabsTrigger value="identidade">Identidade</TabsTrigger>
+          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="horarios">Horários</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
         </TabsList>
 
         <TabsContent value="plano">
           <PlanoCard company={company} sub={sub} />
         </TabsContent>
+
+        <TabsContent value="templates">
+          <TemplatesTab />
+        </TabsContent>
+
+        <TabsContent value="horarios">
+          <HorariosTab />
+        </TabsContent>
+
+
 
         <TabsContent value="empresa">
           <Card className="p-5 space-y-4 max-w-xl">

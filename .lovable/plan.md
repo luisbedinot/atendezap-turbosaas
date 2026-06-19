@@ -1,87 +1,54 @@
+# Roadmap de evolução do AtendeZap
 
-## O que vai mudar
+Lista grande demais pra entregar tudo numa só passada sem virar bagunça. Proponho 5 fases entregáveis, cada uma testável de ponta-a-ponta. Você aprova e eu começo pela Fase 1 imediatamente. Se quiser inverter prioridade ou cortar algo, é só dizer.
 
-Substituir o checkout Paddle por **link externo** (Kiwify/Cakto/Perfectpay) configurado por plano no Painel Master, e abrir **webhooks públicos** que recebem a confirmação de pagamento e ativam/renovam/cancelam a assinatura ligando pelo **e-mail do comprador**.
+---
 
-## 1. Banco de dados (migração)
+## Fase 1 — Operação no dia-a-dia (maior ROI) ⭐ começar por aqui
+1. **Templates de mensagem rápidos** — CRUD em `Configurações`, atalho `/` na tela de Conversas para inserir.
+2. **Horário de atendimento** — por dia da semana, com mensagem automática fora do horário (a IA respeita).
+3. **Tags em contatos e conversas** — filtro no CRM e na lista de Conversas.
+4. **Atalhos de teclado** em Conversas (`j/k`, `e` arquivar, `r` responder, `/` template).
 
-Alterar `plan`:
-- `checkout_url text` (link da Kiwify/Cakto onde o cliente paga)
+**Tabelas novas:** `message_template`, `business_hours`, `tag`, `contact_tag`.
 
-Alterar `subscription` (tornar genérica, sem quebrar o que já existe):
-- `provider text not null default 'manual'` (`'kiwify' | 'cakto' | 'perfectpay' | 'manual' | 'paddle'`)
-- `external_subscription_id text` (id da venda/assinatura externa)
-- `external_customer_id text`
-- `buyer_email text` (chave de vínculo)
-- Paddle columns viram nullable (não removo agora pra não quebrar registros antigos).
-- Índice `(provider, external_subscription_id)` e `(buyer_email)`.
+## Fase 2 — Campanhas e disparo em massa
+1. Tela `/app/campanhas`: criar, segmentar por tag, agendar, anti-ban (intervalo aleatório 5–20s, pausa a cada N envios).
+2. Worker via `pg_cron` chamando `/api/public/campaigns/tick` a cada minuto.
+3. Relatório de entrega: enviado / lido / respondido / falhou.
 
-## 2. Webhook público
+**Tabelas:** `campaign`, `campaign_target`, `campaign_log`.
 
-`src/routes/api/public/billing/webhook.ts` — um único endpoint, multiplataforma:
+## Fase 3 — Insights e satisfação
+1. **CSAT automático** ao fechar conversa (1 mensagem com 1-5).
+2. **Relatório de produtividade por atendente:** TMA, TME, conversas resolvidas, CSAT médio.
+3. **Exportação CSV** de contatos, conversas e relatórios.
 
-```
-POST /api/public/billing/webhook?provider=kiwify&token=...
-POST /api/public/billing/webhook?provider=cakto&token=...
-POST /api/public/billing/webhook?provider=perfectpay&token=...
-```
+## Fase 4 — Integrações
+1. **Webhooks de saída** (eventos: lead.created, conversa.fechada, venda.ganha) — config em `Configurações > Integrações`.
+2. **API pública** com token por empresa (gated no plano Business). Endpoints REST mínimos: contatos, conversas, mensagens.
+3. **Captura de UTM** no clique-pra-WhatsApp e atribuição no CRM.
 
-- Verifica token no query string contra secret (`KIWIFY_WEBHOOK_TOKEN`, `CAKTO_WEBHOOK_TOKEN`, `PERFECTPAY_WEBHOOK_TOKEN`).
-- Normaliza o payload da plataforma para `{ event, buyerEmail, externalId, productRef, status, periodEnd }`.
-- Localiza a empresa: `profiles.email = buyerEmail` → `company_user.user_id` → `company`.
-  - Se não achar: registra `pending_billing_event` (criar tabela simples de log) e responde 200 (Kiwify retenta de outra forma).
-- Localiza o plano: tenta `plan.slug = productRef` ou `plan.checkout_url contém productRef`. Fallback: mantém plano atual.
-- Mapeia evento:
-  - `purchase_approved` / `subscription_renewed` → `subscription.status='active'`, `company.status_cobranca='ativo'`, atualiza `current_period_end`.
-  - `subscription_canceled` / `chargeback` → `status='canceled'`, `status_cobranca='suspenso'`.
-  - `payment_failed` → `status='past_due'`, `status_cobranca='pendente'`.
-- Upsert por `(provider, external_subscription_id)`.
+## Fase 5 — UX & Segurança
+1. **Notificações push** no navegador (Web Push) para nova mensagem.
+2. **Modo "minhas conversas" vs "todas"** com persistência por usuário.
+3. **Logs de auditoria** (`audit_log`) — tela em Master e em Configurações (plano Business).
+4. **2FA TOTP** para owner/admin.
+5. **Exportação completa LGPD** da empresa (zip JSON + CSV) em Configurações.
 
-## 3. UI Master
+---
 
-`src/routes/master/planos.tsx`: adicionar campo **"URL de checkout (Kiwify/Cakto)"** em cada plano. Persistir em `plan.checkout_url`.
+## Como vou trabalhar
+- Uma fase por vez, com migration + UI + server fns na mesma rodada.
+- Cada fase respeita o `plan-features.ts` (libera/bloqueia por plano: Starter / Pro / Business).
+- Sem mexer em pagamentos (já removido) — cobrança continua via webhooks Kiwify/Cakto/Perfectpay.
+- Tema, cores, fontes e layout existentes preservados.
 
-`src/routes/master/configuracoes.tsx`: mostrar as **URLs de webhook** prontas pra copiar/colar em cada plataforma:
-```
-https://<dominio>/api/public/billing/webhook?provider=kiwify&token=<KIWIFY_WEBHOOK_TOKEN>
-https://<dominio>/api/public/billing/webhook?provider=cakto&token=<CAKTO_WEBHOOK_TOKEN>
-```
-Também exibir status `Aguardando 1º webhook` ou `Recebido em <data>` (de uma tabela `billing_event_log`).
+## Estimativa
+- Fase 1: ~1 rodada longa
+- Fase 2: ~2 rodadas (worker + UI)
+- Fase 3: 1 rodada
+- Fase 4: ~2 rodadas
+- Fase 5: ~2 rodadas
 
-## 4. Checkout do cliente
-
-`src/routes/app/checkout.tsx`: remover Paddle. Continua mostrando os 3 planos (UI atual), mas o botão **"Assinar"** vira:
-- `<a href={plano.checkout_url} target="_blank">` com `?email={userEmail}` pré-preenchido (Kiwify/Cakto suportam querystring de e-mail).
-- Mostra um painel "Aguardando confirmação do pagamento" com polling a cada 5s na `subscription` da empresa do usuário. Quando vier `active` → redireciona para `/app/dashboard`.
-- Mantém aviso: **use o mesmo e-mail do cadastro pra liberação automática**.
-
-## 5. Limpeza Paddle
-
-- Tirar `usePaddleCheckout`, `PaymentTestModeBanner`, `paddle.ts`, `paddle.server.ts` dos imports ativos (deixo os arquivos no repo por enquanto, sem uso).
-- O webhook `src/routes/api/public/payments/webhook.ts` (Paddle) eu deixo no lugar mas inerte (não chamamos mais). Posso deletar depois se você quiser.
-
-## 6. Secrets que vou pedir
-
-Após você aprovar este plano vou chamar `add_secret` para:
-- `KIWIFY_WEBHOOK_TOKEN` — token livre que você cola na URL na Kiwify (vou gerar uma string sugerida)
-- `CAKTO_WEBHOOK_TOKEN`
-- `PERFECTPAY_WEBHOOK_TOKEN`
-
-Você pode usar a mesma string nos 3 se quiser simplificar.
-
-## Detalhes técnicos
-
-- Webhook em `/api/public/*` (bypass de auth na publicação).
-- Uso `supabaseAdmin` dentro do handler (carregado via `await import`).
-- Eventos normalizados em `src/lib/billing/normalize.ts` (um arquivo por plataforma).
-- Tabela `billing_event_log(id, provider, event_type, payload jsonb, processed_at, matched_company_id, created_at)` pra auditoria e debug.
-- Polling no cliente usa `useQuery` com `refetchInterval: 5000` enquanto status ≠ active.
-
-## Ordem de execução
-
-1. Migração SQL (plan + subscription + billing_event_log).
-2. `add_secret` dos 3 tokens.
-3. Webhook + normalizadores.
-4. UI Master (campo checkout_url + tela de webhook URLs).
-5. Refatorar `/app/checkout` (link externo + polling).
-6. Publicar e testar com uma venda real em modo cartão de teste da Kiwify.
+**Aprovando, começo pela Fase 1 agora.** Se preferir outra ordem (ex.: Campanhas antes de Templates), me avise.

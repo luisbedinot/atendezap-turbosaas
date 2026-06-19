@@ -11,6 +11,7 @@ import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { toast } from "sonner";
 import { sendWhatsappText, setContactIaActive } from "@/lib/evolution.functions";
 import { LeadDrawer, type LeadCard, type Stage, type Member } from "@/components/crm/lead-drawer";
+import { listTemplates, type MessageTemplate } from "@/lib/templates.functions";
 
 export const Route = createFileRoute("/app/conversas")({
   head: () => ({ meta: [{ title: `${brand.name} — Conversas` }] }),
@@ -42,6 +43,10 @@ function ConversasPage() {
 
   const sendFn = useServerFn(sendWhatsappText);
   const toggleIaFn = useServerFn(setContactIaActive);
+  const fetchTemplates = useServerFn(listTemplates);
+  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const composerRef = useRef<HTMLInputElement>(null);
 
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [cards, setCards] = useState<Record<string, LeadCard>>({});
@@ -84,6 +89,18 @@ function ConversasPage() {
     if (active) setUnread((u) => ({ ...u, [active]: 0 }));
     requestAnimationFrame(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight }); });
   }, [active, msgs.length]);
+
+  // Load templates once
+  useEffect(() => {
+    void (async () => {
+      try { setTemplates(await fetchTemplates()); } catch {}
+    })();
+    // eslint-disable-next-line
+  }, []);
+
+  // Keyboard shortcuts attached after `conversations` is declared (see below).
+
+
 
   async function loadPauses(cid: string) {
     const { data } = await supabase.from("contact_pause").select("numero,pausado").eq("company_id", cid);
@@ -146,6 +163,42 @@ function ConversasPage() {
   const activeCard = active ? cards[active] : undefined;
   const activeStage = activeCard?.stage_id ? stages.find((s) => s.id === activeCard.stage_id) : null;
   const iaAtivaAqui = active ? !(pauses[active] ?? false) : true;
+
+  // Keyboard shortcuts (after conversations is declared)
+  useEffect(() => {
+    function onKey(ev: KeyboardEvent) {
+      const t = ev.target as HTMLElement | null;
+      const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || (t as any).isContentEditable);
+      if (ev.key === "/" && t === composerRef.current && (composerRef.current?.value ?? "") === "") {
+        ev.preventDefault();
+        setShowTemplatePicker(true);
+        return;
+      }
+      if (ev.key === "Escape") setShowTemplatePicker(false);
+      if (typing) return;
+      if (ev.key === "j" || ev.key === "k") {
+        ev.preventDefault();
+        const idx = conversations.findIndex((c) => c.numero === active);
+        const next = ev.key === "j" ? Math.min(conversations.length - 1, idx + 1) : Math.max(0, idx - 1);
+        const target = conversations[next];
+        if (target) setActive(target.numero);
+      } else if (ev.key === "r" && active) {
+        ev.preventDefault();
+        composerRef.current?.focus();
+      } else if (ev.key === "e" && active) {
+        ev.preventDefault();
+        void toggleIa(false);
+      } else if (ev.key === "/") {
+        ev.preventDefault();
+        composerRef.current?.focus();
+        setShowTemplatePicker(true);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line
+  }, [active, conversations.length]);
+
 
   async function toggleIa(v: boolean) {
     if (!active) return;
@@ -279,11 +332,44 @@ function ConversasPage() {
               </div>
 
               <form onSubmit={(e) => { e.preventDefault(); void sendMsg(); }}
-                className="px-4 py-3 border-t border-[color:var(--hairline)] bg-[color:var(--panel)] flex gap-2 items-center">
+                className="px-4 py-3 border-t border-[color:var(--hairline)] bg-[color:var(--panel)] flex gap-2 items-center relative">
+                {showTemplatePicker && templates.length > 0 && (
+                  <div className="absolute bottom-[calc(100%+6px)] left-4 right-16 max-h-64 overflow-auto bg-[color:var(--panel)] border border-[color:var(--hairline)] rounded-xl shadow-lg z-10 p-1">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1.5 font-semibold">Templates (Esc para fechar)</div>
+                    {templates.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => { setComposer(t.texto); setShowTemplatePicker(false); composerRef.current?.focus(); }}
+                        className="w-full text-left flex gap-2 px-2 py-2 rounded-md hover:bg-[color:var(--panel-2)] text-sm"
+                      >
+                        <code className="text-[11px] bg-muted px-1.5 py-0.5 rounded font-mono shrink-0">/{t.atalho}</code>
+                        <span className="truncate text-muted-foreground">{t.texto}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <input
+                  ref={composerRef}
                   value={composer}
-                  onChange={(e) => setComposer(e.target.value)}
-                  placeholder="Digite uma mensagem…"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setComposer(v);
+                    if (v.startsWith("/")) {
+                      setShowTemplatePicker(true);
+                      // resolve atalho exato
+                      const slug = v.slice(1).split(/\s/)[0].toLowerCase();
+                      const hit = templates.find((t) => t.atalho === slug);
+                      if (hit && v.endsWith(" ")) {
+                        setComposer(hit.texto);
+                        setShowTemplatePicker(false);
+                      }
+                    } else {
+                      setShowTemplatePicker(false);
+                    }
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Escape") setShowTemplatePicker(false); }}
+                  placeholder="Digite uma mensagem… (digite / para templates)"
                   disabled={sending}
                   className="flex-1 bg-[color:var(--panel-2)] border border-[color:var(--hairline)] rounded-full px-4 py-2.5 text-sm outline-none focus:border-[color:var(--brand)]/60"
                 />

@@ -143,6 +143,51 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             return new Response("paused-contact", { status: 200 });
           }
 
+          // Horário de atendimento: se ativo e fora do horário, manda mensagem padrão e não chama IA.
+          try {
+            const { isWithinBusinessHours } = await import("@/lib/business-hours");
+            const horarios = (cfg as any)?.horarios_atendimento;
+            if (horarios?.enabled && !isWithinBusinessHours(horarios)) {
+              const msgFora =
+                ((cfg as any)?.mensagem_fora_horario as string) ||
+                "No momento estamos fora do horário de atendimento. Retornamos em breve.";
+              // evita responder a mesma coisa em rajada: só responde se a última saída IA não foi a msg fora
+              const { data: ultimaSaida } = await supabaseAdmin
+                .from("mensagens")
+                .select("texto, created_at")
+                .eq("company_id", companyId)
+                .eq("numero", number)
+                .eq("direcao", "saida")
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+              const ultimaFoiFora =
+                ultimaSaida &&
+                ultimaSaida.texto === msgFora &&
+                Date.now() - new Date(ultimaSaida.created_at).getTime() < 6 * 60 * 60_000;
+              if (!ultimaFoiFora) {
+                try {
+                  await evoSendText(instanceName, number, msgFora);
+                  await supabaseAdmin.from("mensagens").insert({
+                    company_id: companyId,
+                    user_id: userId,
+                    numero: number,
+                    contato_nome: pushName ?? null,
+                    direcao: "saida",
+                    autor: "ia",
+                    texto: msgFora,
+                  });
+                } catch (e: any) {
+                  console.error("[off-hours send]", e?.message);
+                }
+              }
+              await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+              return new Response("off-hours", { status: 200 });
+            }
+          } catch (e: any) {
+            console.error("[business-hours]", e?.message);
+          }
+
           const bufferSec = Math.max(0, Math.min(20, Number(cfg?.segundos_buffer ?? 8)));
           if (bufferSec > 0) {
             await new Promise((r) => setTimeout(r, bufferSec * 1000));
