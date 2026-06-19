@@ -332,11 +332,44 @@ function ConversasPage() {
               </div>
 
               <form onSubmit={(e) => { e.preventDefault(); void sendMsg(); }}
-                className="px-4 py-3 border-t border-[color:var(--hairline)] bg-[color:var(--panel)] flex gap-2 items-center">
+                className="px-4 py-3 border-t border-[color:var(--hairline)] bg-[color:var(--panel)] flex gap-2 items-center relative">
+                {showTemplatePicker && templates.length > 0 && (
+                  <div className="absolute bottom-[calc(100%+6px)] left-4 right-16 max-h-64 overflow-auto bg-[color:var(--panel)] border border-[color:var(--hairline)] rounded-xl shadow-lg z-10 p-1">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1.5 font-semibold">Templates (Esc para fechar)</div>
+                    {templates.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => { setComposer(t.texto); setShowTemplatePicker(false); composerRef.current?.focus(); }}
+                        className="w-full text-left flex gap-2 px-2 py-2 rounded-md hover:bg-[color:var(--panel-2)] text-sm"
+                      >
+                        <code className="text-[11px] bg-muted px-1.5 py-0.5 rounded font-mono shrink-0">/{t.atalho}</code>
+                        <span className="truncate text-muted-foreground">{t.texto}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <input
+                  ref={composerRef}
                   value={composer}
-                  onChange={(e) => setComposer(e.target.value)}
-                  placeholder="Digite uma mensagem…"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setComposer(v);
+                    if (v.startsWith("/")) {
+                      setShowTemplatePicker(true);
+                      // resolve atalho exato
+                      const slug = v.slice(1).split(/\s/)[0].toLowerCase();
+                      const hit = templates.find((t) => t.atalho === slug);
+                      if (hit && v.endsWith(" ")) {
+                        setComposer(hit.texto);
+                        setShowTemplatePicker(false);
+                      }
+                    } else {
+                      setShowTemplatePicker(false);
+                    }
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Escape") setShowTemplatePicker(false); }}
+                  placeholder="Digite uma mensagem… (digite / para templates)"
                   disabled={sending}
                   className="flex-1 bg-[color:var(--panel-2)] border border-[color:var(--hairline)] rounded-full px-4 py-2.5 text-sm outline-none focus:border-[color:var(--brand)]/60"
                 />
