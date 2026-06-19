@@ -47,11 +47,12 @@ export const exportLgpd = createServerFn({ method: "POST" })
     const out: Record<string, any[]> = {};
     for (const t of tables) {
       try {
+        const tbl = (s as any).from(t);
         const q = t === "company"
-          ? s.from(t).select("*").eq("id", cid)
+          ? tbl.select("*").eq("id", cid)
           : t === "profiles"
-          ? s.from(t).select("*").eq("user_id", context.userId)
-          : s.from(t).select("*").eq("company_id", cid);
+          ? tbl.select("*").eq("user_id", context.userId)
+          : tbl.select("*").eq("company_id", cid);
         const { data } = await q;
         out[t] = data ?? [];
       } catch { out[t] = []; }
