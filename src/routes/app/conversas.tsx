@@ -98,7 +98,14 @@ function ConversasPage() {
   useEffect(() => {
     if (active) setUnread((u) => ({ ...u, [active]: 0 }));
     requestAnimationFrame(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight }); });
+  useEffect(() => {
+    if (active) setUnread((u) => ({ ...u, [active]: 0 }));
+    requestAnimationFrame(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight }); });
   }, [active, msgs.length]);
+
+  useEffect(() => {
+    try { localStorage.setItem("conv:filter", filter); } catch {}
+  }, [filter]);
 
   // Load templates once
   useEffect(() => {
