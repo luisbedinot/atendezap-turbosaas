@@ -81,6 +81,26 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             .maybeSingle();
           const myCreatedAt = inserted?.created_at || insertedAt;
 
+          // Dispara webhooks externos (best-effort, não bloqueia)
+          try {
+            const { emitWebhook } = await import("@/lib/webhooks.server");
+            void emitWebhook(companyId, "message.received", {
+              numero: number, contato_nome: pushName ?? null, texto: text, message_id: inserted?.id,
+            });
+          } catch {}
+
+          // Captura UTM da primeira mensagem do contato (padrão [utm:source/medium/campaign])
+          try {
+            const utmMatch = text.match(/\[utm:([^/\]]*)\/([^/\]]*)\/([^\]]*)\]/i);
+            if (utmMatch) {
+              const [, s, m, c] = utmMatch;
+              await (supabaseAdmin as any).from("crm_cards").update({
+                utm_source: s || null, utm_medium: m || null, utm_campaign: c || null,
+              }).eq("company_id", companyId).eq("numero", number).is("utm_source", null);
+            }
+          } catch {}
+
+
           const { data: cfg } = await supabaseAdmin
             .from("agent_config")
             .select("*")

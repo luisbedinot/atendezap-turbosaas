@@ -218,6 +218,50 @@ export type Database = {
         }
         Relationships: []
       }
+      api_token: {
+        Row: {
+          company_id: string
+          created_at: string
+          criado_por: string | null
+          id: string
+          label: string
+          revogado: boolean
+          token: string
+          ultimo_uso_em: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          criado_por?: string | null
+          id?: string
+          label: string
+          revogado?: boolean
+          token?: string
+          ultimo_uso_em?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          criado_por?: string | null
+          id?: string
+          label?: string
+          revogado?: boolean
+          token?: string
+          ultimo_uso_em?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_token_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_config: {
         Row: {
           id: boolean
@@ -673,6 +717,9 @@ export type Database = {
           ultima_mensagem: string | null
           updated_at: string
           user_id: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
           valor: number
         }
         Insert: {
@@ -692,6 +739,9 @@ export type Database = {
           ultima_mensagem?: string | null
           updated_at?: string
           user_id: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           valor?: number
         }
         Update: {
@@ -711,6 +761,9 @@ export type Database = {
           ultima_mensagem?: string | null
           updated_at?: string
           user_id?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           valor?: number
         }
         Relationships: [
@@ -1287,6 +1340,95 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      webhook_delivery_log: {
+        Row: {
+          company_id: string
+          created_at: string
+          endpoint_id: string | null
+          erro: string | null
+          evento: string
+          id: string
+          status_code: number | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          endpoint_id?: string | null
+          erro?: string | null
+          evento: string
+          id?: string
+          status_code?: number | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          endpoint_id?: string | null
+          erro?: string | null
+          evento?: string
+          id?: string
+          status_code?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_delivery_log_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_delivery_log_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_endpoint"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_endpoint: {
+        Row: {
+          ativo: boolean
+          company_id: string
+          created_at: string
+          eventos: string[]
+          id: string
+          nome: string
+          secret: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          ativo?: boolean
+          company_id: string
+          created_at?: string
+          eventos?: string[]
+          id?: string
+          nome: string
+          secret?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          ativo?: boolean
+          company_id?: string
+          created_at?: string
+          eventos?: string[]
+          id?: string
+          nome?: string
+          secret?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_endpoint_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       whatsapp_instances: {
         Row: {

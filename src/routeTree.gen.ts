@@ -40,6 +40,7 @@ import { Route as DemoAgenteRouteImport } from './routes/demo/agente'
 import { Route as CsatTokenRouteImport } from './routes/csat.$token'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
+import { Route as AppIntegracoesRouteImport } from './routes/app/integracoes'
 import { Route as AppEquipeRouteImport } from './routes/app/equipe'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppCrmRouteImport } from './routes/app/crm'
@@ -53,6 +54,7 @@ import { Route as AppAgenteRouteImport } from './routes/app/agente'
 import { Route as AppAgenteAvancadoRouteImport } from './routes/app/agente.avancado'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp-webhook'
 import { Route as ApiPublicGoogleCallbackRouteImport } from './routes/api/public/google-callback'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicHooksProcessCampaignsRouteImport } from './routes/api/public/hooks/process-campaigns'
 import { Route as ApiPublicBillingWebhookRouteImport } from './routes/api/public/billing/webhook'
 
@@ -211,6 +213,11 @@ const AppOnboardingRoute = AppOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AppRoute,
 } as any)
+const AppIntegracoesRoute = AppIntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEquipeRoute = AppEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -277,6 +284,11 @@ const ApiPublicGoogleCallbackRoute = ApiPublicGoogleCallbackRouteImport.update({
   path: '/api/public/google-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksProcessCampaignsRoute =
   ApiPublicHooksProcessCampaignsRouteImport.update({
     id: '/api/public/hooks/process-campaigns',
@@ -311,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
@@ -336,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
   '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
   '/api/public/hooks/process-campaigns': typeof ApiPublicHooksProcessCampaignsRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -357,6 +371,7 @@ export interface FileRoutesByTo {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
@@ -382,6 +397,7 @@ export interface FileRoutesByTo {
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
   '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
   '/api/public/hooks/process-campaigns': typeof ApiPublicHooksProcessCampaignsRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -406,6 +422,7 @@ export interface FileRoutesById {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
@@ -431,6 +448,7 @@ export interface FileRoutesById {
   '/app/agente/avancado': typeof AppAgenteAvancadoRoute
   '/api/public/billing/webhook': typeof ApiPublicBillingWebhookRoute
   '/api/public/hooks/process-campaigns': typeof ApiPublicHooksProcessCampaignsRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -456,6 +474,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/csat/$token'
@@ -481,6 +500,7 @@ export interface FileRouteTypes {
     | '/app/agente/avancado'
     | '/api/public/billing/webhook'
     | '/api/public/hooks/process-campaigns'
+    | '/api/public/v1/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -502,6 +522,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/csat/$token'
@@ -527,6 +548,7 @@ export interface FileRouteTypes {
     | '/app/agente/avancado'
     | '/api/public/billing/webhook'
     | '/api/public/hooks/process-campaigns'
+    | '/api/public/v1/$'
   id:
     | '__root__'
     | '/'
@@ -550,6 +572,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/csat/$token'
@@ -575,6 +598,7 @@ export interface FileRouteTypes {
     | '/app/agente/avancado'
     | '/api/public/billing/webhook'
     | '/api/public/hooks/process-campaigns'
+    | '/api/public/v1/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -594,6 +618,7 @@ export interface RootRouteChildren {
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
   ApiPublicBillingWebhookRoute: typeof ApiPublicBillingWebhookRoute
   ApiPublicHooksProcessCampaignsRoute: typeof ApiPublicHooksProcessCampaignsRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -815,6 +840,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOnboardingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/integracoes': {
+      id: '/app/integracoes'
+      path: '/integracoes'
+      fullPath: '/app/integracoes'
+      preLoaderRoute: typeof AppIntegracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/equipe': {
       id: '/app/equipe'
       path: '/equipe'
@@ -906,6 +938,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/process-campaigns': {
       id: '/api/public/hooks/process-campaigns'
       path: '/api/public/hooks/process-campaigns'
@@ -946,6 +985,7 @@ interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEquipeRoute: typeof AppEquipeRoute
+  AppIntegracoesRoute: typeof AppIntegracoesRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppRelatoriosRoute: typeof AppRelatoriosRoute
 }
@@ -961,6 +1001,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEquipeRoute: AppEquipeRoute,
+  AppIntegracoesRoute: AppIntegracoesRoute,
   AppOnboardingRoute: AppOnboardingRoute,
   AppRelatoriosRoute: AppRelatoriosRoute,
 }
@@ -1035,6 +1076,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
   ApiPublicBillingWebhookRoute: ApiPublicBillingWebhookRoute,
   ApiPublicHooksProcessCampaignsRoute: ApiPublicHooksProcessCampaignsRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
