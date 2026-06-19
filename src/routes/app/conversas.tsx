@@ -11,6 +11,7 @@ import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { toast } from "sonner";
 import { sendWhatsappText, setContactIaActive } from "@/lib/evolution.functions";
 import { LeadDrawer, type LeadCard, type Stage, type Member } from "@/components/crm/lead-drawer";
+import { listTemplates, type MessageTemplate } from "@/lib/templates.functions";
 
 export const Route = createFileRoute("/app/conversas")({
   head: () => ({ meta: [{ title: `${brand.name} — Conversas` }] }),
