@@ -83,7 +83,9 @@ export type Database = {
           faq: string
           formalidade: number
           formas_pagamento: string
+          horarios_atendimento: Json
           horarios_disponiveis: string
+          mensagem_fora_horario: string
           nao_pode_fazer: string
           nome_agente: string
           nome_empresa: string
@@ -131,7 +133,9 @@ export type Database = {
           faq?: string
           formalidade?: number
           formas_pagamento?: string
+          horarios_atendimento?: Json
           horarios_disponiveis?: string
+          mensagem_fora_horario?: string
           nao_pode_fazer?: string
           nome_agente?: string
           nome_empresa?: string
@@ -179,7 +183,9 @@ export type Database = {
           faq?: string
           formalidade?: number
           formas_pagamento?: string
+          horarios_atendimento?: Json
           horarios_disponiveis?: string
+          mensagem_fora_horario?: string
           nao_pode_fazer?: string
           nome_agente?: string
           nome_empresa?: string
@@ -787,6 +793,44 @@ export type Database = {
           whatsapp_message_id?: string | null
         }
         Relationships: []
+      }
+      message_template: {
+        Row: {
+          atalho: string
+          company_id: string
+          created_at: string
+          id: string
+          texto: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          atalho: string
+          company_id: string
+          created_at?: string
+          id?: string
+          texto: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          atalho?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          texto?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_template_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plan: {
         Row: {
