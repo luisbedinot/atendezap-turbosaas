@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { brand } from "@/config/brand";
-import { Hand, MessageSquareText, Send, Sparkles, User, Search, Bot, ExternalLink } from "lucide-react";
-import { InitialsAvatar } from "@/components/ui/initials-avatar";
+import { Hand, MessageSquareText, Send, Sparkles, User, Search, Bot, ExternalLink, Star } from "lucide-react";
+import { sendCsat } from "@/lib/csat.functions";
 import { toast } from "sonner";
+import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { sendWhatsappText, setContactIaActive } from "@/lib/evolution.functions";
 import { LeadDrawer, type LeadCard, type Stage, type Member } from "@/components/crm/lead-drawer";
 import { listTemplates, type MessageTemplate } from "@/lib/templates.functions";
@@ -42,6 +43,7 @@ function ConversasPage() {
 
 
   const sendFn = useServerFn(sendWhatsappText);
+  const sendCsatFn = useServerFn(sendCsat);
   const toggleIaFn = useServerFn(setContactIaActive);
   const fetchTemplates = useServerFn(listTemplates);
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
@@ -313,6 +315,15 @@ function ConversasPage() {
                   </label>
                   <Button size="sm" variant="outline" onClick={() => void assumir()}>
                     <Hand className="size-3.5 mr-1" /> Assumir
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={async () => {
+                    if (!active) return;
+                    try {
+                      await sendCsatFn({ data: { numero: active, contatoNome: activeConv?.nome ?? null } });
+                      toast.success("Pesquisa de satisfação enviada");
+                    } catch (e: any) { toast.error(e?.message ?? "Erro ao enviar"); }
+                  }}>
+                    <Star className="size-3.5 mr-1" /> CSAT
                   </Button>
                 </div>
               </header>
