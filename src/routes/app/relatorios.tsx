@@ -142,6 +142,8 @@ function RelatoriosPage() {
     lines.push(`Receita (R$);${receita.toFixed(2)}`);
     lines.push(`Conversão (%);${conversao}`);
     lines.push(`Tempo médio resposta (s);${Math.round(tempoMedioMs / 1000)}`);
+    lines.push(`CSAT médio (1-5);${csatMedia ? csatMedia.toFixed(2) : "-"}`);
+    lines.push(`CSAT respostas;${csatRespondidos.length}/${csat.length}`);
     lines.push("");
     lines.push("Etapa;Cards");
     byStage.forEach((s) => lines.push(`${s.name};${s.value}`));
@@ -180,11 +182,12 @@ function RelatoriosPage() {
         </div>
       </header>
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
         <KpiCard accent icon={<MessageCircle className="size-4" />} label="Mensagens" value={totalMsgs} trend={`${respIa} pela IA`} />
         <KpiCard icon={<Clock className="size-4" />} label="Tempo médio resposta" value={tempoMedioMs ? `${Math.round(tempoMedioMs / 1000)}s` : "—"} trend="estimado entrada → saída" />
         <KpiCard icon={<Target className="size-4" />} label="Conversão" value={`${conversao}%`} trend={`${ganho.length} ganhos / ${cards.length} cards`} />
         <KpiCard icon={<DollarSign className="size-4" />} label="Receita" value={`R$ ${receita.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`} trend="cards em etapas de ganho" />
+        <KpiCard icon={<Star className="size-4" />} label="CSAT" value={csatMedia ? `${csatMedia.toFixed(1)} / 5` : "—"} trend={`${csatRespondidos.length}/${csat.length} resp. (${csatTaxa}%)`} />
       </div>
 
       <div className="grid lg:grid-cols-[1.6fr_1fr] gap-5">
