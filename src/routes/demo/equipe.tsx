@@ -10,10 +10,11 @@ export const Route = createFileRoute("/demo/equipe")({
 });
 
 const MEMBROS = [
-  { nome: "Ana Padaria", email: "ana@padaria.com", papel: "Dono", ativo: true },
-  { nome: "Maria Silva", email: "maria@padaria.com", papel: "Admin", ativo: true },
-  { nome: "João Pereira", email: "joao@padaria.com", papel: "Atendente", ativo: true },
-  { nome: "Carlos Mendes", email: "carlos@padaria.com", papel: "Atendente", ativo: false },
+  { nome: "Ana Vitalis", email: "ana@clinicavitalis.com.br", papel: "Dono", ativo: true },
+  { nome: "Dra. Helena Marques", email: "helena@clinicavitalis.com.br", papel: "Admin", ativo: true },
+  { nome: "Patrícia Lima (Recepção)", email: "recepcao@clinicavitalis.com.br", papel: "Atendente", ativo: true },
+  { nome: "Paula Santos (Esteticista)", email: "paula@clinicavitalis.com.br", papel: "Atendente", ativo: true },
+  { nome: "Carlos Mendes", email: "carlos@clinicavitalis.com.br", papel: "Atendente", ativo: false },
 ];
 
 const PAPEIS = ["Dono", "Admin", "Atendente"] as const;

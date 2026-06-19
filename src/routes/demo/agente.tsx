@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -17,38 +16,38 @@ export const Route = createFileRoute("/demo/agente")({
   component: AgenteDemo,
 });
 
-const DESCRICAO_DEMO = `Padaria artesanal na Vila Mariana, em São Paulo, aberta de seg a sáb das 6h às 20h. Vendo pães de fermentação natural, doces, bolos sob encomenda e cestas de café da manhã. Entrego em até 5km via Loggi. Quero que a IA atenda no WhatsApp: cumprimente, descubra o que o cliente quer, sugira combos, confirme endereço e mande o link de pagamento. Pode oferecer o cupom PADARIA10 quando fizer sentido.`;
+const DESCRICAO_DEMO = `Clínica de estética e bem-estar em Pinheiros, São Paulo. Atendemos seg a sex 9h-20h e sáb 9h-15h. Oferecemos limpeza de pele, botox, preenchimento, harmonização facial, drenagem linfática, depilação a laser e peeling. Equipe formada por dermatologista (Dra. Helena) e esteticistas. Quero que a Vivi atenda no WhatsApp: cumprimente com elegância, descubra o procedimento desejado, qualifique o lead (avaliação ou agendamento direto), confirme data/horário e mande nossa localização. Pode oferecer o desconto de 5% no Pix à vista quando fizer sentido.`;
 
 const CFG: any = {
-  nome_agente: "Pão",
-  nome_empresa: "Padaria do Bairro",
-  segmento: "Alimentação / Padaria artesanal",
-  regiao_horario: "Vila Mariana e Vila Clementino — seg a sáb, 6h às 20h",
-  papel_objetivo: "Atender no WhatsApp, descobrir o pedido, sugerir combos e fechar a venda com link de pagamento.",
-  sobre_empresa: "Padaria de bairro fundada em 1998. Pães de fermentação natural, doces, bolos sob encomenda e cestas de café da manhã. Entrega via Loggi em até 5km.",
-  produtos_servicos: "Pães artesanais, doces, bolos sob encomenda, salgados, café e cestas de café da manhã.",
-  como_vender: "1) Cumprimenta. 2) Descobre o que o cliente quer. 3) Sugere combos. 4) Confirma endereço e horário. 5) Manda link de pagamento.",
-  pode_fazer: "Mostrar cardápio, informar preços, confirmar entrega, oferecer cupom PADARIA10, anotar pedido.",
-  nao_pode_fazer: "Inventar preço, prazo ou promessa fora do prompt.",
-  estilo_comunicacao: "Acolhedor, simpático e direto. Usa emojis com moderação.",
-  apresentacao: "Oi! Aqui é o Pão, da Padaria do Bairro 🥐 Em que posso ajudar?",
+  nome_agente: "Vivi",
+  nome_empresa: "Clínica Vitalis",
+  segmento: "Estética & Bem-estar",
+  regiao_horario: "Pinheiros, São Paulo — seg a sex 9h-20h, sáb 9h-15h",
+  papel_objetivo: "Atender no WhatsApp, qualificar lead, agendar avaliação ou procedimento e enviar localização.",
+  sobre_empresa: "Clínica em Pinheiros (SP). Equipe dermato (Dra. Helena) + esteticistas. Foco em pele, corpo e harmonização — procedimentos não invasivos.",
+  produtos_servicos: "Limpeza de pele, botox, preenchimento, harmonização facial, drenagem linfática, depilação a laser, peeling, massagens relaxantes.",
+  como_vender: "1) Cumprimenta com elegância. 2) Descobre o procedimento. 3) Explica como funciona e o preço. 4) Sugere avaliação grátis ou agendamento direto. 5) Confirma data/horário e manda localização.",
+  pode_fazer: "Mostrar procedimentos, informar preços, agendar avaliação, oferecer 5% off Pix, mandar endereço.",
+  nao_pode_fazer: "Não prescreve, não promete resultado, não atende emergência médica, não fala mal de concorrentes, não agenda fora do horário.",
+  estilo_comunicacao: "Acolhedor, elegante e profissional. Emojis com moderação (💜 ✨).",
+  apresentacao: "Oi! Aqui é a Vivi, da Clínica Vitalis 💜 Como posso te ajudar hoje?",
   tamanho_resposta: "curtas",
   telefone_transferencia: "+55 11 99999-0000",
   palavra_pausar: "/pausar",
   palavra_despausar: "/despausar",
   responder_em_partes: true,
   usar_emojis: true,
-  tom: 78,
-  formalidade: 30,
+  tom: 70,
+  formalidade: 55,
 };
 
 const DEMO_REPLIES = [
-  "Oi! Entregamos sim na Vila Mariana 👋",
-  "Quer que eu te mande o cardápio do dia?",
+  "Oi! Que bom te ver por aqui 💜",
+  "Posso te agendar uma avaliação grátis com a Dra. Helena. Prefere manhã ou tarde?",
 ];
 
 function AgenteDemo() {
-  const [testMsg, setTestMsg] = useState("Oi, vocês entregam aqui?");
+  const [testMsg, setTestMsg] = useState("Oi, queria saber sobre botox.");
   const [reply, setReply] = useState<string[]>([]);
   const [testing, setTesting] = useState(false);
 
@@ -58,8 +57,9 @@ function AgenteDemo() {
   }
 
   const prompt = buildSystemPrompt(CFG, { responderEmPartes: true, produtos: [
-    { nome: "Pão de queijo (500g)", preco: 18, descricao: "Tradicional mineiro." },
-    { nome: "Cesta café da manhã", preco: 89, descricao: "Pães, queijos, frios, frutas, suco e café." },
+    { nome: "Limpeza de pele profunda", preco: 280, descricao: "Sessão de 60min com Dra. Helena." },
+    { nome: "Pacote drenagem (10 sessões)", preco: 1890, descricao: "Esteticista Paula. Resultado a partir da 4ª sessão." },
+    { nome: "Depilação laser axilas+virilha (8x)", preco: 2400, descricao: "Diodo de alta potência. Parcela em 12x." },
   ]});
 
   return (
@@ -157,9 +157,9 @@ function AgenteDemo() {
               </div>
               {reply.map((p, i) => (
                 <div key={i} className="flex justify-start gap-2 items-end">
-                  <InitialsAvatar name="IA" size={24} forceGradient="linear-gradient(135deg,#A3E635,#25D366)" />
-                  <div className="max-w-[78%] bg-gradient-to-br from-[#1f9d57] to-[#25D366] text-primary-foreground rounded-2xl rounded-bl-md px-3.5 py-2.5 text-[13px] font-medium">
-                    <span className="block text-[9.5px] font-bold opacity-80 mb-1 uppercase tracking-wider">⚡ Agente IA</span>
+                  <InitialsAvatar name="IA" size={24} forceGradient="linear-gradient(135deg,#A78BFA,#7C3AED)" />
+                  <div className="max-w-[78%] bg-gradient-to-br from-[#6D28D9] to-[#7C3AED] text-primary-foreground rounded-2xl rounded-bl-md px-3.5 py-2.5 text-[13px] font-medium">
+                    <span className="block text-[9.5px] font-bold opacity-80 mb-1 uppercase tracking-wider">⚡ Vivi · IA</span>
                     {p}
                   </div>
                 </div>
