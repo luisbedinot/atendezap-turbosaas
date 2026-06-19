@@ -10,7 +10,6 @@ import { Hand, MessageSquareText, Send, Sparkles, User, Search, Bot, ExternalLin
 import { sendCsat } from "@/lib/csat.functions";
 import { toast } from "sonner";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
-import { toast } from "sonner";
 import { sendWhatsappText, setContactIaActive } from "@/lib/evolution.functions";
 import { LeadDrawer, type LeadCard, type Stage, type Member } from "@/components/crm/lead-drawer";
 import { listTemplates, type MessageTemplate } from "@/lib/templates.functions";
@@ -44,6 +43,7 @@ function ConversasPage() {
 
 
   const sendFn = useServerFn(sendWhatsappText);
+  const sendCsatFn = useServerFn(sendCsat);
   const toggleIaFn = useServerFn(setContactIaActive);
   const fetchTemplates = useServerFn(listTemplates);
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
