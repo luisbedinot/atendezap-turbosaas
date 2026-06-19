@@ -34,7 +34,7 @@ export function HorariosTab() {
     void (async () => {
       try {
         const r = await fetcher();
-        if (r.horarios) setH({ ...defaultHours(), ...r.horarios });
+        if (r.horarios) setH({ ...defaultHours(), ...(r.horarios as Partial<BusinessHours>) });
         setMsg(r.mensagem || "Olá! No momento estamos fora do horário de atendimento. Assim que abrirmos, retornamos. 🙏");
       } catch (e: any) {
         toast.error(e?.message);
