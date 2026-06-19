@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, Save, CreditCard, Sparkles, AlertTriangle } from "lucide-react";
+import { Loader2, Save, CreditCard, Sparkles, AlertTriangle, Download, Shield } from "lucide-react";
 import { brand } from "@/config/brand";
 import { trialDaysLeft } from "@/lib/tenant";
 import { TemplatesTab } from "@/components/config/templates-tab";
 import { HorariosTab } from "@/components/config/horarios-tab";
+import { listAuditLog, exportLgpd } from "@/lib/security.functions";
 
 export const Route = createFileRoute("/app/configuracoes")({
   head: () => ({ meta: [{ title: `${brand.name} — Configurações` }] }),
@@ -109,14 +111,19 @@ function ConfigPage() {
         <p className="text-sm text-muted-foreground">Empresa, identidade e perfil.</p>
       </div>
       <Tabs defaultValue="plano">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="plano">Plano</TabsTrigger>
           <TabsTrigger value="empresa">Empresa</TabsTrigger>
           <TabsTrigger value="identidade">Identidade</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="horarios">Horários</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
+          <TabsTrigger value="seguranca">Segurança</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="seguranca">
+          <SegurancaTab />
+        </TabsContent>
 
         <TabsContent value="plano">
           <PlanoCard company={company} sub={sub} />
@@ -191,6 +198,99 @@ function ConfigPage() {
           </div>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function SegurancaTab() {
+  const fetchLog = useServerFn(listAuditLog);
+  const fetchExport = useServerFn(exportLgpd);
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [notifEnabled, setNotifEnabled] = useState<boolean>(
+    typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted"
+  );
+
+  useEffect(() => {
+    void (async () => {
+      try { setRows(await fetchLog()); } catch (e: any) { toast.error(e?.message ?? "Erro"); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
+  async function pedirNotificacoes() {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      return toast.error("Seu navegador não suporta notificações.");
+    }
+    const p = await Notification.requestPermission();
+    setNotifEnabled(p === "granted");
+    if (p === "granted") toast.success("Notificações ativadas");
+  }
+
+  async function baixarExport() {
+    setExporting(true);
+    try {
+      const data = await fetchExport();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `lgpd-export-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Exportação concluída");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao exportar");
+    } finally { setExporting(false); }
+  }
+
+  return (
+    <div className="space-y-4 max-w-4xl">
+      <Card className="p-5 space-y-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="font-semibold flex items-center gap-2"><Sparkles className="size-4" /> Notificações do navegador</h2>
+            <p className="text-sm text-muted-foreground">Receba um aviso quando chegar nova mensagem na tela de Conversas.</p>
+          </div>
+          <Button variant={notifEnabled ? "secondary" : "default"} onClick={pedirNotificacoes} disabled={notifEnabled}>
+            {notifEnabled ? "Ativadas" : "Ativar"}
+          </Button>
+        </div>
+      </Card>
+
+      <Card className="p-5 space-y-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="font-semibold flex items-center gap-2"><Download className="size-4" /> Exportação LGPD</h2>
+            <p className="text-sm text-muted-foreground">Baixe um JSON com todos os dados da sua empresa armazenados aqui.</p>
+          </div>
+          <Button onClick={baixarExport} disabled={exporting}>
+            {exporting ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Download className="size-4 mr-1.5" />} Exportar
+          </Button>
+        </div>
+      </Card>
+
+      <Card className="p-5 space-y-3">
+        <h2 className="font-semibold flex items-center gap-2"><Shield className="size-4" /> Log de auditoria</h2>
+        <p className="text-sm text-muted-foreground">Últimas 200 ações registradas.</p>
+        {loading ? (
+          <div className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="size-4 animate-spin" /> Carregando…</div>
+        ) : rows.length === 0 ? (
+          <div className="text-sm text-muted-foreground">Nenhum evento registrado ainda.</div>
+        ) : (
+          <div className="border rounded-md divide-y max-h-[500px] overflow-auto">
+            {rows.map((r) => (
+              <div key={r.id} className="p-3 text-sm flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-medium truncate">{r.acao}{r.recurso ? ` · ${r.recurso}` : ""}</div>
+                  <div className="text-xs text-muted-foreground truncate">{r.actor_email ?? "sistema"}</div>
+                </div>
+                <div className="text-xs text-muted-foreground whitespace-nowrap">{new Date(r.created_at).toLocaleString("pt-BR")}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

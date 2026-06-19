@@ -57,7 +57,10 @@ function ConversasPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [unread, setUnread] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<Filter>("todas");
+  const [filter, setFilter] = useState<Filter>(() => {
+    if (typeof window === "undefined") return "todas";
+    return (localStorage.getItem("conv:filter") as Filter) || "todas";
+  });
   const [active, setActive] = useState<string | null>(null);
   const [composer, setComposer] = useState("");
   const [drawerCard, setDrawerCard] = useState<LeadCard | null>(null);
@@ -76,6 +79,11 @@ function ConversasPage() {
           setMsgs((p) => [m, ...p].slice(0, 500));
           if (m.direcao === "entrada" && m.numero !== active) {
             setUnread((u) => ({ ...u, [m.numero]: (u[m.numero] ?? 0) + 1 }));
+            try {
+              if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted" && document.visibilityState !== "visible") {
+                new Notification(m.contato_nome ?? m.numero, { body: m.texto?.slice(0, 140) ?? "Nova mensagem", tag: m.numero });
+              }
+            } catch {}
           }
         },
       )
@@ -91,6 +99,10 @@ function ConversasPage() {
     if (active) setUnread((u) => ({ ...u, [active]: 0 }));
     requestAnimationFrame(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight }); });
   }, [active, msgs.length]);
+
+  useEffect(() => {
+    try { localStorage.setItem("conv:filter", filter); } catch {}
+  }, [filter]);
 
   // Load templates once
   useEffect(() => {
