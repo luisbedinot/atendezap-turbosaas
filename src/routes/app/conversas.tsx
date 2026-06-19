@@ -90,6 +90,52 @@ function ConversasPage() {
     requestAnimationFrame(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight }); });
   }, [active, msgs.length]);
 
+  // Load templates once
+  useEffect(() => {
+    void (async () => {
+      try { setTemplates(await fetchTemplates()); } catch {}
+    })();
+    // eslint-disable-next-line
+  }, []);
+
+  // Keyboard shortcuts: j/k navigate, e=archive(IA off), r=focus reply, /=template picker
+  useEffect(() => {
+    function onKey(ev: KeyboardEvent) {
+      const t = ev.target as HTMLElement | null;
+      const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || (t as any).isContentEditable);
+      // "/" abre picker mesmo no input do composer se valor estiver vazio
+      if (ev.key === "/" && t === composerRef.current && (composerRef.current?.value ?? "") === "") {
+        ev.preventDefault();
+        setShowTemplatePicker(true);
+        return;
+      }
+      if (typing) return;
+      if (ev.key === "j" || ev.key === "k") {
+        ev.preventDefault();
+        const idx = conversations.findIndex((c) => c.numero === active);
+        const next = ev.key === "j" ? Math.min(conversations.length - 1, idx + 1) : Math.max(0, idx - 1);
+        const target = conversations[next];
+        if (target) setActive(target.numero);
+      } else if (ev.key === "r" && active) {
+        ev.preventDefault();
+        composerRef.current?.focus();
+      } else if (ev.key === "e" && active) {
+        ev.preventDefault();
+        void toggleIa(false);
+      } else if (ev.key === "/") {
+        ev.preventDefault();
+        composerRef.current?.focus();
+        setShowTemplatePicker(true);
+      } else if (ev.key === "Escape") {
+        setShowTemplatePicker(false);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line
+  }, [active, conversations?.length]);
+
+
   async function loadPauses(cid: string) {
     const { data } = await supabase.from("contact_pause").select("numero,pausado").eq("company_id", cid);
     const map: Record<string, boolean> = {};
