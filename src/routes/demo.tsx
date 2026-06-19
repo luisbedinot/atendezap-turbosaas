@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-rout
 import { brand } from "@/config/brand";
 import {
   Sparkles, LayoutDashboard, Inbox, KanbanSquare, Bot, Zap, LogIn,
-  Contact, BarChart3, Smartphone, Users, Settings,
+  Contact, BarChart3, Smartphone, Users, Settings, Megaphone, Plug,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
@@ -22,10 +22,17 @@ const sections: { label: string; items: { to: string; label: string; icon: any; 
     ],
   },
   {
+    label: "Crescimento",
+    items: [
+      { to: "/demo/campanhas", label: "Campanhas", icon: Megaphone, tag: "NOVO" },
+      { to: "/demo/relatorios", label: "Relatórios", icon: BarChart3 },
+      { to: "/demo/integracoes", label: "Integrações", icon: Plug, tag: "NOVO" },
+    ],
+  },
+  {
     label: "Gestão",
     items: [
       { to: "/demo/contatos", label: "Contatos", icon: Contact },
-      { to: "/demo/relatorios", label: "Relatórios", icon: BarChart3 },
       { to: "/demo/conexao", label: "Conexão", icon: Smartphone },
       { to: "/demo/equipe", label: "Equipe", icon: Users },
       { to: "/demo/configuracoes", label: "Configurações", icon: Settings },
@@ -39,7 +46,7 @@ const mobileItems: MobileNavItem[] = [
   { to: "/demo/dashboard", label: "Início", icon: LayoutDashboard },
   { to: "/demo/conversas", label: "Conversas", icon: Inbox },
   { to: "/demo/crm", label: "CRM", icon: KanbanSquare },
-  { to: "/demo/contatos", label: "Contatos", icon: Contact },
+  { to: "/demo/campanhas", label: "Campanhas", icon: Megaphone },
   { to: "/demo/agente", label: "Agente", icon: Bot },
 ];
 
@@ -73,7 +80,7 @@ function DemoLayout() {
         </div>
         <div className="min-w-0">
           <div className="font-display font-bold tracking-tight text-[14.5px] leading-none truncate">{brand.name}</div>
-          <div className="text-[10.5px] uppercase tracking-[0.12em] text-muted-foreground truncate mt-0.5">Demo · Padaria</div>
+          <div className="text-[10.5px] uppercase tracking-[0.12em] text-muted-foreground truncate mt-0.5">Demo · Clínica de Estética</div>
         </div>
       </div>
 
@@ -88,7 +95,7 @@ function DemoLayout() {
             </div>
             <div className="min-w-0">
               <div className="font-display font-extrabold tracking-tight truncate text-[16px]">{brand.name}</div>
-              <div className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground truncate -mt-0.5">DEMO · Padaria</div>
+              <div className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground truncate -mt-0.5">DEMO · Clínica Vitalis</div>
             </div>
           </div>
 

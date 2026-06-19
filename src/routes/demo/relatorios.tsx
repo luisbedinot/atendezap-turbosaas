@@ -4,7 +4,8 @@ import { brand } from "@/config/brand";
 import { Button } from "@/components/ui/button";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { MiniAreaChart, type AreaPoint } from "@/components/dashboard/mini-area-chart";
-import { MessageCircle, Bot, Trophy, Target, Download, Lock } from "lucide-react";
+import { MessageCircle, Bot, Trophy, Target, Download, Lock, Star } from "lucide-react";
+import { demoCsat } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/demo/relatorios")({
   head: () => ({ meta: [{ title: `${brand.name} — Relatórios (demo)` }] }),
@@ -21,7 +22,6 @@ function RelatoriosDemo() {
   const [period, setPeriod] = useState("7d");
   const days = PERIODS.find((p) => p.id === period)?.days ?? 7;
 
-  // Série determinística (sem Math.random) para evitar hydration mismatch SSR/client.
   const series: AreaPoint[] = Array.from({ length: days === 1 ? 24 : days }, (_, i) => ({
     label: String(i),
     a: 6 + Math.round(Math.sin(i * 0.7) * 5 + i * 0.4 + Math.abs(Math.sin(i * 1.3)) * 4),
@@ -29,17 +29,19 @@ function RelatoriosDemo() {
   }));
 
   const atendentes = [
-    { nome: "IA", conv: 142, ganho: 38, taxa: 27 },
-    { nome: "Maria (admin)", conv: 28, ganho: 12, taxa: 43 },
-    { nome: "João (atendente)", conv: 18, ganho: 6, taxa: 33 },
+    { nome: "IA Vivi", conv: 168, ganho: 52, taxa: 31 },
+    { nome: "Recepção (Patrícia)", conv: 34, ganho: 18, taxa: 53 },
+    { nome: "Dra. Helena", conv: 22, ganho: 14, taxa: 64 },
   ];
   const distEtapas = [
     { nome: "Conversas", q: 32, cor: "#22D3EE" },
     { nome: "Negociando", q: 18, cor: "#FFB020" },
-    { nome: "Ganho", q: 11, cor: "#25D366" },
+    { nome: "Agendados", q: 21, cor: "#7C3AED" },
     { nome: "Perda", q: 4, cor: "#FF5A5A" },
   ];
   const totalEtapas = distEtapas.reduce((a, b) => a + b.q, 0);
+
+  const csatMedia = (demoCsat.reduce((a, b) => a + b.score, 0) / demoCsat.length).toFixed(1);
 
   const factor = days / 7;
   return (
@@ -47,7 +49,7 @@ function RelatoriosDemo() {
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="font-display text-xl sm:text-2xl font-bold">Relatórios</h1>
-          <p className="text-xs text-muted-foreground">Performance do agente e da equipe — exemplo.</p>
+          <p className="text-xs text-muted-foreground">Performance do agente, equipe e satisfação — exemplo.</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex bg-muted rounded-full p-1">
@@ -66,11 +68,12 @@ function RelatoriosDemo() {
         </div>
       </header>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        <KpiCard accent icon={<MessageCircle className="size-4" />} label="Mensagens" value={Math.round(312 * factor)} trend="+12% vs período anterior" />
-        <KpiCard icon={<Bot className="size-4" />} label="Respondidas pela IA" value={`${Math.round(86)}%`} trend={`${Math.round(268 * factor)} respostas`} />
-        <KpiCard icon={<Target className="size-4" />} label="Em negociação" value={18} trend="+3 esta semana" />
-        <KpiCard icon={<Trophy className="size-4" />} label="Receita ganha" value={`R$ ${Math.round(4200 * factor).toLocaleString("pt-BR")}`} trend="+32%" />
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-5">
+        <KpiCard accent icon={<MessageCircle className="size-4" />} label="Mensagens" value={Math.round(412 * factor)} trend="+18% vs período anterior" />
+        <KpiCard icon={<Bot className="size-4" />} label="IA respondeu" value="89%" trend={`${Math.round(366 * factor)} respostas`} />
+        <KpiCard icon={<Target className="size-4" />} label="Agendados" value={Math.round(21 * factor)} trend="+5 esta semana" />
+        <KpiCard icon={<Trophy className="size-4" />} label="Receita ganha" value={`R$ ${Math.round(18400 * factor).toLocaleString("pt-BR")}`} trend="+27%" />
+        <KpiCard icon={<Star className="size-4" />} label="CSAT médio" value={`${csatMedia} / 5`} trend={`${demoCsat.length} respostas`} />
       </div>
 
       <div className="grid lg:grid-cols-[1.6fr_1fr] gap-4">
@@ -97,32 +100,54 @@ function RelatoriosDemo() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="font-display text-[15px] font-semibold mb-3">Conversão por atendente</h3>
-        <table className="w-full text-sm">
-          <thead className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="text-left py-2">Atendente</th>
-              <th className="text-right py-2">Conversas</th>
-              <th className="text-right py-2">Ganhos</th>
-              <th className="text-right py-2">Taxa</th>
-            </tr>
-          </thead>
-          <tbody>
-            {atendentes.map((a) => (
-              <tr key={a.nome} className="border-t border-border">
-                <td className="py-2.5 font-semibold">{a.nome}</td>
-                <td className="text-right tabular-nums">{a.conv}</td>
-                <td className="text-right tabular-nums">{a.ganho}</td>
-                <td className="text-right">
-                  <span className="inline-block min-w-[44px] text-[12px] font-bold px-2 py-0.5 rounded-md bg-[var(--brand-soft)] text-[var(--brand-text)]">
-                    {a.taxa}%
-                  </span>
-                </td>
+      <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4">
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h3 className="font-display text-[15px] font-semibold mb-3">Conversão por atendente</h3>
+          <table className="w-full text-sm">
+            <thead className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="text-left py-2">Atendente</th>
+                <th className="text-right py-2">Conversas</th>
+                <th className="text-right py-2">Ganhos</th>
+                <th className="text-right py-2">Taxa</th>
               </tr>
+            </thead>
+            <tbody>
+              {atendentes.map((a) => (
+                <tr key={a.nome} className="border-t border-border">
+                  <td className="py-2.5 font-semibold">{a.nome}</td>
+                  <td className="text-right tabular-nums">{a.conv}</td>
+                  <td className="text-right tabular-nums">{a.ganho}</td>
+                  <td className="text-right">
+                    <span className="inline-block min-w-[44px] text-[12px] font-bold px-2 py-0.5 rounded-md bg-[var(--brand-soft)] text-[var(--brand-text)]">
+                      {a.taxa}%
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h3 className="font-display text-[15px] font-semibold mb-3 flex items-center gap-2">
+            <Star className="size-4 text-[var(--brand-text)]" /> Últimas avaliações CSAT
+          </h3>
+          <div className="divide-y divide-border">
+            {demoCsat.map((c) => (
+              <div key={c.id} className="py-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-semibold text-[13px] truncate">{c.nome}</div>
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className={`size-3.5 ${s <= c.score ? "fill-[#FFB020] text-[#FFB020]" : "text-muted-foreground/30"}`} />
+                    ))}
+                  </div>
+                </div>
+                {c.comentario && <p className="text-[12px] text-muted-foreground mt-0.5">"{c.comentario}"</p>}
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
 
       <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
