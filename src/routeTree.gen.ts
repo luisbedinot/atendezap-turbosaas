@@ -29,6 +29,7 @@ import { Route as MasterEmpresasRouteImport } from './routes/master/empresas'
 import { Route as MasterConfiguracoesRouteImport } from './routes/master/configuracoes'
 import { Route as MasterAssinaturasRouteImport } from './routes/master/assinaturas'
 import { Route as DemoRelatoriosRouteImport } from './routes/demo/relatorios'
+import { Route as DemoIntegracoesRouteImport } from './routes/demo/integracoes'
 import { Route as DemoEquipeRouteImport } from './routes/demo/equipe'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
 import { Route as DemoCrmRouteImport } from './routes/demo/crm'
@@ -36,6 +37,7 @@ import { Route as DemoConversasRouteImport } from './routes/demo/conversas'
 import { Route as DemoContatosRouteImport } from './routes/demo/contatos'
 import { Route as DemoConfiguracoesRouteImport } from './routes/demo/configuracoes'
 import { Route as DemoConexaoRouteImport } from './routes/demo/conexao'
+import { Route as DemoCampanhasRouteImport } from './routes/demo/campanhas'
 import { Route as DemoAgenteRouteImport } from './routes/demo/agente'
 import { Route as CsatTokenRouteImport } from './routes/csat.$token'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
@@ -158,6 +160,11 @@ const DemoRelatoriosRoute = DemoRelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => DemoRoute,
 } as any)
+const DemoIntegracoesRoute = DemoIntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
+  getParentRoute: () => DemoRoute,
+} as any)
 const DemoEquipeRoute = DemoEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -191,6 +198,11 @@ const DemoConfiguracoesRoute = DemoConfiguracoesRouteImport.update({
 const DemoConexaoRoute = DemoConexaoRouteImport.update({
   id: '/conexao',
   path: '/conexao',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoCampanhasRoute = DemoCampanhasRouteImport.update({
+  id: '/campanhas',
+  path: '/campanhas',
   getParentRoute: () => DemoRoute,
 } as any)
 const DemoAgenteRoute = DemoAgenteRouteImport.update({
@@ -328,6 +340,7 @@ export interface FileRoutesByFullPath {
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
   '/demo/agente': typeof DemoAgenteRoute
+  '/demo/campanhas': typeof DemoCampanhasRoute
   '/demo/conexao': typeof DemoConexaoRoute
   '/demo/configuracoes': typeof DemoConfiguracoesRoute
   '/demo/contatos': typeof DemoContatosRoute
@@ -335,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/integracoes': typeof DemoIntegracoesRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/assinaturas': typeof MasterAssinaturasRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
@@ -376,6 +390,7 @@ export interface FileRoutesByTo {
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
   '/demo/agente': typeof DemoAgenteRoute
+  '/demo/campanhas': typeof DemoCampanhasRoute
   '/demo/conexao': typeof DemoConexaoRoute
   '/demo/configuracoes': typeof DemoConfiguracoesRoute
   '/demo/contatos': typeof DemoContatosRoute
@@ -383,6 +398,7 @@ export interface FileRoutesByTo {
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/integracoes': typeof DemoIntegracoesRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/assinaturas': typeof MasterAssinaturasRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
@@ -427,6 +443,7 @@ export interface FileRoutesById {
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
   '/demo/agente': typeof DemoAgenteRoute
+  '/demo/campanhas': typeof DemoCampanhasRoute
   '/demo/conexao': typeof DemoConexaoRoute
   '/demo/configuracoes': typeof DemoConfiguracoesRoute
   '/demo/contatos': typeof DemoContatosRoute
@@ -434,6 +451,7 @@ export interface FileRoutesById {
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/integracoes': typeof DemoIntegracoesRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/assinaturas': typeof MasterAssinaturasRoute
   '/master/configuracoes': typeof MasterConfiguracoesRoute
@@ -479,6 +497,7 @@ export interface FileRouteTypes {
     | '/app/relatorios'
     | '/csat/$token'
     | '/demo/agente'
+    | '/demo/campanhas'
     | '/demo/conexao'
     | '/demo/configuracoes'
     | '/demo/contatos'
@@ -486,6 +505,7 @@ export interface FileRouteTypes {
     | '/demo/crm'
     | '/demo/dashboard'
     | '/demo/equipe'
+    | '/demo/integracoes'
     | '/demo/relatorios'
     | '/master/assinaturas'
     | '/master/configuracoes'
@@ -527,6 +547,7 @@ export interface FileRouteTypes {
     | '/app/relatorios'
     | '/csat/$token'
     | '/demo/agente'
+    | '/demo/campanhas'
     | '/demo/conexao'
     | '/demo/configuracoes'
     | '/demo/contatos'
@@ -534,6 +555,7 @@ export interface FileRouteTypes {
     | '/demo/crm'
     | '/demo/dashboard'
     | '/demo/equipe'
+    | '/demo/integracoes'
     | '/demo/relatorios'
     | '/master/assinaturas'
     | '/master/configuracoes'
@@ -577,6 +599,7 @@ export interface FileRouteTypes {
     | '/app/relatorios'
     | '/csat/$token'
     | '/demo/agente'
+    | '/demo/campanhas'
     | '/demo/conexao'
     | '/demo/configuracoes'
     | '/demo/contatos'
@@ -584,6 +607,7 @@ export interface FileRouteTypes {
     | '/demo/crm'
     | '/demo/dashboard'
     | '/demo/equipe'
+    | '/demo/integracoes'
     | '/demo/relatorios'
     | '/master/assinaturas'
     | '/master/configuracoes'
@@ -763,6 +787,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoRelatoriosRouteImport
       parentRoute: typeof DemoRoute
     }
+    '/demo/integracoes': {
+      id: '/demo/integracoes'
+      path: '/integracoes'
+      fullPath: '/demo/integracoes'
+      preLoaderRoute: typeof DemoIntegracoesRouteImport
+      parentRoute: typeof DemoRoute
+    }
     '/demo/equipe': {
       id: '/demo/equipe'
       path: '/equipe'
@@ -810,6 +841,13 @@ declare module '@tanstack/react-router' {
       path: '/conexao'
       fullPath: '/demo/conexao'
       preLoaderRoute: typeof DemoConexaoRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/campanhas': {
+      id: '/demo/campanhas'
+      path: '/campanhas'
+      fullPath: '/demo/campanhas'
+      preLoaderRoute: typeof DemoCampanhasRouteImport
       parentRoute: typeof DemoRoute
     }
     '/demo/agente': {
@@ -1010,6 +1048,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface DemoRouteChildren {
   DemoAgenteRoute: typeof DemoAgenteRoute
+  DemoCampanhasRoute: typeof DemoCampanhasRoute
   DemoConexaoRoute: typeof DemoConexaoRoute
   DemoConfiguracoesRoute: typeof DemoConfiguracoesRoute
   DemoContatosRoute: typeof DemoContatosRoute
@@ -1017,12 +1056,14 @@ interface DemoRouteChildren {
   DemoCrmRoute: typeof DemoCrmRoute
   DemoDashboardRoute: typeof DemoDashboardRoute
   DemoEquipeRoute: typeof DemoEquipeRoute
+  DemoIntegracoesRoute: typeof DemoIntegracoesRoute
   DemoRelatoriosRoute: typeof DemoRelatoriosRoute
   DemoIndexRoute: typeof DemoIndexRoute
 }
 
 const DemoRouteChildren: DemoRouteChildren = {
   DemoAgenteRoute: DemoAgenteRoute,
+  DemoCampanhasRoute: DemoCampanhasRoute,
   DemoConexaoRoute: DemoConexaoRoute,
   DemoConfiguracoesRoute: DemoConfiguracoesRoute,
   DemoContatosRoute: DemoContatosRoute,
@@ -1030,6 +1071,7 @@ const DemoRouteChildren: DemoRouteChildren = {
   DemoCrmRoute: DemoCrmRoute,
   DemoDashboardRoute: DemoDashboardRoute,
   DemoEquipeRoute: DemoEquipeRoute,
+  DemoIntegracoesRoute: DemoIntegracoesRoute,
   DemoRelatoriosRoute: DemoRelatoriosRoute,
   DemoIndexRoute: DemoIndexRoute,
 }
@@ -1081,13 +1123,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
