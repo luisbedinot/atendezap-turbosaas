@@ -43,6 +43,10 @@ function ConversasPage() {
 
   const sendFn = useServerFn(sendWhatsappText);
   const toggleIaFn = useServerFn(setContactIaActive);
+  const fetchTemplates = useServerFn(listTemplates);
+  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const composerRef = useRef<HTMLInputElement>(null);
 
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [cards, setCards] = useState<Record<string, LeadCard>>({});
