@@ -761,6 +761,59 @@ export type Database = {
           },
         ]
       }
+      csat_response: {
+        Row: {
+          comentario: string | null
+          company_id: string
+          contato_nome: string | null
+          created_at: string
+          enviado_em: string
+          enviado_por: string | null
+          id: string
+          numero: string
+          respondido_em: string | null
+          score: number | null
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          comentario?: string | null
+          company_id: string
+          contato_nome?: string | null
+          created_at?: string
+          enviado_em?: string
+          enviado_por?: string | null
+          id?: string
+          numero: string
+          respondido_em?: string | null
+          score?: number | null
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          comentario?: string | null
+          company_id?: string
+          contato_nome?: string | null
+          created_at?: string
+          enviado_em?: string
+          enviado_por?: string | null
+          id?: string
+          numero?: string
+          respondido_em?: string | null
+          score?: number | null
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "csat_response_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       google_integration: {
         Row: {
           access_token: string | null
