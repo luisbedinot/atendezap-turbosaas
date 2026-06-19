@@ -40,6 +40,7 @@ import { Route as DemoAgenteRouteImport } from './routes/demo/agente'
 import { Route as CsatTokenRouteImport } from './routes/csat.$token'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
+import { Route as AppIntegracoesRouteImport } from './routes/app/integracoes'
 import { Route as AppEquipeRouteImport } from './routes/app/equipe'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppCrmRouteImport } from './routes/app/crm'
@@ -212,6 +213,11 @@ const AppOnboardingRoute = AppOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AppRoute,
 } as any)
+const AppIntegracoesRoute = AppIntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEquipeRoute = AppEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
@@ -364,6 +371,7 @@ export interface FileRoutesByTo {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
@@ -414,6 +422,7 @@ export interface FileRoutesById {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
   '/csat/$token': typeof CsatTokenRoute
@@ -465,6 +474,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/csat/$token'
@@ -512,6 +522,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/csat/$token'
@@ -561,6 +572,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
     | '/csat/$token'
@@ -828,6 +840,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOnboardingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/integracoes': {
+      id: '/app/integracoes'
+      path: '/integracoes'
+      fullPath: '/app/integracoes'
+      preLoaderRoute: typeof AppIntegracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/equipe': {
       id: '/app/equipe'
       path: '/equipe'
@@ -966,6 +985,7 @@ interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEquipeRoute: typeof AppEquipeRoute
+  AppIntegracoesRoute: typeof AppIntegracoesRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppRelatoriosRoute: typeof AppRelatoriosRoute
 }
@@ -981,6 +1001,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEquipeRoute: AppEquipeRoute,
+  AppIntegracoesRoute: AppIntegracoesRoute,
   AppOnboardingRoute: AppOnboardingRoute,
   AppRelatoriosRoute: AppRelatoriosRoute,
 }
