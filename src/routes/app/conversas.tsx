@@ -316,6 +316,15 @@ function ConversasPage() {
                   <Button size="sm" variant="outline" onClick={() => void assumir()}>
                     <Hand className="size-3.5 mr-1" /> Assumir
                   </Button>
+                  <Button size="sm" variant="outline" onClick={async () => {
+                    if (!active) return;
+                    try {
+                      await sendCsatFn({ data: { numero: active, contatoNome: activeConv?.nome ?? null } });
+                      toast.success("Pesquisa de satisfação enviada");
+                    } catch (e: any) { toast.error(e?.message ?? "Erro ao enviar"); }
+                  }}>
+                    <Star className="size-3.5 mr-1" /> CSAT
+                  </Button>
                 </div>
               </header>
 
