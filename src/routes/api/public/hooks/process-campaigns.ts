@@ -67,14 +67,17 @@ export const Route = createFileRoute("/api/public/hooks/process-campaigns")({
                   status: "enviado",
                   enviado_em: new Date().toISOString(),
                 }).eq("id", t.id);
-                await supabaseAdmin.from("mensagens").insert({
-                  company_id: c.company_id,
-                  numero: t.contato_numero,
-                  contato_nome: t.contato_nome,
-                  direcao: "saida",
-                  autor: "sistema",
-                  texto,
-                });
+                if (c.created_by) {
+                  await supabaseAdmin.from("mensagens").insert({
+                    company_id: c.company_id,
+                    user_id: c.created_by,
+                    numero: t.contato_numero,
+                    contato_nome: t.contato_nome,
+                    direcao: "saida",
+                    autor: "sistema",
+                    texto,
+                  });
+                }
                 enviados++;
               } catch (e: any) {
                 await supabaseAdmin.from("campaign_target").update({
