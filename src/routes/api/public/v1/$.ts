@@ -1,21 +1,22 @@
 // API pública /api/public/v1/* — autenticação via Bearer token (tabela api_token)
 import { createFileRoute } from "@tanstack/react-router";
 
-async function authCompany(request: Request): Promise<string | null> {
+async function authToken(request: Request): Promise<{ companyId: string; userId: string | null } | null> {
   const h = request.headers.get("authorization") || "";
   const m = h.match(/^Bearer\s+(azp_[a-z0-9]+)$/i);
   if (!m) return null;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await (supabaseAdmin as any)
-    .from("api_token").select("id, company_id, revogado").eq("token", m[1]).maybeSingle();
+    .from("api_token").select("id, company_id, criado_por, revogado").eq("token", m[1]).maybeSingle();
   if (!data || data.revogado) return null;
   await (supabaseAdmin as any).from("api_token").update({ ultimo_uso_em: new Date().toISOString() }).eq("id", data.id);
-  return data.company_id as string;
+  return { companyId: data.company_id as string, userId: data.criado_por as string | null };
 }
 
 async function handle(request: Request) {
-  const companyId = await authCompany(request);
-  if (!companyId) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+  const auth = await authToken(request);
+  if (!auth) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+  const { companyId, userId } = auth;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const url = new URL(request.url);
   const resource = url.searchParams.get("resource") || "contacts";
@@ -48,11 +49,12 @@ async function handle(request: Request) {
       const { data: inst } = await (supabaseAdmin as any).from("whatsapp_instances")
         .select("instance_name, status").eq("company_id", companyId).maybeSingle();
       if (!inst || inst.status !== "open") return new Response(JSON.stringify({ error: "WhatsApp não conectado" }), { status: 400 });
+      if (!userId) return new Response(JSON.stringify({ error: "Token sem owner; recrie o token." }), { status: 400 });
       try {
         const { evoSendText } = await import("@/lib/evolution.server");
         await evoSendText(inst.instance_name, numero, texto);
         await (supabaseAdmin as any).from("mensagens").insert({
-          company_id: companyId, user_id: null, numero, direcao: "saida", autor: "api", texto,
+          company_id: companyId, user_id: userId, numero, direcao: "saida", autor: "api", texto,
         });
         return Response.json({ ok: true });
       } catch (e: any) {
