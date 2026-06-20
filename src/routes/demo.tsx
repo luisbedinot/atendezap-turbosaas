@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-rout
 import { brand } from "@/config/brand";
 import {
   Sparkles, LayoutDashboard, Inbox, KanbanSquare, Bot, Zap, LogIn,
-  Contact, BarChart3, Smartphone, Users, Settings, Megaphone, Plug,
+  Contact, BarChart3, Smartphone, Users, Settings, Megaphone, Plug, Wallet,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
@@ -33,6 +33,7 @@ const sections: { label: string; items: { to: string; label: string; icon: any; 
     label: "Gestão",
     items: [
       { to: "/demo/contatos", label: "Contatos", icon: Contact },
+      { to: "/demo/financeiro", label: "Financeiro", icon: Wallet, tag: "PRO" },
       { to: "/demo/conexao", label: "Conexão", icon: Smartphone },
       { to: "/demo/equipe", label: "Equipe", icon: Users },
       { to: "/demo/configuracoes", label: "Configurações", icon: Settings },

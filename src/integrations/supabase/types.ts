@@ -516,6 +516,8 @@ export type Database = {
           created_by: string | null
           email_corporativo: string | null
           estado: string | null
+          financeiro_ativo: boolean
+          financeiro_dias_vencimento_padrao: number
           id: string
           inscricao_estadual: string | null
           logo_url: string | null
@@ -548,6 +550,8 @@ export type Database = {
           created_by?: string | null
           email_corporativo?: string | null
           estado?: string | null
+          financeiro_ativo?: boolean
+          financeiro_dias_vencimento_padrao?: number
           id?: string
           inscricao_estadual?: string | null
           logo_url?: string | null
@@ -580,6 +584,8 @@ export type Database = {
           created_by?: string | null
           email_corporativo?: string | null
           estado?: string | null
+          financeiro_ativo?: boolean
+          financeiro_dias_vencimento_padrao?: number
           id?: string
           inscricao_estadual?: string | null
           logo_url?: string | null
@@ -910,6 +916,129 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_categoria: {
+        Row: {
+          ativo: boolean
+          company_id: string
+          cor: string
+          created_at: string
+          id: string
+          nome: string
+          tipo: Database["public"]["Enums"]["fin_tipo"]
+        }
+        Insert: {
+          ativo?: boolean
+          company_id: string
+          cor?: string
+          created_at?: string
+          id?: string
+          nome: string
+          tipo: Database["public"]["Enums"]["fin_tipo"]
+        }
+        Update: {
+          ativo?: boolean
+          company_id?: string
+          cor?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          tipo?: Database["public"]["Enums"]["fin_tipo"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_categoria_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_lancamento: {
+        Row: {
+          anexo_url: string | null
+          categoria_id: string | null
+          company_id: string
+          competencia: string
+          contato_numero: string | null
+          created_at: string
+          created_by: string | null
+          crm_card_id: string | null
+          descricao: string
+          forma_pagamento: Database["public"]["Enums"]["fin_forma"] | null
+          id: string
+          observacao: string | null
+          pago_em: string | null
+          status: Database["public"]["Enums"]["fin_status"]
+          tipo: Database["public"]["Enums"]["fin_tipo"]
+          updated_at: string
+          valor_cents: number
+          vencimento: string
+        }
+        Insert: {
+          anexo_url?: string | null
+          categoria_id?: string | null
+          company_id: string
+          competencia?: string
+          contato_numero?: string | null
+          created_at?: string
+          created_by?: string | null
+          crm_card_id?: string | null
+          descricao: string
+          forma_pagamento?: Database["public"]["Enums"]["fin_forma"] | null
+          id?: string
+          observacao?: string | null
+          pago_em?: string | null
+          status?: Database["public"]["Enums"]["fin_status"]
+          tipo: Database["public"]["Enums"]["fin_tipo"]
+          updated_at?: string
+          valor_cents: number
+          vencimento: string
+        }
+        Update: {
+          anexo_url?: string | null
+          categoria_id?: string | null
+          company_id?: string
+          competencia?: string
+          contato_numero?: string | null
+          created_at?: string
+          created_by?: string | null
+          crm_card_id?: string | null
+          descricao?: string
+          forma_pagamento?: Database["public"]["Enums"]["fin_forma"] | null
+          id?: string
+          observacao?: string | null
+          pago_em?: string | null
+          status?: Database["public"]["Enums"]["fin_status"]
+          tipo?: Database["public"]["Enums"]["fin_tipo"]
+          updated_at?: string
+          valor_cents?: number
+          vencimento?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_lancamento_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "fin_categoria"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_lancamento_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_lancamento_crm_card_id_fkey"
+            columns: ["crm_card_id"]
+            isOneToOne: false
+            referencedRelation: "crm_cards"
             referencedColumns: ["id"]
           },
         ]
@@ -1517,12 +1646,17 @@ export type Database = {
     Functions: {
       claim_super_admin_if_empty: { Args: never; Returns: undefined }
       current_company_id: { Args: never; Returns: string }
+      fin_enable_for_company: {
+        Args: { _company_id: string; _enable: boolean }
+        Returns: undefined
+      }
       has_company_access: { Args: { _company_id: string }; Returns: boolean }
       has_company_role: {
         Args: { _company_id: string; _roles: string[] }
         Returns: boolean
       }
       is_super_admin: { Args: never; Returns: boolean }
+      seed_fin_categorias: { Args: { _company_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "super_admin"
@@ -1534,6 +1668,15 @@ export type Database = {
         | "concluida"
         | "cancelada"
       campaign_target_status: "pendente" | "enviado" | "falhou" | "pulado"
+      fin_forma:
+        | "pix"
+        | "boleto"
+        | "cartao"
+        | "dinheiro"
+        | "transferencia"
+        | "outro"
+      fin_status: "pendente" | "pago" | "atrasado" | "cancelado"
+      fin_tipo: "receita" | "despesa"
       stage_tipo: "normal" | "ganho" | "perda"
       tenant_role: "owner" | "admin" | "atendente"
     }
@@ -1673,6 +1816,16 @@ export const Constants = {
         "cancelada",
       ],
       campaign_target_status: ["pendente", "enviado", "falhou", "pulado"],
+      fin_forma: [
+        "pix",
+        "boleto",
+        "cartao",
+        "dinheiro",
+        "transferencia",
+        "outro",
+      ],
+      fin_status: ["pendente", "pago", "atrasado", "cancelado"],
+      fin_tipo: ["receita", "despesa"],
       stage_tipo: ["normal", "ganho", "perda"],
       tenant_role: ["owner", "admin", "atendente"],
     },

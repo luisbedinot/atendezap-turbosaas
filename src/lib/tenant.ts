@@ -26,6 +26,8 @@ export type CompanyRow = {
   cidade?: string | null;
   estado?: string | null;
   pais?: string | null;
+  financeiro_ativo?: boolean | null;
+  financeiro_dias_vencimento_padrao?: number | null;
 };
 
 export type Membership = {
