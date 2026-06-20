@@ -303,6 +303,100 @@ function SegurancaTab() {
   );
 }
 
+function FinanceiroTab() {
+  const fetchStatus = useServerFn(finStatus);
+  const toggle = useServerFn(enableFinanceiro);
+  const [st, setSt] = useState<{ ativo: boolean; planoPermite: boolean; diasVencimento: number; planSlug: string } | null>(null);
+  const [dias, setDias] = useState(7);
+  const [saving, setSaving] = useState(false);
+
+  async function load() {
+    try {
+      const s = await fetchStatus();
+      setSt(s);
+      setDias(s.diasVencimento);
+    } catch (e: any) { toast.error(e?.message ?? "Erro"); }
+  }
+  useEffect(() => { void load(); }, []);
+
+  async function setEnabled(v: boolean) {
+    setSaving(true);
+    try {
+      await toggle({ data: { enable: v, diasVencimentoPadrao: dias } });
+      toast.success(v ? "Módulo ativado" : "Módulo desativado");
+      void load();
+    } catch (e: any) { toast.error(e?.message ?? "Erro"); }
+    finally { setSaving(false); }
+  }
+
+  async function saveDias() {
+    if (!st?.ativo) return;
+    setSaving(true);
+    try {
+      await toggle({ data: { enable: true, diasVencimentoPadrao: dias } });
+      toast.success("Configuração salva");
+    } catch (e: any) { toast.error(e?.message ?? "Erro"); }
+    finally { setSaving(false); }
+  }
+
+  if (!st) return <div className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="size-4 animate-spin" /> Carregando…</div>;
+
+  if (!st.planoPermite) {
+    return (
+      <Card className="p-6 max-w-2xl space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-xl bg-muted grid place-items-center"><Lock className="size-5" /></div>
+          <div>
+            <h2 className="font-semibold">Módulo Financeiro</h2>
+            <p className="text-sm text-muted-foreground">Disponível nos planos <b>Pro</b> e <b>Business</b>. Seu plano atual é <Badge variant="secondary" className="capitalize">{st.planSlug}</Badge>.</p>
+          </div>
+        </div>
+        <p className="text-sm">Inclui contas a pagar/receber, fluxo de caixa, categorias e geração automática de receita quando o lead vai para Ganho no CRM.</p>
+        <Button asChild><Link to="/app/checkout">Fazer upgrade</Link></Button>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="p-6 max-w-2xl space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="size-10 rounded-xl bg-[color:var(--brand-soft)] grid place-items-center">
+          <Wallet className="size-5 text-[color:var(--brand-text)]" />
+        </div>
+        <div className="flex-1">
+          <h2 className="font-semibold flex items-center gap-2">
+            Módulo Financeiro
+            <Badge variant={st.ativo ? "default" : "secondary"}>{st.ativo ? "Ativado" : "Desativado"}</Badge>
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Se você já usa outro sistema financeiro, deixe desativado — o menu somem e nada interfere no atendimento.
+          </p>
+        </div>
+        <Button variant={st.ativo ? "outline" : "default"} onClick={() => setEnabled(!st.ativo)} disabled={saving}>
+          {saving && <Loader2 className="size-4 mr-1.5 animate-spin" />}
+          {st.ativo ? "Desativar" : "Ativar"}
+        </Button>
+      </div>
+
+      {st.ativo && (
+        <div className="border-t pt-4 space-y-2">
+          <Label>Vencimento padrão para receitas geradas pelo CRM</Label>
+          <div className="flex items-center gap-2 max-w-xs">
+            <Input type="number" min={0} max={60} value={dias} onChange={(e) => setDias(Number(e.target.value))} />
+            <span className="text-sm text-muted-foreground whitespace-nowrap">dias após o ganho</span>
+          </div>
+          <p className="text-xs text-muted-foreground">Quando um lead for movido para Ganho no CRM, uma receita pendente é criada com essa data de vencimento.</p>
+          <div className="flex justify-end">
+            <Button onClick={saveDias} disabled={saving}>
+              {saving ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Save className="size-4 mr-1.5" />} Salvar
+            </Button>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 function fmtBRL(cents: number, moeda = "BRL") {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: moeda }).format(cents / 100);
 }
