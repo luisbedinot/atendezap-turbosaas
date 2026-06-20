@@ -143,7 +143,7 @@ export const listLancamentos = createServerFn({ method: "POST" })
       .order("vencimento", { ascending: false })
       .limit(500);
     if (data.tipo) q = q.eq("tipo", data.tipo);
-    if (data.status && data.status !== "todos") q = q.eq("status", data.status);
+    if (data.status && data.status !== "todos") q = q.eq("status", data.status as any);
     if (data.from) q = q.gte("vencimento", data.from);
     if (data.to) q = q.lte("vencimento", data.to);
     if (data.q) q = q.ilike("descricao", `%${data.q}%`);
@@ -210,7 +210,7 @@ export const marcarPago = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string; pago: boolean; pagoEm?: string }) => d)
   .handler(async ({ context, data }) => {
     const ctx = await assertCanWrite(context.supabase, context.userId);
-    const patch = data.pago
+    const patch: any = data.pago
       ? { status: "pago", pago_em: data.pagoEm || new Date().toISOString().slice(0, 10) }
       : { status: "pendente", pago_em: null };
     const { error } = await context.supabase
