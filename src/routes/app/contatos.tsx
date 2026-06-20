@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,7 +110,7 @@ function ContatosPage() {
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-[26px] font-extrabold tracking-tight">Contatos</h1>
+          <h1 className="font-display text-[26px] font-extrabold tracking-tight flex items-center gap-2">Contatos <HelpTip text="Sua base de clientes. Cada contato representa um número de WhatsApp e guarda todo o histórico de conversa e dados do CRM." /></h1>
           <p className="text-sm text-muted-foreground">Todos os leads gerados pelo WhatsApp.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">

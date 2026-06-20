@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { brand } from "@/config/brand";
 import { Bot, MessageCircle, Target, Trophy, Calendar, Star } from "lucide-react";
 import { demoStats, demoMensagens, demoAgendamentos, demoCsat } from "@/lib/demo-data";
@@ -24,7 +25,7 @@ function DemoDashboard() {
     <div className="space-y-5">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
         <div className="min-w-0">
-          <h1 className="font-display text-xl sm:text-2xl font-bold">Dashboard</h1>
+          <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">Dashboard <HelpTip text="Visão geral do dia: agendamentos, conversas, conversão e mensagens recentes. Tudo o que importa para o gestor em uma tela." /></h1>
           <p className="text-xs text-muted-foreground">Clínica Vitalis · visão geral do dia</p>
         </div>
         <div className="flex items-center gap-2 bg-[rgba(124,58,237,.12)] border border-[rgba(124,58,237,.30)] text-[var(--brand-text)] text-[12.5px] font-semibold px-3 py-1.5 rounded-full">

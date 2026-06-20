@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { brand } from "@/config/brand";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Smartphone, RefreshCw, Lock, QrCode } from "lucide-react";
@@ -12,7 +13,7 @@ function ConexaoDemo() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-xl sm:text-2xl font-bold">Conexão WhatsApp</h1>
+        <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">Conexão WhatsApp <HelpTip text="Pareamento via QR Code, igual WhatsApp Web. Sem precisar mudar de número nem usar API oficial." /></h1>
         <p className="text-xs text-muted-foreground">Status da linha conectada — exemplo.</p>
       </header>
 

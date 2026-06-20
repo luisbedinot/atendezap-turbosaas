@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { brand } from "@/config/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ function IntegracoesDemo() {
     <div className="space-y-5">
       <header>
         <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">
-          <Plug className="size-5 text-[var(--brand-text)]" /> Integrações
+          <Plug className="size-5 text-[var(--brand-text)]" /> Integrações <HelpTip text="Webhooks de saída para o seu sistema, API pública REST e parâmetros UTM para rastrear origem dos leads (campanhas, anúncios, etc)." />
         </h1>
         <p className="text-xs text-muted-foreground">Webhooks, API pública e tracking de UTM — exemplo.</p>
       </header>

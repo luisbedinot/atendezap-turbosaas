@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { brand } from "@/config/brand";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,7 @@ function ConfigDemo() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-xl sm:text-2xl font-bold">Configurações</h1>
+        <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">Configurações <HelpTip text="Templates de mensagem, horário de atendimento, segurança da conta, log de auditoria e exportação de dados (LGPD)." /></h1>
         <p className="text-xs text-muted-foreground">Empresa, identidade, templates, horários e segurança — exemplo.</p>
       </header>
 

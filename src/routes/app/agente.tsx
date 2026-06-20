@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -297,6 +298,7 @@ function AgentePage() {
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <HelpTip text="Configure o agente IA: nome, personalidade, papel, sobre a empresa, instruções e regras. É aqui que você 'treina' como ele responde." />
             <Bot className="size-5 text-[var(--brand-text)]" /> {cfg?.nome_agente || "Sua IA"}
           </h1>
           <p className="text-sm text-muted-foreground">

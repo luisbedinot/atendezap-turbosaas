@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -107,7 +108,7 @@ function ConfigPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Configurações</h1>
+        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">Configurações <HelpTip text="Dados da empresa, templates de resposta rápida, horário de atendimento, segurança, log de auditoria e exportação LGPD." /></h1>
         <p className="text-sm text-muted-foreground">Empresa, identidade e perfil.</p>
       </div>
       <Tabs defaultValue="plano">

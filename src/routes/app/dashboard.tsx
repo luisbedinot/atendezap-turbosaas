@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brand } from "@/config/brand";
@@ -144,7 +145,7 @@ function Dashboard() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="font-display text-[26px] font-extrabold tracking-tight">Dashboard</h1>
+          <h1 className="font-display text-[26px] font-extrabold tracking-tight flex items-center gap-2">Dashboard <HelpTip text="Visão geral do seu atendimento: KPIs do dia, últimas mensagens recebidas e conversas que precisam de você." /></h1>
           <p className="text-sm text-muted-foreground">Visão geral · {labelPeriod(period, range)}</p>
         </div>
         <PeriodPicker value={period} onChange={setPeriod} from={from} to={to} setFrom={setFrom} setTo={setTo} status={status} />

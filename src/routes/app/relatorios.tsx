@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -166,7 +167,7 @@ function RelatoriosPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-[26px] font-extrabold tracking-tight">Relatórios</h1>
+          <h1 className="font-display text-[26px] font-extrabold tracking-tight flex items-center gap-2">Relatórios <HelpTip text="Métricas de atendimento, conversão por etapa do CRM, tempo de resposta, performance por atendente e nota média de satisfação (CSAT)." /></h1>
           <p className="text-sm text-muted-foreground">{range.start.toLocaleDateString("pt-BR")} → {range.end.toLocaleDateString("pt-BR")}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">

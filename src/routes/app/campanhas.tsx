@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -112,7 +113,7 @@ function CampanhasPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold flex items-center gap-2"><Megaphone className="size-6" /> Campanhas</h1>
+          <h1 className="text-2xl font-semibold flex items-center gap-2"><Megaphone className="size-6" /> Campanhas <HelpTip text="Disparos em massa segmentados (por etapa do CRM, tag, etc). Respeitam horário de envio e regras anti-ban para proteger o seu número." /></h1>
           <p className="text-sm text-muted-foreground">Envie mensagens em massa para seus contatos, com agendamento e anti-ban.</p>
         </div>
         <Button onClick={openNew}><Plus className="size-4 mr-1" /> Nova campanha</Button>

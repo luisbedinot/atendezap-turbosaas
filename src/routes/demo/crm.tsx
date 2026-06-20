@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useMemo } from "react";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { brand } from "@/config/brand";
@@ -29,7 +30,7 @@ function CrmDemo() {
     <div className="space-y-4">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
         <div className="min-w-0">
-          <h1 className="font-display text-xl sm:text-2xl font-bold">CRM Kanban</h1>
+          <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">CRM Kanban <HelpTip text="Pipeline visual: do primeiro contato até o agendamento confirmado. Veja em qual etapa cada lead está parado." /></h1>
           <p className="text-xs text-muted-foreground">A IA também move automaticamente entre as colunas — exemplo.</p>
         </div>
       </header>
