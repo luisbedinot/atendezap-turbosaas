@@ -107,6 +107,12 @@ function EntrarPage() {
         toast.message("Já existe uma conta com esse e-mail.", { description: "Digite sua senha para continuar." });
         return;
       }
+      if (msg.includes("signups not allowed") || msg.includes("signup_disabled") || msg.includes("signup is disabled")) {
+        setNeedsPassword(true);
+        setLoading(false);
+        toast.message("Cadastros novos estão desativados.", { description: "Se você já tem conta, digite sua senha para entrar." });
+        return;
+      }
       setLoading(false);
       return toast.error(signUpErr.message);
     }
