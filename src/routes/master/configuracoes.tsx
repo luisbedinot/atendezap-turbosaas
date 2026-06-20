@@ -32,16 +32,14 @@ function ConfigPage() {
 
   useEffect(() => {
     void (async () => {
-      try {
-        const [r, w, e] = await Promise.all([get(), getWebhooks(), getEvents()]);
-        setEmails(r.emails);
-        setTokens(w);
-        setEvents(e);
-      } catch (e: any) {
-        toast.error(e?.message);
-      } finally {
-        setLoading(false);
-      }
+      const [r, w, e] = await Promise.allSettled([get(), getWebhooks(), getEvents()]);
+      if (r.status === "fulfilled") setEmails(r.value.emails);
+      else toast.error(`Emails: ${r.reason?.message ?? r.reason}`);
+      if (w.status === "fulfilled") setTokens(w.value);
+      else toast.error(`Webhooks: ${w.reason?.message ?? w.reason}`);
+      if (e.status === "fulfilled") setEvents(e.value);
+      else toast.error(`Eventos: ${e.reason?.message ?? e.reason}`);
+      setLoading(false);
     })();
   }, []);
 
