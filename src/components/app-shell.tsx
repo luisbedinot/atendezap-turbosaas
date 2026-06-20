@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { type ReactNode } from "react";
 import {
   LayoutDashboard, Bot, KanbanSquare, LogOut, Smartphone, Shield,
-  Inbox, Users, BarChart3, Settings, Contact, Zap, MessageCircle, Megaphone, Webhook,
+  Inbox, Users, BarChart3, Settings, Contact, Zap, MessageCircle, Megaphone, Webhook, Wallet,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { brand, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
@@ -37,6 +37,7 @@ const sections: { label: string; items: NavItem[] }[] = [
     label: "Gestão",
     items: [
       { to: "/app/contatos", label: "Contatos", icon: Contact },
+      { to: "/app/financeiro", label: "Financeiro", icon: Wallet, adminOnly: true, tag: "PRO" },
       { to: "/app/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
       { to: "/app/conexao", label: "Conexão", icon: Smartphone },
       { to: "/app/equipe", label: "Equipe", icon: Users, adminOnly: true },

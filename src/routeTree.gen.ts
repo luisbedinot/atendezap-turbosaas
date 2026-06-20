@@ -30,6 +30,7 @@ import { Route as MasterConfiguracoesRouteImport } from './routes/master/configu
 import { Route as MasterAssinaturasRouteImport } from './routes/master/assinaturas'
 import { Route as DemoRelatoriosRouteImport } from './routes/demo/relatorios'
 import { Route as DemoIntegracoesRouteImport } from './routes/demo/integracoes'
+import { Route as DemoFinanceiroRouteImport } from './routes/demo/financeiro'
 import { Route as DemoEquipeRouteImport } from './routes/demo/equipe'
 import { Route as DemoDashboardRouteImport } from './routes/demo/dashboard'
 import { Route as DemoCrmRouteImport } from './routes/demo/crm'
@@ -43,6 +44,7 @@ import { Route as CsatTokenRouteImport } from './routes/csat.$token'
 import { Route as AppRelatoriosRouteImport } from './routes/app/relatorios'
 import { Route as AppOnboardingRouteImport } from './routes/app/onboarding'
 import { Route as AppIntegracoesRouteImport } from './routes/app/integracoes'
+import { Route as AppFinanceiroRouteImport } from './routes/app/financeiro'
 import { Route as AppEquipeRouteImport } from './routes/app/equipe'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppCrmRouteImport } from './routes/app/crm'
@@ -165,6 +167,11 @@ const DemoIntegracoesRoute = DemoIntegracoesRouteImport.update({
   path: '/integracoes',
   getParentRoute: () => DemoRoute,
 } as any)
+const DemoFinanceiroRoute = DemoFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => DemoRoute,
+} as any)
 const DemoEquipeRoute = DemoEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -228,6 +235,11 @@ const AppOnboardingRoute = AppOnboardingRouteImport.update({
 const AppIntegracoesRoute = AppIntegracoesRouteImport.update({
   id: '/integracoes',
   path: '/integracoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEquipeRoute = AppEquipeRouteImport.update({
@@ -335,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
   '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
@@ -348,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/financeiro': typeof DemoFinanceiroRoute
   '/demo/integracoes': typeof DemoIntegracoesRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/assinaturas': typeof MasterAssinaturasRoute
@@ -385,6 +399,7 @@ export interface FileRoutesByTo {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
   '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
@@ -398,6 +413,7 @@ export interface FileRoutesByTo {
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/financeiro': typeof DemoFinanceiroRoute
   '/demo/integracoes': typeof DemoIntegracoesRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/assinaturas': typeof MasterAssinaturasRoute
@@ -438,6 +454,7 @@ export interface FileRoutesById {
   '/app/crm': typeof AppCrmRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/equipe': typeof AppEquipeRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
   '/app/integracoes': typeof AppIntegracoesRoute
   '/app/onboarding': typeof AppOnboardingRoute
   '/app/relatorios': typeof AppRelatoriosRoute
@@ -451,6 +468,7 @@ export interface FileRoutesById {
   '/demo/crm': typeof DemoCrmRoute
   '/demo/dashboard': typeof DemoDashboardRoute
   '/demo/equipe': typeof DemoEquipeRoute
+  '/demo/financeiro': typeof DemoFinanceiroRoute
   '/demo/integracoes': typeof DemoIntegracoesRoute
   '/demo/relatorios': typeof DemoRelatoriosRoute
   '/master/assinaturas': typeof MasterAssinaturasRoute
@@ -492,6 +510,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/financeiro'
     | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
@@ -505,6 +524,7 @@ export interface FileRouteTypes {
     | '/demo/crm'
     | '/demo/dashboard'
     | '/demo/equipe'
+    | '/demo/financeiro'
     | '/demo/integracoes'
     | '/demo/relatorios'
     | '/master/assinaturas'
@@ -542,6 +562,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/financeiro'
     | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
@@ -555,6 +576,7 @@ export interface FileRouteTypes {
     | '/demo/crm'
     | '/demo/dashboard'
     | '/demo/equipe'
+    | '/demo/financeiro'
     | '/demo/integracoes'
     | '/demo/relatorios'
     | '/master/assinaturas'
@@ -594,6 +616,7 @@ export interface FileRouteTypes {
     | '/app/crm'
     | '/app/dashboard'
     | '/app/equipe'
+    | '/app/financeiro'
     | '/app/integracoes'
     | '/app/onboarding'
     | '/app/relatorios'
@@ -607,6 +630,7 @@ export interface FileRouteTypes {
     | '/demo/crm'
     | '/demo/dashboard'
     | '/demo/equipe'
+    | '/demo/financeiro'
     | '/demo/integracoes'
     | '/demo/relatorios'
     | '/master/assinaturas'
@@ -794,6 +818,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoIntegracoesRouteImport
       parentRoute: typeof DemoRoute
     }
+    '/demo/financeiro': {
+      id: '/demo/financeiro'
+      path: '/financeiro'
+      fullPath: '/demo/financeiro'
+      preLoaderRoute: typeof DemoFinanceiroRouteImport
+      parentRoute: typeof DemoRoute
+    }
     '/demo/equipe': {
       id: '/demo/equipe'
       path: '/equipe'
@@ -883,6 +914,13 @@ declare module '@tanstack/react-router' {
       path: '/integracoes'
       fullPath: '/app/integracoes'
       preLoaderRoute: typeof AppIntegracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/financeiro': {
+      id: '/app/financeiro'
+      path: '/financeiro'
+      fullPath: '/app/financeiro'
+      preLoaderRoute: typeof AppFinanceiroRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/equipe': {
@@ -1023,6 +1061,7 @@ interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEquipeRoute: typeof AppEquipeRoute
+  AppFinanceiroRoute: typeof AppFinanceiroRoute
   AppIntegracoesRoute: typeof AppIntegracoesRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppRelatoriosRoute: typeof AppRelatoriosRoute
@@ -1039,6 +1078,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEquipeRoute: AppEquipeRoute,
+  AppFinanceiroRoute: AppFinanceiroRoute,
   AppIntegracoesRoute: AppIntegracoesRoute,
   AppOnboardingRoute: AppOnboardingRoute,
   AppRelatoriosRoute: AppRelatoriosRoute,
@@ -1056,6 +1096,7 @@ interface DemoRouteChildren {
   DemoCrmRoute: typeof DemoCrmRoute
   DemoDashboardRoute: typeof DemoDashboardRoute
   DemoEquipeRoute: typeof DemoEquipeRoute
+  DemoFinanceiroRoute: typeof DemoFinanceiroRoute
   DemoIntegracoesRoute: typeof DemoIntegracoesRoute
   DemoRelatoriosRoute: typeof DemoRelatoriosRoute
   DemoIndexRoute: typeof DemoIndexRoute
@@ -1071,6 +1112,7 @@ const DemoRouteChildren: DemoRouteChildren = {
   DemoCrmRoute: DemoCrmRoute,
   DemoDashboardRoute: DemoDashboardRoute,
   DemoEquipeRoute: DemoEquipeRoute,
+  DemoFinanceiroRoute: DemoFinanceiroRoute,
   DemoIntegracoesRoute: DemoIntegracoesRoute,
   DemoRelatoriosRoute: DemoRelatoriosRoute,
   DemoIndexRoute: DemoIndexRoute,
