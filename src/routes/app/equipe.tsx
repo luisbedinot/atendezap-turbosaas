@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
@@ -69,7 +70,7 @@ function EquipePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Equipe</h1>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">Equipe <HelpTip text="Convide atendentes, defina papéis (admin/atendente) e controle quem pode ver e responder cada conversa." /></h1>
           <p className="text-sm text-muted-foreground">Gerencie quem tem acesso a esta empresa.</p>
         </div>
         {!plan.loading && (

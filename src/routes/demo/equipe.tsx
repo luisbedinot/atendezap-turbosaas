@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { brand } from "@/config/brand";
 import { Button } from "@/components/ui/button";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
@@ -42,7 +43,7 @@ function EquipeDemo() {
     <div className="space-y-5">
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="font-display text-xl sm:text-2xl font-bold">Equipe</h1>
+          <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">Equipe <HelpTip text="Recepcionistas, esteticistas e gestores com permissões diferentes. Cada um vê apenas o que precisa." /></h1>
           <p className="text-xs text-muted-foreground">Membros, papéis e permissões — exemplo.</p>
         </div>
         <Button disabled><UserPlus className="size-4 mr-1.5" />Convidar membro</Button>

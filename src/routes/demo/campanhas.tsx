@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { brand } from "@/config/brand";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,7 @@ function CampanhasDemo() {
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">
-            <Megaphone className="size-5 text-[var(--brand-text)]" /> Campanhas
+            <Megaphone className="size-5 text-[var(--brand-text)]" /> Campanhas <HelpTip text="Envios em massa com regras anti-ban: limite por hora, intervalo aleatório e respeito ao horário comercial. Segmente por tag, etapa do CRM ou lista importada." />
           </h1>
           <p className="text-xs text-muted-foreground">Disparo em massa segmentado por tag, com agendamento e anti-ban.</p>
         </div>

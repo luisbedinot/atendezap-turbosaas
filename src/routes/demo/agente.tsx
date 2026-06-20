@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -67,6 +68,7 @@ function AgenteDemo() {
       <header className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <HelpTip text="Personalidade e instruções do agente IA: como ele se apresenta, o que vende, horário, tom de voz e regras de negócio." />
             <Bot className="size-5 text-[var(--brand-text)]" /> {CFG.nome_agente}
           </h1>
           <p className="text-sm text-muted-foreground">{CFG.papel_objetivo}</p>

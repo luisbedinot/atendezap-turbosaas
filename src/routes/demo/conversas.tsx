@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -69,7 +70,7 @@ function ConversasDemo() {
     <div className="space-y-4">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
         <div className="min-w-0">
-          <h1 className="font-display text-xl sm:text-2xl font-bold">Conversas</h1>
+          <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">Conversas <HelpTip text="Inbox unificada do WhatsApp. O agente IA responde sozinho e você assume quando quiser. Filtros, tags e envio de pesquisa CSAT." /></h1>
           <p className="text-xs text-muted-foreground">Inbox em tempo real do WhatsApp — exemplo.</p>
         </div>
         <div className="hidden sm:flex items-center gap-1.5 text-[11.5px] text-muted-foreground bg-muted px-2.5 py-1 rounded-full">

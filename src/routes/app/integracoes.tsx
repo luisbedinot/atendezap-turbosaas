@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -45,7 +46,7 @@ function IntegracoesPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <header>
-        <h1 className="text-2xl font-semibold">Integrações</h1>
+        <h1 className="text-2xl font-semibold flex items-center gap-2">Integrações <HelpTip text="Conecte seu sistema externo: webhooks de saída (eventos em tempo real), API pública para criar contatos/mensagens e rastreio UTM." /></h1>
         <p className="text-sm text-muted-foreground">Conecte o atendimento a outros sistemas via webhooks ou API pública.</p>
       </header>
 

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useState } from "react";
 import { brand } from "@/config/brand";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ function RelatoriosDemo() {
     <div className="space-y-5">
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="font-display text-xl sm:text-2xl font-bold">Relatórios</h1>
+          <h1 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">Relatórios <HelpTip text="Métricas de atendimento, conversão por etapa, performance por atendente e nota média de satisfação (CSAT)." /></h1>
           <p className="text-xs text-muted-foreground">Performance do agente, equipe e satisfação — exemplo.</p>
         </div>
         <div className="flex items-center gap-2">

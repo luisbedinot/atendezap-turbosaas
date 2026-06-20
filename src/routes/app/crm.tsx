@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HelpTip } from "@/components/help-tip";
 import { useEffect, useMemo, useState } from "react";
 import {
   DndContext, DragOverlay, PointerSensor, useDroppable, useDraggable, useSensor, useSensors,
@@ -135,7 +136,7 @@ function KanbanPage() {
     <div className="space-y-6">
       <header className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1>CRM Kanban</h1>
+          <h1 className="flex items-center gap-2">CRM Kanban <HelpTip text="Funil visual de vendas. Arraste cards entre etapas (Novo lead → Qualificado → Proposta → Fechado) para acompanhar a evolução de cada contato." /></h1>
           <p className="text-sm text-muted-foreground">Arraste cards entre etapas. A IA também move automaticamente.</p>
         </div>
         <div className="flex gap-2">
