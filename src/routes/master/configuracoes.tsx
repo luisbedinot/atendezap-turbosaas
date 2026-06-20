@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Plus, X, Save, Copy, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Plus, X, Save, Copy, CheckCircle2, AlertCircle, BookOpen, Zap } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { brand } from "@/config/brand";
 import { getSuperAdminEmails, setSuperAdminEmails } from "@/lib/master.functions";
 import { getBillingWebhookInfo, listRecentBillingEvents } from "@/lib/billing.functions";
@@ -82,9 +83,15 @@ function ConfigPage() {
         <div>
           <h2 className="font-semibold">Webhooks de cobrança</h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Cole essas URLs no painel da Kiwify, Cakto ou Perfectpay. Eventos de venda chegam aqui e liberam o cliente automaticamente
-            (vínculo pelo e-mail do comprador).
+            Cole as URLs abaixo no painel do seu checkout. Cada venda aprovada libera o cliente
+            automaticamente (vínculo pelo <b>e-mail do comprador</b>); cancelamento, reembolso ou chargeback
+            suspendem a conta. Renovação reativa.
           </p>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {["purchase_approved", "subscription_renewed", "subscription_canceled", "refunded", "chargeback", "payment_failed"].map((e) => (
+              <span key={e} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{e}</span>
+            ))}
+          </div>
         </div>
 
         {loading ? (
@@ -111,6 +118,74 @@ function ConfigPage() {
             ))}
           </div>
         )}
+
+        <Accordion type="single" collapsible className="border rounded-md">
+          <AccordionItem value="howto" className="border-0">
+            <AccordionTrigger className="px-3 py-2 text-sm font-semibold hover:no-underline">
+              <span className="flex items-center gap-2"><BookOpen className="size-4" /> Como integrar passo a passo</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-3 pb-3 space-y-4 text-xs">
+              <div>
+                <div className="font-bold uppercase tracking-wider mb-1">Kiwify</div>
+                <ol className="list-decimal pl-4 space-y-0.5 text-muted-foreground">
+                  <li>Painel Kiwify → <b>Apps</b> → <b>Webhooks</b> → <b>Nova URL</b>.</li>
+                  <li>Cole a URL da Kiwify acima.</li>
+                  <li>Marque os eventos: <code>compra aprovada</code>, <code>reembolso</code>, <code>chargeback</code>, <code>assinatura cancelada</code>, <code>assinatura renovada</code>.</li>
+                  <li>Salve. Faça uma compra teste de R$1 para validar — ela deve aparecer em "Últimos eventos".</li>
+                </ol>
+              </div>
+              <div>
+                <div className="font-bold uppercase tracking-wider mb-1">Cakto</div>
+                <ol className="list-decimal pl-4 space-y-0.5 text-muted-foreground">
+                  <li>Painel Cakto → <b>Configurações</b> → <b>Webhooks</b> → <b>Adicionar</b>.</li>
+                  <li>Cole a URL da Cakto acima.</li>
+                  <li>Selecione: <code>PURCHASE_APPROVED</code>, <code>SUBSCRIPTION_RENEWED</code>, <code>SUBSCRIPTION_CANCELED</code>, <code>REFUND</code>, <code>CHARGEBACK</code>.</li>
+                  <li>Salve e dispare o teste pelo próprio painel.</li>
+                </ol>
+              </div>
+              <div>
+                <div className="font-bold uppercase tracking-wider mb-1">Perfectpay</div>
+                <ol className="list-decimal pl-4 space-y-0.5 text-muted-foreground">
+                  <li>Painel Perfectpay → <b>Ferramentas</b> → <b>Postback (Webhook)</b>.</li>
+                  <li>Cole a URL da Perfectpay acima nos campos de <b>Aprovado, Cancelado, Estornado, Chargeback, Renovação</b>.</li>
+                  <li>Salve. Use o botão "Enviar teste" da Perfectpay.</li>
+                </ol>
+              </div>
+              <div className="rounded-md border bg-muted/40 p-2.5">
+                <b>Vínculo cliente → empresa:</b> usamos o e-mail do comprador. O cadastro do cliente no AtendeZap precisa usar o
+                <b> mesmo e-mail</b> da compra. Para identificar o plano, casamos pelo <code>slug</code> do plano ou pelo trecho final da
+                <code>checkout_url</code> com o <code>product_id</code> recebido.
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="outras" className="border-0 border-t">
+            <AccordionTrigger className="px-3 py-2 text-sm font-semibold hover:no-underline">
+              <span className="flex items-center gap-2"><Zap className="size-4" /> Uso outro checkout (Hotmart, Eduzz, Hubla, Monetizze, Stripe…)</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-3 pb-3 text-xs text-muted-foreground space-y-2">
+              <p>
+                Hoje normalizamos nativamente <b>Kiwify, Cakto e Perfectpay</b> — são os 3 mais usados pelo nosso público.
+                Para qualquer outra plataforma você tem 2 caminhos:
+              </p>
+              <ol className="list-decimal pl-4 space-y-1.5">
+                <li>
+                  <b>Bridge via Zapier / Make / n8n (5 min, sem código):</b> crie um Zap "Novo pagamento aprovado" no seu checkout →
+                  ação <i>Webhooks → POST</i> apontando para a URL de qualquer um dos 3 provedores acima usando o token, enviando um JSON com
+                  <code> customer.email</code>, <code>event</code> (ex: <code>purchase_approved</code>) e <code>product_id</code>.
+                </li>
+                <li>
+                  <b>Liberação manual:</b> no <a className="underline" href="/master/empresas">Master → Empresas</a> você pode marcar uma empresa como
+                  <b> ativa</b> e definir o plano sem depender do webhook.
+                </li>
+              </ol>
+              <p>
+                Precisa de integração nativa com outro gateway? Mande pedido — adicionamos novos normalizadores em ~1 dia útil.
+              </p>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
 
         <div>
           <h3 className="text-sm font-semibold mb-2">Últimos eventos recebidos</h3>
