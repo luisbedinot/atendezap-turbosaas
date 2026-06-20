@@ -11,6 +11,7 @@ export type PlanFeatures = {
   apiWebhooks: boolean;
   relatoriosAvancados: boolean;
   suportePrioritario: boolean;
+  financeiro: boolean;
 };
 
 export const PLAN_FEATURES: Record<PlanSlug, PlanFeatures> = {
@@ -21,6 +22,7 @@ export const PLAN_FEATURES: Record<PlanSlug, PlanFeatures> = {
     apiWebhooks: false,
     relatoriosAvancados: false,
     suportePrioritario: false,
+    financeiro: false,
   },
   pro: {
     providersIA: ["gemini", "openai", "anthropic"],
@@ -29,6 +31,7 @@ export const PLAN_FEATURES: Record<PlanSlug, PlanFeatures> = {
     apiWebhooks: false,
     relatoriosAvancados: true,
     suportePrioritario: true,
+    financeiro: true,
   },
   business: {
     providersIA: ["gemini", "openai", "anthropic"],
@@ -37,6 +40,7 @@ export const PLAN_FEATURES: Record<PlanSlug, PlanFeatures> = {
     apiWebhooks: true,
     relatoriosAvancados: true,
     suportePrioritario: true,
+    financeiro: true,
   },
 };
 
