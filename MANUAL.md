@@ -127,7 +127,7 @@ Só faça se quiser cobrar cartão automaticamente.
 Já está pronta no código. Só precisa do **Passo 2** ter sido feito + adicionar o redirect URI no Google Cloud Console:
 
 ```
-https://SEU-PROJETO.lovable.app/api/public/google-callback
+https://atendezap.live/api/public/google-callback
 ```
 
 Cada cliente conecta a própria conta em `/app/agente/avancado` → botão "Conectar Google Agenda".
@@ -138,7 +138,7 @@ Cada cliente conecta a própria conta em `/app/agente/avancado` → botão "Cone
 
 No topo do Lovable → botão **"Publish"** → confirme.
 
-Sua URL ficará: `https://SEU-PROJETO.lovable.app`
+Sua URL: `https://atendezap.live`
 Para domínio próprio: Project Settings → Domains.
 
 ---
