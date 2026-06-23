@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { LogIn, Pause, Play, CalendarClock, Loader2, KeyRound, Eye } from "lucide-react";
+import { LogIn, Pause, Play, CalendarClock, Loader2, KeyRound, Eye, Sparkles } from "lucide-react";
 import { brand } from "@/config/brand";
 import { listCompanies, suspendCompany, extendTrial, resetCompanyOwnerPassword, getCompanyDetails } from "@/lib/master.functions";
+import { adminGrantCredits } from "@/lib/credits.functions";
 
 export const Route = createFileRoute("/master/empresas")({
   head: () => ({ meta: [{ title: `${brand.name} — Empresas` }] }),
