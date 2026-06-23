@@ -144,7 +144,85 @@ function AgenteDemo() {
             <SummaryRow label="Não pode fazer" value={CFG.nao_pode_fazer} multiline />
           </Section>
 
+          <Section title="Personalidade do agente" icon={<Sparkles className="size-3.5" />}>
+            <div className="space-y-1.5">
+              <Label className="text-[10.5px] uppercase tracking-wider text-muted-foreground">Preset</Label>
+              <div className="grid sm:grid-cols-3 gap-2">
+                {PRESETS_DEMO.map((p) => (
+                  <div
+                    key={p.value}
+                    className={`text-left rounded-xl border p-3 ${CFG.personalidade === p.value ? "border-[var(--brand)] bg-[var(--brand)]/10" : "border-border bg-muted/40 opacity-70"}`}
+                  >
+                    <div className="text-lg">{p.emoji}</div>
+                    <div className="font-semibold text-sm mt-1">{p.label}</div>
+                    <div className="text-[11px] text-muted-foreground leading-snug">{p.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5 pt-2">
+              <Label className="text-[10.5px] uppercase tracking-wider text-muted-foreground">Foco do atendimento</Label>
+              <div className="grid sm:grid-cols-3 gap-2">
+                {FOCOS_DEMO.map((o) => (
+                  <div
+                    key={o.v}
+                    className={`text-left rounded-xl border p-3 ${CFG.foco_atendimento === o.v ? "border-[var(--brand)] bg-[var(--brand)]/10" : "border-border bg-muted/40 opacity-70"}`}
+                  >
+                    <div className="font-semibold text-sm">{o.l}</div>
+                    <div className="text-[11px] text-muted-foreground">{o.d}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3 pt-2">
+              <SummaryRow label="Tom (0=sério → 100=caloroso)" value={String(CFG.tom)} />
+              <SummaryRow label="Formalidade" value={String(CFG.formalidade)} />
+              <SummaryRow label="Proatividade" value={String(CFG.proatividade)} />
+              <SummaryRow label="Tamanho" value={CFG.tamanho_resposta} />
+              <SummaryRow label="Emojis" value={CFG.emoji_intensidade} />
+              <SummaryRow label="Velocidade" value={CFG.velocidade_resposta} />
+              <SummaryRow label="Idioma" value={CFG.idioma} />
+              <SummaryRow label="Palavras proibidas" value={CFG.evitar_palavras} />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-2 pt-2">
+              {[
+                ["Responder em partes", CFG.responder_em_partes],
+                ["Chamar pelo nome", CFG.chamar_por_nome],
+                ["Uma pergunta por vez", CFG.perguntar_uma_por_vez],
+                ["Usar gírias", CFG.usar_girias],
+                ["Pode brincar", CFG.pode_brincar],
+                ["Assinar mensagens", CFG.assinar_mensagens],
+              ].map(([l, v]) => (
+                <div key={l as string} className="flex items-center justify-between rounded-xl border border-border bg-muted/40 px-3 py-2">
+                  <span className="text-xs font-medium">{l}</span>
+                  <Switch checked={!!v} disabled />
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Tempo de espera (entender contexto)" icon={<Sparkles className="size-3.5" />}>
+            <p className="text-xs text-muted-foreground">
+              A IA aguarda esse tempo antes de responder. Se o cliente mandar várias mensagens em sequência, ela junta tudo e responde de uma vez — entendendo o contexto completo, como uma pessoa real.
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {BUFFER_DEMO.map((o) => (
+                <div
+                  key={o.s}
+                  className={`rounded-xl border p-3 text-center ${CFG.segundos_buffer === o.s ? "border-[var(--brand)] bg-[var(--brand)]/10" : "border-border bg-muted/40 opacity-70"}`}
+                >
+                  <div className="font-display text-lg font-semibold">{o.s}s</div>
+                  <div className="text-[11px] text-muted-foreground">{o.l}</div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
           <Collapsible>
+
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted transition">
                 <span className="font-display text-[12px] font-semibold uppercase tracking-wider text-[var(--brand-text)] flex items-center gap-1.5">
