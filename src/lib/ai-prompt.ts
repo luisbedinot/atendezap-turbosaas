@@ -53,11 +53,25 @@ export interface AgentConfig {
   reativar_cliente?: boolean;
 
   // Personalidade
-  tom?: number;            // 0-100
+  tom?: number;            // 0-100 (sério→caloroso)
   formalidade?: number;    // 0-100
-  usar_emojis?: boolean;
+  usar_emojis?: boolean;   // legado
   tamanho_resposta?: string; // 'curtas' | 'medias' | 'longas'
   apresentacao?: string;
+
+  // Personalidade avançada
+  personalidade?: string;        // 'extrovertido' | 'serio' | 'padrao' | 'divertido' | 'consultivo' | 'amigavel'
+  foco_atendimento?: string;     // 'vendas' | 'suporte' | 'ambos'
+  emoji_intensidade?: string;    // 'nenhum' | 'pouco' | 'moderado' | 'muito'
+  usar_girias?: boolean;
+  chamar_por_nome?: boolean;
+  perguntar_uma_por_vez?: boolean;
+  pode_brincar?: boolean;
+  assinar_mensagens?: boolean;
+  proatividade?: number;         // 0-100
+  velocidade_resposta?: string;  // 'imediata' | 'humana' | 'pausada'
+  evitar_palavras?: string;
+  idioma?: string;
 
   // Agendamento
   agendamento_ativo?: boolean;
@@ -66,6 +80,7 @@ export interface AgentConfig {
   horarios_disponiveis?: string;
   antecedencia_min?: string;
 }
+
 
 export const PART_SEPARATOR = "|||";
 
