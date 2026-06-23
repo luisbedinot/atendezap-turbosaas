@@ -60,18 +60,19 @@ export interface AgentConfig {
   apresentacao?: string;
 
   // Personalidade avançada
-  personalidade?: string;        // 'extrovertido' | 'serio' | 'padrao' | 'divertido' | 'consultivo' | 'amigavel'
-  foco_atendimento?: string;     // 'vendas' | 'suporte' | 'ambos'
-  emoji_intensidade?: string;    // 'nenhum' | 'pouco' | 'moderado' | 'muito'
-  usar_girias?: boolean;
-  chamar_por_nome?: boolean;
-  perguntar_uma_por_vez?: boolean;
-  pode_brincar?: boolean;
-  assinar_mensagens?: boolean;
-  proatividade?: number;         // 0-100
-  velocidade_resposta?: string;  // 'imediata' | 'humana' | 'pausada'
-  evitar_palavras?: string;
-  idioma?: string;
+  personalidade?: string | null;
+  foco_atendimento?: string | null;
+  emoji_intensidade?: string | null;
+  usar_girias?: boolean | null;
+  chamar_por_nome?: boolean | null;
+  perguntar_uma_por_vez?: boolean | null;
+  pode_brincar?: boolean | null;
+  assinar_mensagens?: boolean | null;
+  proatividade?: number | null;
+  velocidade_resposta?: string | null;
+  evitar_palavras?: string | null;
+  idioma?: string | null;
+
 
   // Agendamento
   agendamento_ativo?: boolean;
