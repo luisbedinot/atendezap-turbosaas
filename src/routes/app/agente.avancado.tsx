@@ -71,6 +71,43 @@ const PROVIDER_MODELS: Record<string, { value: string; label: string }[]> = {
 
 const BUFFER_PRESETS = [3, 5, 10, 20, 30];
 
+interface PersonalidadePreset {
+  value: string;
+  label: string;
+  emoji: string;
+  desc: string;
+  tom: number;
+  formalidade: number;
+  emoji_intensidade: string;
+  usar_girias: boolean;
+  pode_brincar: boolean;
+  proatividade: number;
+}
+
+const PERSONALIDADE_PRESETS: PersonalidadePreset[] = [
+  { value: "padrao",       label: "Padrão",       emoji: "🤝", desc: "Equilibrado — simpático e profissional.",      tom: 65, formalidade: 45, emoji_intensidade: "pouco",    usar_girias: false, pode_brincar: false, proatividade: 50 },
+  { value: "extrovertido", label: "Extrovertido", emoji: "🎉", desc: "Animado, vibrante, transmite energia.",          tom: 90, formalidade: 25, emoji_intensidade: "moderado", usar_girias: true,  pode_brincar: true,  proatividade: 75 },
+  { value: "serio",        label: "Sério",        emoji: "🎩", desc: "Profissional, objetivo, direto ao ponto.",       tom: 25, formalidade: 75, emoji_intensidade: "nenhum",   usar_girias: false, pode_brincar: false, proatividade: 40 },
+  { value: "divertido",    label: "Divertido",    emoji: "😄", desc: "Leve, bem-humorado, brincalhão sem perder foco.",tom: 85, formalidade: 20, emoji_intensidade: "muito",    usar_girias: true,  pode_brincar: true,  proatividade: 65 },
+  { value: "consultivo",   label: "Consultivo",   emoji: "🧠", desc: "Especialista, recomenda com fundamento.",         tom: 55, formalidade: 60, emoji_intensidade: "pouco",    usar_girias: false, pode_brincar: false, proatividade: 70 },
+  { value: "amigavel",     label: "Amigável",     emoji: "🫶", desc: "Acolhedor, próximo, como um amigo prestativo.",   tom: 80, formalidade: 30, emoji_intensidade: "moderado", usar_girias: false, pode_brincar: false, proatividade: 55 },
+];
+
+function applyPreset(p: PersonalidadePreset, cfg: any, setCfg: (fn: any) => void) {
+  setCfg({
+    ...cfg,
+    personalidade: p.value,
+    tom: p.tom,
+    formalidade: p.formalidade,
+    emoji_intensidade: p.emoji_intensidade,
+    usar_emojis: p.emoji_intensidade !== "nenhum",
+    usar_girias: p.usar_girias,
+    pode_brincar: p.pode_brincar,
+    proatividade: p.proatividade,
+  });
+}
+
+
 interface Produto { id: string; nome: string; preco: number; descricao: string | null; ativo: boolean; ordem: number; }
 
 function AgentePage() {
