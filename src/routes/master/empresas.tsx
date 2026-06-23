@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { LogIn, Pause, Play, CalendarClock, Loader2, KeyRound, Eye } from "lucide-react";
+import { LogIn, Pause, Play, CalendarClock, Loader2, KeyRound, Eye, Sparkles } from "lucide-react";
 import { brand } from "@/config/brand";
 import { listCompanies, suspendCompany, extendTrial, resetCompanyOwnerPassword, getCompanyDetails } from "@/lib/master.functions";
+import { adminGrantCredits } from "@/lib/credits.functions";
 
 export const Route = createFileRoute("/master/empresas")({
   head: () => ({ meta: [{ title: `${brand.name} — Empresas` }] }),
@@ -23,6 +24,7 @@ function EmpresasPage() {
   const extend = useServerFn(extendTrial);
   const resetPwd = useServerFn(resetCompanyOwnerPassword);
   const details = useServerFn(getCompanyDetails);
+  const grantCredits = useServerFn(adminGrantCredits);
   const [detail, setDetail] = useState<any | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
@@ -87,6 +89,19 @@ function EmpresasPage() {
       }
     } catch (e: any) {
       toast.error(e?.message || "Falha ao redefinir senha");
+    }
+  }
+
+  async function doGrantCredits(c: any) {
+    const raw = prompt(`Créditos de IA para "${c.nome}".\n\nDigite quantidade (positivo adiciona, negativo remove):`, "100");
+    if (raw === null) return;
+    const qtd = Number(raw);
+    if (!qtd || isNaN(qtd)) return toast.error("Quantidade inválida");
+    try {
+      const r: any = await grantCredits({ data: { companyId: c.id, qtd, motivo: "ajuste_admin" } });
+      toast.success(`Saldo agora: ${r.saldo} créditos`);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao ajustar créditos");
     }
   }
 
@@ -158,6 +173,9 @@ function EmpresasPage() {
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => doResetPassword(c)} title="Redefinir senha do responsável">
                     <KeyRound className="size-3.5" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => doGrantCredits(c)} title="Créditos de IA">
+                    <Sparkles className="size-3.5" />
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => doExtend(c)} title="Estender trial">
                     <CalendarClock className="size-3.5" />

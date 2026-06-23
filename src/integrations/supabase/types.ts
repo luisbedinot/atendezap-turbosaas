@@ -550,6 +550,9 @@ export type Database = {
           complemento: string | null
           created_at: string
           created_by: string | null
+          creditos_origem: string
+          creditos_resetam_em: string | null
+          creditos_saldo: number
           email_corporativo: string | null
           estado: string | null
           financeiro_ativo: boolean
@@ -585,6 +588,9 @@ export type Database = {
           complemento?: string | null
           created_at?: string
           created_by?: string | null
+          creditos_origem?: string
+          creditos_resetam_em?: string | null
+          creditos_saldo?: number
           email_corporativo?: string | null
           estado?: string | null
           financeiro_ativo?: boolean
@@ -620,6 +626,9 @@ export type Database = {
           complemento?: string | null
           created_at?: string
           created_by?: string | null
+          creditos_origem?: string
+          creditos_resetam_em?: string | null
+          creditos_saldo?: number
           email_corporativo?: string | null
           estado?: string | null
           financeiro_ativo?: boolean
@@ -790,6 +799,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      credit_ledger: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          delta: number
+          id: string
+          motivo: string
+          ref: string | null
+          saldo_apos: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          delta: number
+          id?: string
+          motivo: string
+          ref?: string | null
+          saldo_apos: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          delta?: number
+          id?: string
+          motivo?: string
+          ref?: string | null
+          saldo_apos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_cards: {
         Row: {
@@ -1289,6 +1339,8 @@ export type Database = {
           ativo: boolean
           checkout_url: string | null
           created_at: string
+          creditos_mensais: number
+          creditos_trial: number
           descricao: string | null
           destaque: boolean
           features: Json
@@ -1314,6 +1366,8 @@ export type Database = {
           ativo?: boolean
           checkout_url?: string | null
           created_at?: string
+          creditos_mensais?: number
+          creditos_trial?: number
           descricao?: string | null
           destaque?: boolean
           features?: Json
@@ -1339,6 +1393,8 @@ export type Database = {
           ativo?: boolean
           checkout_url?: string | null
           created_at?: string
+          creditos_mensais?: number
+          creditos_trial?: number
           descricao?: string | null
           destaque?: boolean
           features?: Json
@@ -1684,10 +1740,18 @@ export type Database = {
     }
     Functions: {
       claim_super_admin_if_empty: { Args: never; Returns: undefined }
+      consume_ai_credit: {
+        Args: { _company_id: string; _ref?: string }
+        Returns: boolean
+      }
       current_company_id: { Args: never; Returns: string }
       fin_enable_for_company: {
         Args: { _company_id: string; _enable: boolean }
         Returns: undefined
+      }
+      grant_credits: {
+        Args: { _company_id: string; _motivo?: string; _qtd: number }
+        Returns: number
       }
       has_company_access: { Args: { _company_id: string }; Returns: boolean }
       has_company_role: {
@@ -1696,6 +1760,10 @@ export type Database = {
       }
       is_super_admin: { Args: never; Returns: boolean }
       seed_fin_categorias: { Args: { _company_id: string }; Returns: undefined }
+      topup_plan_credits: {
+        Args: { _company_id: string; _plan_slug: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "super_admin"
