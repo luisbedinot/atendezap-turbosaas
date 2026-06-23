@@ -92,7 +92,7 @@ const DEFAULT_STAGES: StageBrief[] = [
   { nome: "Perda", tipo: "perda" },
 ];
 
-function describeTom(tom?: number) {
+function describeTom(tom?: number | null) {
   const n = typeof tom === "number" ? tom : 70;
   if (n <= 25) return "tom mais sério e contido";
   if (n <= 55) return "tom equilibrado, atencioso";
@@ -100,7 +100,7 @@ function describeTom(tom?: number) {
   return "tom muito caloroso, próximo, quase de amigo";
 }
 
-function describeFormalidade(f?: number) {
+function describeFormalidade(f?: number | null) {
   const n = typeof f === "number" ? f : 40;
   if (n <= 25) return "linguagem informal (você, oi, beleza)";
   if (n <= 55) return "linguagem semi-formal (você, com cordialidade)";
@@ -108,39 +108,79 @@ function describeFormalidade(f?: number) {
   return "linguagem muito formal (cerimoniosa)";
 }
 
-function describeTamanho(t?: string) {
+function describeTamanho(t?: string | null) {
   switch ((t || "curtas").toLowerCase()) {
-    case "longas":
-      return "respostas mais longas e explicativas quando fizer sentido";
+    case "longas": return "respostas mais longas e explicativas quando fizer sentido";
     case "medias":
-    case "médias":
-      return "respostas de tamanho médio";
-    default:
-      return "respostas curtas, no estilo WhatsApp";
+    case "médias": return "respostas de tamanho médio";
+    default: return "respostas curtas, no estilo WhatsApp";
   }
 }
 
-export function buildSystemPrompt(
-  c: Partial<AgentConfig>,
-  opts?: {
-    responderEmPartes?: boolean;
-    estagioAtual?: string;
-    resumoContato?: string;
-    produtos?: ProdutoBrief[];
-    stages?: StageBrief[];
-    googleConectado?: boolean;
-  },
-): string {
-  const partes = opts?.responderEmPartes ?? c.responder_em_partes ?? true;
-  const stages = (opts?.stages && opts.stages.length > 0) ? opts.stages : DEFAULT_STAGES;
-  const produtos = opts?.produtos ?? [];
+function describePersonalidade(p?: string | null): string {
+  switch ((p || "padrao").toLowerCase()) {
+    case "extrovertido":
+      return "personalidade EXTROVERTIDA: animado, entusiasmado, usa exclamações com naturalidade, transmite energia positiva sem soar artificial";
+    case "serio":
+    case "sério":
+      return "personalidade SÉRIA: postura profissional, objetivo, direto ao ponto, sem brincadeiras, transmite competência e segurança";
+    case "divertido":
+      return "personalidade DIVERTIDA: bem-humorado, leve, pode fazer brincadeiras inteligentes sem perder o profissionalismo";
+    case "consultivo":
+      return "personalidade CONSULTIVA: age como especialista/consultor, faz perguntas inteligentes, recomenda com fundamento";
+    case "amigavel":
+    case "amigável":
+      return "personalidade AMIGÁVEL: acolhedor, próximo, demonstra interesse genuíno, parece um amigo prestativo";
+    default:
+      return "personalidade EQUILIBRADA: simpático sem exageros, profissional sem ser frio";
+  }
+}
 
-  const personalidade = [
-    describeTom(c.tom),
-    describeFormalidade(c.formalidade),
-    describeTamanho(c.tamanho_resposta),
-    c.usar_emojis === false ? "sem usar emojis" : "pode usar 1 emoji ocasional quando combinar",
-  ].join("; ");
+function describeFoco(f?: string | null): string {
+  switch ((f || "ambos").toLowerCase()) {
+    case "vendas":
+      return "FOCO PRINCIPAL = VENDAS. Qualifique, gere interesse e conduza pro fechamento. Não seja agressivo, mas não perca oportunidade.";
+    case "suporte":
+      return "FOCO PRINCIPAL = SUPORTE. Resolva problemas e tire dúvidas com clareza e paciência. Não force venda.";
+    default:
+      return "FOCO HÍBRIDO: identifique a intenção. Se for dúvida/problema → resolva primeiro. Se for interesse de compra → conduza pra venda. Faça os dois com naturalidade.";
+  }
+}
+
+function describeEmojis(intensidade?: string | null, legacy?: boolean | null): string {
+  const i = (intensidade || (legacy === false ? "nenhum" : "pouco")).toLowerCase();
+  switch (i) {
+    case "nenhum": return "NUNCA use emojis";
+    case "moderado": return "use emojis com frequência moderada (1 por mensagem quando combinar)";
+    case "muito": return "use emojis com liberdade pra dar vida à conversa, sem exagerar";
+    default: return "use no máximo 1 emoji ocasional, só quando combinar muito";
+  }
+}
+
+function describeProatividade(p?: number | null): string {
+  const n = typeof p === "number" ? p : 50;
+  if (n <= 25) return "seja REATIVO: só responda o que o cliente perguntar, não antecipe ofertas";
+  if (n <= 60) return "seja MODERADAMENTE PROATIVO: sugira o próximo passo quando fizer sentido";
+  return "seja MUITO PROATIVO: antecipe necessidades, sugira upsell/cross-sell, conduza ativamente pro fechamento";
+}
+
+  // Bloco de personalidade composto
+  function montaPersonalidade(c: Partial<AgentConfig>): string {
+    const linhas = [
+      describePersonalidade(c.personalidade),
+      describeTom(c.tom),
+      describeFormalidade(c.formalidade),
+      describeTamanho(c.tamanho_resposta),
+      describeEmojis(c.emoji_intensidade, c.usar_emojis),
+      describeProatividade(c.proatividade),
+      c.usar_girias ? "pode usar gírias leves do cotidiano brasileiro" : "evite gírias e expressões muito informais",
+      c.pode_brincar ? "pode fazer brincadeiras pontuais e leves" : "evite brincadeiras",
+      c.chamar_por_nome === false ? "NÃO chame o cliente pelo nome a cada mensagem" : "chame o cliente pelo nome quando souber, sem repetir em toda mensagem",
+      c.perguntar_uma_por_vez === false ? "" : "faça SEMPRE uma pergunta por vez",
+    ].filter(Boolean);
+    return linhas.join("; ");
+  }
+
 
   const produtosBloco = produtos.length
     ? "PRODUTOS / SERVIÇOS (catálogo real — use SOMENTE estes preços/itens):\n" +
