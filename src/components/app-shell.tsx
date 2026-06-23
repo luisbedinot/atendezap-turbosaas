@@ -7,6 +7,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { brand, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
 import { TrialBanner } from "@/components/trial-banner";
+import { CreditsBadge } from "@/components/credits-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileBottomNav, type MobileNavItem } from "@/components/mobile-bottom-nav";
 import { toast } from "sonner";
