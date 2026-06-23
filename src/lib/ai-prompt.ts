@@ -164,23 +164,37 @@ function describeProatividade(p?: number | null): string {
   return "seja MUITO PROATIVO: antecipe necessidades, sugira upsell/cross-sell, conduza ativamente pro fechamento";
 }
 
-  // Bloco de personalidade composto
-  function montaPersonalidade(c: Partial<AgentConfig>): string {
-    const linhas = [
-      describePersonalidade(c.personalidade),
-      describeTom(c.tom),
-      describeFormalidade(c.formalidade),
-      describeTamanho(c.tamanho_resposta),
-      describeEmojis(c.emoji_intensidade, c.usar_emojis),
-      describeProatividade(c.proatividade),
-      c.usar_girias ? "pode usar gírias leves do cotidiano brasileiro" : "evite gírias e expressões muito informais",
-      c.pode_brincar ? "pode fazer brincadeiras pontuais e leves" : "evite brincadeiras",
-      c.chamar_por_nome === false ? "NÃO chame o cliente pelo nome a cada mensagem" : "chame o cliente pelo nome quando souber, sem repetir em toda mensagem",
-      c.perguntar_uma_por_vez === false ? "" : "faça SEMPRE uma pergunta por vez",
-    ].filter(Boolean);
-    return linhas.join("; ");
-  }
+function montaPersonalidade(c: Partial<AgentConfig>): string {
+  return [
+    describePersonalidade(c.personalidade),
+    describeTom(c.tom),
+    describeFormalidade(c.formalidade),
+    describeTamanho(c.tamanho_resposta),
+    describeEmojis(c.emoji_intensidade, c.usar_emojis),
+    describeProatividade(c.proatividade),
+    c.usar_girias ? "pode usar gírias leves do cotidiano brasileiro" : "evite gírias e expressões muito informais",
+    c.pode_brincar ? "pode fazer brincadeiras pontuais e leves" : "evite brincadeiras",
+    c.chamar_por_nome === false ? "NÃO chame o cliente pelo nome a cada mensagem" : "chame o cliente pelo nome quando souber, sem repetir em toda mensagem",
+    c.perguntar_uma_por_vez === false ? "" : "faça SEMPRE uma pergunta por vez (nunca dispare várias juntas)",
+  ].filter(Boolean).join("; ");
+}
 
+export function buildSystemPrompt(
+  c: Partial<AgentConfig>,
+  opts?: {
+    responderEmPartes?: boolean;
+    estagioAtual?: string;
+    resumoContato?: string;
+    produtos?: ProdutoBrief[];
+    stages?: StageBrief[];
+    googleConectado?: boolean;
+  },
+): string {
+  const partes = opts?.responderEmPartes ?? c.responder_em_partes ?? true;
+  const stages = (opts?.stages && opts.stages.length > 0) ? opts.stages : DEFAULT_STAGES;
+  const produtos = opts?.produtos ?? [];
+
+  const personalidade = montaPersonalidade(c);
 
   const produtosBloco = produtos.length
     ? "PRODUTOS / SERVIÇOS (catálogo real — use SOMENTE estes preços/itens):\n" +
@@ -200,8 +214,12 @@ function describeProatividade(p?: number | null): string {
     `Você é ${c.nome_agente || "um atendente virtual"}, atendendo no WhatsApp da empresa ${c.nome_empresa || "(empresa)"}.`,
     c.apresentacao ? `Como se apresenta na primeira mensagem: ${c.apresentacao}` : "",
     `Objetivo: ${c.papel_objetivo || "atender clientes com cordialidade, descobrir o que precisam e ajudar a fechar a venda."}`,
+    describeFoco(c.foco_atendimento),
     `Personalidade: ${personalidade}.`,
+    c.evitar_palavras ? `PALAVRAS / EXPRESSÕES PROIBIDAS (nunca use): ${c.evitar_palavras}` : "",
+    c.assinar_mensagens ? `Assine a primeira mensagem do dia com "— ${c.nome_agente || "Atendente"}".` : "",
     c.estilo_comunicacao ? `Estilo de comunicação extra: ${c.estilo_comunicacao}` : "",
+
     c.segmento ? `Segmento da empresa: ${c.segmento}.` : "",
     c.sobre_empresa ? `Sobre a empresa:\n${c.sobre_empresa}` : "",
     c.descricao_negocio ? `Descrição do negócio:\n${c.descricao_negocio}` : "",
