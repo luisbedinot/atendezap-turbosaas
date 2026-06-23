@@ -8,10 +8,11 @@ import { toast } from "sonner";
 import { brand } from "@/config/brand";
 import {
   Loader2, ShieldCheck, ArrowLeft, Check, TrendingUp, Crown, Smartphone,
-  Users, MessageSquare, Headphones, Calendar, BarChart3, Webhook, Zap, ExternalLink, Sparkles,
+  Users, MessageSquare, Headphones, Calendar, BarChart3, Webhook, Zap, ExternalLink, Sparkles, Lock,
 } from "lucide-react";
 import { createCheckoutCompany } from "@/lib/checkout.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { trialDaysLeft } from "@/lib/tenant";
 
 type Search = { plano?: string };
 
@@ -69,11 +70,9 @@ function featureIcon(text: string) {
   }
   return <Check className="size-4" />;
 }
-
 function normalizeFeatureText(text: string) {
   return /n[úu]meros? de whatsapp/i.test(text) ? "1 número de WhatsApp" : text;
 }
-
 function buildCheckoutUrl(base: string, email?: string | null, companyId?: string | null) {
   try {
     const u = new URL(base);
@@ -95,35 +94,45 @@ function CheckoutPage() {
   const [selected, setSelected] = useState<string | null>(search.plano ?? null);
   const [creating, setCreating] = useState(false);
   const [waiting, setWaiting] = useState(false);
-  const [companyId, setCompanyId] = useState<string | null>(null);
 
+  // Modo: "trial" (sem empresa, oferecer teste grátis) vs "paywall" (empresa existe mas precisa pagar)
+  const hasCompany = !!ctx.company;
+  const trialActive =
+    hasCompany && ctx.company!.status_cobranca === "trial" && trialDaysLeft(ctx.company!.trial_ate) > 0;
+  const paywallMode = hasCompany && !trialActive && ctx.company!.status_cobranca !== "ativo";
+
+  // Empresa ativa ou em trial ainda válido → não deveria estar aqui
   useEffect(() => {
-    if (ctx.company) {
-      navigate({ href: ctx.company.onboarding_completed ? "/app/dashboard" : "/app/onboarding", replace: true });
+    if (!ctx.company) return;
+    if (ctx.company.status_cobranca === "ativo" || trialActive) {
+      navigate({ to: ctx.company.onboarding_completed ? "/app/dashboard" : "/app/onboarding", replace: true });
     }
-  }, [ctx.company, navigate]);
+  }, [ctx.company, navigate, trialActive]);
 
   useEffect(() => {
     supabase.from("plan").select("*").eq("ativo", true).order("ordem").then(({ data }) => {
       if (data?.length) {
         const list = data as Plano[];
         setPlans(list);
-        if (!selected || !list.find((p) => p.slug === selected)) {
-          const highlighted = list.find((p) => p.destaque) ?? list[0];
-          setSelected(highlighted.slug);
-        }
+        const initial =
+          search.plano ||
+          ctx.company?.selected_plan_slug ||
+          list.find((p) => p.destaque)?.slug ||
+          list[0].slug;
+        if (!selected || !list.find((p) => p.slug === selected)) setSelected(initial);
       }
     });
   }, []);
 
-  // Polling enquanto aguarda confirmação do pagamento
+  // Polling em modo paywall: assim que webhook ativar, libera
   useEffect(() => {
-    if (!waiting || !companyId) return;
+    if (!waiting || !ctx.company) return;
+    const id = ctx.company.id;
     const interval = setInterval(async () => {
       const { data: comp } = await supabase
         .from("company")
         .select("id, status_cobranca, onboarding_completed")
-        .eq("id", companyId)
+        .eq("id", id)
         .maybeSingle();
       if (comp?.status_cobranca === "ativo") {
         clearInterval(interval);
@@ -134,28 +143,43 @@ function CheckoutPage() {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [waiting, companyId]);
+  }, [waiting, ctx.company]);
 
   const plano = useMemo(() => plans.find((p) => p.slug === selected), [plans, selected]);
 
-  async function assinar() {
+  async function iniciarTrial() {
     if (!plano) return toast.error("Selecione um plano.");
-    if (!plano.checkout_url) {
-      return toast.error("Este plano ainda não tem link de checkout configurado. Avise o administrador.");
-    }
     setCreating(true);
     try {
-      const { companyId: newId } = await createCompany({ data: { nome: defaultCompanyName(ctx.user.email) } });
-      setCompanyId(newId);
-      const url = buildCheckoutUrl(plano.checkout_url, ctx.user.email, newId);
-      window.open(url, "_blank", "noopener,noreferrer");
-      setWaiting(true);
+      await createCompany({ data: { nome: defaultCompanyName(ctx.user.email), plano_slug: plano.slug } });
+      toast.success(`Teste grátis de ${plano.trial_days} dias iniciado!`);
+      window.location.href = "/app/onboarding";
     } catch (e: any) {
-      toast.error(e.message || "Falha ao iniciar checkout");
+      toast.error(e.message || "Falha ao iniciar teste");
     } finally {
       setCreating(false);
     }
   }
+
+  async function pagarAgora() {
+    if (!plano) return toast.error("Selecione um plano.");
+    if (!plano.checkout_url) {
+      return toast.error("Este plano ainda não tem link de checkout configurado. Avise o administrador.");
+    }
+    const url = buildCheckoutUrl(plano.checkout_url, ctx.user.email, ctx.company?.id ?? null);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setWaiting(true);
+  }
+
+  const headerBadge = paywallMode
+    ? { icon: <Lock className="size-3.5 mr-1.5" />, text: "Seu período de teste terminou" }
+    : { icon: <Sparkles className="size-3.5 mr-1.5" />, text: `${plans[0]?.trial_days ?? 3} dias grátis sem cartão` };
+  const headerTitle = paywallMode
+    ? "Ative seu plano para continuar"
+    : "Comece grátis em segundos";
+  const headerSubtitle = paywallMode
+    ? "Seus dados ficam aqui esperando. Assim que o pagamento for confirmado, seu acesso é liberado automaticamente."
+    : "Escolha um plano para começar. Você não precisa pagar agora — só vai cobrar no final do período de teste, se quiser continuar.";
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,19 +193,20 @@ function CheckoutPage() {
 
         <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
           <Badge variant="secondary" className="mb-4 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-            <Sparkles className="size-3.5 mr-1.5" />
-            {plans[0]?.trial_days ?? 3} dias de garantia em todos os planos
+            {headerBadge.icon}
+            {headerBadge.text}
           </Badge>
           <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight">
-            Escolha seu plano e comece agora
+            {headerTitle}
           </h1>
           <p className="text-muted-foreground mt-3 text-base md:text-lg">
-            Pagamento processado por Kiwify (cartão, Pix ou boleto). A liberação acontece automaticamente assim que
-            o pagamento é aprovado.
+            {headerSubtitle}
           </p>
-          <p className="text-xs text-amber-700 dark:text-amber-400 mt-3 font-medium">
-            Importante: use o mesmo e-mail do cadastro (<span className="font-mono">{ctx.user.email}</span>) na hora de pagar — é assim que a gente libera seu acesso.
-          </p>
+          {paywallMode && (
+            <p className="text-xs text-amber-700 dark:text-amber-400 mt-3 font-medium">
+              Importante: use o mesmo e-mail do cadastro (<span className="font-mono">{ctx.user.email}</span>) na hora de pagar — é assim que a gente libera seu acesso.
+            </p>
+          )}
         </div>
 
         {plans.length === 0 ? (
@@ -219,6 +244,11 @@ function CheckoutPage() {
                         <span className="text-muted-foreground text-sm">/mês</span>
                       </div>
                       <p className="text-sm text-muted-foreground mt-2 min-h-[2.5rem]">{p.descricao}</p>
+                      {!paywallMode && (
+                        <p className="text-[11px] text-primary font-semibold mt-1">
+                          {p.trial_days} dias grátis — sem cartão
+                        </p>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-5">
                       <Limit label="WhatsApp" v={1} />
@@ -263,7 +293,7 @@ function CheckoutPage() {
                     </p>
                     {plano?.checkout_url && (
                       <a
-                        href={buildCheckoutUrl(plano.checkout_url, ctx.user.email, companyId)}
+                        href={buildCheckoutUrl(plano.checkout_url, ctx.user.email, ctx.company?.id ?? null)}
                         target="_blank" rel="noreferrer"
                         className="text-xs text-primary hover:underline inline-flex items-center gap-1"
                       >
@@ -271,6 +301,26 @@ function CheckoutPage() {
                       </a>
                     )}
                   </div>
+                ) : paywallMode ? (
+                  <>
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Lock className="size-5 text-primary" />
+                      <h2 className="font-display text-xl font-bold">Assine para liberar seu acesso</h2>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-5">
+                      Plano selecionado: <span className="font-semibold text-foreground">{plano?.nome}</span> —{" "}
+                      {formatBRL(plano?.preco_cents ?? 0)}/mês. Pagamento por cartão, Pix ou boleto via Kiwify.
+                    </p>
+                    <Button
+                      onClick={pagarAgora}
+                      disabled={!plano || !plano?.checkout_url}
+                      size="lg"
+                      className="w-full md:w-auto min-w-[280px] bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold"
+                    >
+                      <ExternalLink className="size-4 mr-2" />
+                      {plano?.checkout_url ? `Assinar ${plano?.nome} agora` : "Plano sem checkout configurado"}
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <div className="flex items-center justify-center gap-2 mb-3">
@@ -278,19 +328,18 @@ function CheckoutPage() {
                       <h2 className="font-display text-xl font-bold">Pronto pra começar?</h2>
                     </div>
                     <p className="text-sm text-muted-foreground mb-5">
-                      Plano selecionado: <span className="font-semibold text-foreground">{plano?.nome}</span> —{" "}
-                      {formatBRL(plano?.preco_cents ?? 0)}/mês. Pagamento por cartão, Pix ou boleto via Kiwify.
+                      Plano escolhido: <span className="font-semibold text-foreground">{plano?.nome}</span>.
+                      Você ganha <b>{plano?.trial_days ?? 3} dias grátis</b> pra explorar tudo, sem precisar de cartão.
+                      Cobramos só se você decidir continuar.
                     </p>
                     <Button
-                      onClick={assinar}
-                      disabled={!plano || creating || !plano?.checkout_url}
+                      onClick={iniciarTrial}
+                      disabled={!plano || creating}
                       size="lg"
                       className="w-full md:w-auto min-w-[280px] bg-gradient-brand text-primary-foreground hover:opacity-90 font-semibold"
                     >
-                      {creating ? <Loader2 className="size-4 mr-2 animate-spin" /> : <ExternalLink className="size-4 mr-2" />}
-                      {plano?.checkout_url
-                        ? `Assinar ${plano?.nome} agora`
-                        : "Plano sem checkout configurado"}
+                      {creating ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Sparkles className="size-4 mr-2" />}
+                      Começar {plano?.trial_days ?? 3} dias grátis
                     </Button>
                   </>
                 )}
