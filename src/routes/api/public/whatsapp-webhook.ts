@@ -285,15 +285,18 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             messages.push({ role: "user", content: text });
           }
 
-          // Enforcement de plano: bloqueia IA quando estourar mensagens do mês,
-          // ou força Gemini quando o provider escolhido não está no plano.
-          const { isWithinLimit, getCompanyPlan } = await import("@/lib/plan-limits.server");
+          // Enforcement de créditos: cada resposta da IA consome 1 crédito.
+          // Se zerou, a IA não responde — exige assinatura/recarga.
+          const { getCompanyPlan } = await import("@/lib/plan-limits.server");
           const { allowsProvider } = await import("@/lib/plan-features");
-          const withinMsgs = await isWithinLimit(companyId, "mensagens");
-          if (!withinMsgs) {
+          const { data: hasCredit } = await supabaseAdmin.rpc("consume_ai_credit", {
+            _company_id: companyId,
+            _ref: number,
+          });
+          if (!hasCredit) {
             await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
-            console.warn("[plan] limite de mensagens atingido — IA não respondeu", companyId);
-            return new Response("limit", { status: 200 });
+            console.warn("[credits] créditos esgotados — IA não respondeu", companyId);
+            return new Response("no_credits", { status: 200 });
           }
           const throttleReason = await getAiThrottleReason(supabaseAdmin, companyId, number);
           if (throttleReason) {
