@@ -329,25 +329,119 @@ function AgentePage() {
             </TabsContent>
 
             <TabsContent value="personalidade" className="space-y-3">
-              <Section>
+              <Section title="Preset de personalidade" icon={<Sparkles className="size-3.5" />}>
+                <p className="text-xs text-muted-foreground">Escolha um perfil base. Você refina os detalhes abaixo.</p>
+                <div className="grid sm:grid-cols-3 gap-2">
+                  {PERSONALIDADE_PRESETS.map((p) => (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => applyPreset(p, cfg, setCfg)}
+                      className={`text-left rounded-xl border p-3 transition ${cfg.personalidade === p.value ? "border-[var(--brand)] bg-[var(--brand)]/10" : "border-[var(--border)] bg-[var(--panel-2)] hover:border-[var(--brand)]/60"}`}
+                    >
+                      <div className="text-lg">{p.emoji}</div>
+                      <div className="font-semibold text-sm mt-1">{p.label}</div>
+                      <div className="text-[11px] text-muted-foreground leading-snug">{p.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </Section>
+
+              <Section title="Foco do atendimento" icon={<Bot className="size-3.5" />}>
+                <p className="text-xs text-muted-foreground">Define a missão principal da IA em cada conversa.</p>
+                <div className="grid sm:grid-cols-3 gap-2">
+                  {[
+                    { v: "vendas", l: "🎯 Vendas", d: "Qualifica, gera interesse e conduz pro fechamento." },
+                    { v: "suporte", l: "🛟 Suporte", d: "Resolve dúvidas e problemas com clareza." },
+                    { v: "ambos", l: "🔀 Híbrido", d: "Identifica intenção e atua nos dois sentidos." },
+                  ].map((o) => (
+                    <button
+                      key={o.v}
+                      type="button"
+                      onClick={() => up("foco_atendimento", o.v)}
+                      className={`text-left rounded-xl border p-3 transition ${cfg.foco_atendimento === o.v ? "border-[var(--brand)] bg-[var(--brand)]/10" : "border-[var(--border)] bg-[var(--panel-2)] hover:border-[var(--brand)]/60"}`}
+                    >
+                      <div className="font-semibold text-sm">{o.l}</div>
+                      <div className="text-[11px] text-muted-foreground">{o.d}</div>
+                    </button>
+                  ))}
+                </div>
+              </Section>
+
+              <Section title="Ajustes finos de estilo">
                 <SliderRow label="Tom (sério → caloroso)" v={cfg.tom} on={(v) => up("tom", v)} />
                 <SliderRow label="Formalidade (informal → formal)" v={cfg.formalidade} on={(v) => up("formalidade", v)} />
-                <Toggle label="Usar emojis" v={cfg.usar_emojis} on={(v) => up("usar_emojis", v)} />
-                <div className="space-y-1.5">
-                  <Label>Tamanho das respostas</Label>
-                  <Select value={cfg.tamanho_resposta} onValueChange={(v) => up("tamanho_resposta", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="curtas">Curtas (WhatsApp)</SelectItem>
-                      <SelectItem value="medias">Médias</SelectItem>
-                      <SelectItem value="longas">Longas (explicativas)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <SliderRow label="Proatividade (reativo → vendedor)" v={cfg.proatividade ?? 50} on={(v) => up("proatividade", v)} />
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label>Tamanho das respostas</Label>
+                    <Select value={cfg.tamanho_resposta} onValueChange={(v) => up("tamanho_resposta", v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="curtas">Curtas (WhatsApp)</SelectItem>
+                        <SelectItem value="medias">Médias</SelectItem>
+                        <SelectItem value="longas">Longas (explicativas)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Uso de emojis</Label>
+                    <Select value={cfg.emoji_intensidade ?? "pouco"} onValueChange={(v) => { up("emoji_intensidade", v); up("usar_emojis", v !== "nenhum"); }}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="nenhum">Nenhum</SelectItem>
+                        <SelectItem value="pouco">Pouco (raro)</SelectItem>
+                        <SelectItem value="moderado">Moderado (1 por msg)</SelectItem>
+                        <SelectItem value="muito">Muito (vivo)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <Area label="Apresentação (1ª mensagem)" value={cfg.apresentacao} onChange={(v) => up("apresentacao", v)} rows={2} />
-                <Area label="Estilo de comunicação (extra)" value={cfg.estilo_comunicacao} onChange={(v) => up("estilo_comunicacao", v)} rows={2} />
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label>Velocidade de resposta</Label>
+                    <Select value={cfg.velocidade_resposta ?? "humana"} onValueChange={(v) => up("velocidade_resposta", v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="imediata">Imediata (rápido)</SelectItem>
+                        <SelectItem value="humana">Humana (natural)</SelectItem>
+                        <SelectItem value="pausada">Pausada (pensativa)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Idioma</Label>
+                    <Select value={cfg.idioma ?? "pt-BR"} onValueChange={(v) => up("idioma", v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pt-BR">Português (BR)</SelectItem>
+                        <SelectItem value="pt-PT">Português (PT)</SelectItem>
+                        <SelectItem value="es">Espanhol</SelectItem>
+                        <SelectItem value="en">Inglês</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </Section>
+
+              <Section title="Comportamento">
+                <Toggle label="Responder em partes (1-3 bolhas separadas)" v={cfg.responder_em_partes} on={(v) => up("responder_em_partes", v)} />
+                <Toggle label="Chamar cliente pelo nome quando souber" v={cfg.chamar_por_nome ?? true} on={(v) => up("chamar_por_nome", v)} />
+                <Toggle label="Fazer uma pergunta por vez" v={cfg.perguntar_uma_por_vez ?? true} on={(v) => up("perguntar_uma_por_vez", v)} />
+                <Toggle label="Pode usar gírias do cotidiano (BR)" v={cfg.usar_girias ?? false} on={(v) => up("usar_girias", v)} />
+                <Toggle label="Pode fazer brincadeiras leves" v={cfg.pode_brincar ?? false} on={(v) => up("pode_brincar", v)} />
+                <Toggle label="Assinar mensagens com o nome do agente" v={cfg.assinar_mensagens ?? false} on={(v) => up("assinar_mensagens", v)} />
+              </Section>
+
+              <Section title="Identidade da conversa">
+                <Area label="Como se apresenta (1ª mensagem)" value={cfg.apresentacao} onChange={(v) => up("apresentacao", v)} rows={2} />
+                <Area label="Estilo de comunicação (instruções extras)" value={cfg.estilo_comunicacao} onChange={(v) => up("estilo_comunicacao", v)} rows={2} />
+                <Area label="Palavras / expressões PROIBIDAS (a IA nunca usa)" value={cfg.evitar_palavras ?? ""} onChange={(v) => up("evitar_palavras", v)} rows={2} />
               </Section>
             </TabsContent>
+
 
             <TabsContent value="agendamento" className="space-y-3">
               <Section>
