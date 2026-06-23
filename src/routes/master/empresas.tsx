@@ -174,6 +174,9 @@ function EmpresasPage() {
                   <Button size="sm" variant="outline" onClick={() => doResetPassword(c)} title="Redefinir senha do responsável">
                     <KeyRound className="size-3.5" />
                   </Button>
+                  <Button size="sm" variant="outline" onClick={() => doGrantCredits(c)} title="Créditos de IA">
+                    <Sparkles className="size-3.5" />
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => doExtend(c)} title="Estender trial">
                     <CalendarClock className="size-3.5" />
                   </Button>
