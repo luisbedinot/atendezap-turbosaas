@@ -40,7 +40,43 @@ const CFG: any = {
   usar_emojis: true,
   tom: 70,
   formalidade: 55,
+  personalidade: "amigavel",
+  foco_atendimento: "ambos",
+  emoji_intensidade: "moderado",
+  proatividade: 65,
+  velocidade_resposta: "humana",
+  idioma: "pt-BR",
+  chamar_por_nome: true,
+  perguntar_uma_por_vez: true,
+  usar_girias: false,
+  pode_brincar: false,
+  assinar_mensagens: false,
+  evitar_palavras: "barato, milagre, garantido",
+  segundos_buffer: 10,
 };
+
+const PRESETS_DEMO = [
+  { value: "padrao",       label: "Padrão",       emoji: "🤝", desc: "Equilibrado — simpático e profissional." },
+  { value: "extrovertido", label: "Extrovertido", emoji: "🎉", desc: "Animado, vibrante, energia." },
+  { value: "serio",        label: "Sério",        emoji: "🎩", desc: "Profissional e objetivo." },
+  { value: "divertido",    label: "Divertido",    emoji: "😄", desc: "Leve, bem-humorado." },
+  { value: "consultivo",   label: "Consultivo",   emoji: "🧠", desc: "Especialista, recomenda com base." },
+  { value: "amigavel",     label: "Amigável",     emoji: "🫶", desc: "Acolhedor e próximo." },
+];
+
+const FOCOS_DEMO = [
+  { v: "vendas",  l: "🎯 Vendas",  d: "Qualifica e fecha." },
+  { v: "suporte", l: "🛟 Suporte", d: "Resolve dúvidas." },
+  { v: "ambos",   l: "🔀 Híbrido", d: "Atua nos dois." },
+];
+
+const BUFFER_DEMO = [
+  { s: 3,  l: "Instantâneo" },
+  { s: 5,  l: "Rápido" },
+  { s: 10, l: "Humano" },
+  { s: 20, l: "Pensativo" },
+  { s: 30, l: "Calmo" },
+];
 
 const DEMO_REPLIES = [
   "Oi! Que bom te ver por aqui 💜",
