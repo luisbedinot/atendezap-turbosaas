@@ -61,8 +61,27 @@ export const Route = createFileRoute("/app")({
 
     const company = (cu.company as any) as CompanyRow;
 
-    // Empresa criada mas onboarding não finalizado → força wizard
-    if (!company.onboarding_completed && location.pathname !== "/app/onboarding" && location.pathname !== "/app/checkout") {
+    // Trial expirado ou status que exige pagamento → trava no checkout
+    const trialExpired =
+      company.status_cobranca === "trial" &&
+      new Date(company.trial_ate).getTime() <= Date.now();
+    const needsPayment =
+      company.status_cobranca === "checkout_pending" ||
+      company.status_cobranca === "suspenso" ||
+      company.status_cobranca === "pendente" ||
+      trialExpired;
+
+    if (needsPayment && location.pathname !== "/app/checkout") {
+      throw redirect({ to: "/app/checkout" });
+    }
+
+    // Empresa criada mas onboarding não finalizado → força wizard (apenas se já tem acesso)
+    if (
+      !needsPayment &&
+      !company.onboarding_completed &&
+      location.pathname !== "/app/onboarding" &&
+      location.pathname !== "/app/checkout"
+    ) {
       throw redirect({ to: "/app/onboarding" });
     }
 
