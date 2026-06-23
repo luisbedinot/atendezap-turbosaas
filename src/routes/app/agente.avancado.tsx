@@ -463,7 +463,35 @@ function AgentePage() {
                 </div>
               </Section>
 
+              <Section title="Tempo de espera (entender contexto)">
+                <p className="text-xs text-muted-foreground">
+                  A IA aguarda esse tempo antes de responder. Se o cliente mandar várias mensagens em sequência, ela junta tudo e responde uma vez só — entendendo o contexto completo da conversa, como faz uma pessoa de verdade.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {[
+                    { s: 3,  l: "Instantâneo", d: "3s" },
+                    { s: 5,  l: "Rápido",      d: "5s" },
+                    { s: 10, l: "Humano",      d: "10s" },
+                    { s: 20, l: "Pensativo",   d: "20s" },
+                    { s: 30, l: "Calmo",       d: "30s" },
+                  ].map((o) => (
+                    <button
+                      key={o.s}
+                      type="button"
+                      onClick={() => up("segundos_buffer", o.s)}
+                      className={`rounded-xl border p-3 text-center transition ${cfg.segundos_buffer === o.s ? "border-[var(--brand)] bg-[var(--brand)]/10" : "border-[var(--border)] bg-[var(--panel-2)] hover:border-[var(--brand)]/60"}`}
+                    >
+                      <div className="font-display text-lg font-semibold">{o.d}</div>
+                      <div className="text-[11px] text-muted-foreground">{o.l}</div>
+                    </button>
+                  ))}
+                </div>
+                <Slider value={[cfg.segundos_buffer]} max={60} step={1} onValueChange={([x]) => up("segundos_buffer", x)} />
+                <div className="text-xs text-muted-foreground font-mono text-right">{cfg.segundos_buffer}s antes de responder</div>
+              </Section>
+
               <Section title="Comportamento">
+
                 <Toggle label="Responder em partes (1-3 bolhas separadas)" v={cfg.responder_em_partes} on={(v) => up("responder_em_partes", v)} />
                 <Toggle label="Chamar cliente pelo nome quando souber" v={cfg.chamar_por_nome ?? true} on={(v) => up("chamar_por_nome", v)} />
                 <Toggle label="Fazer uma pergunta por vez" v={cfg.perguntar_uma_por_vez ?? true} on={(v) => up("perguntar_uma_por_vez", v)} />
