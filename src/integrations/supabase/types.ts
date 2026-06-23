@@ -532,6 +532,7 @@ export type Database = {
           razao_social: string | null
           rua: string | null
           segmento: string | null
+          selected_plan_slug: string | null
           site: string | null
           slug: string
           status_cobranca: string
@@ -566,6 +567,7 @@ export type Database = {
           razao_social?: string | null
           rua?: string | null
           segmento?: string | null
+          selected_plan_slug?: string | null
           site?: string | null
           slug: string
           status_cobranca?: string
@@ -600,6 +602,7 @@ export type Database = {
           razao_social?: string | null
           rua?: string | null
           segmento?: string | null
+          selected_plan_slug?: string | null
           site?: string | null
           slug?: string
           status_cobranca?: string
