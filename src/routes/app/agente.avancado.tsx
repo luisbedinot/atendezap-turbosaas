@@ -43,9 +43,14 @@ const DEFAULTS: any = {
   ofertas: "", cupom: "", como_vender: "", objecoes: "", formas_pagamento: "", ticket_medio: "",
   faq: "", politicas: "", posvenda_msg: "", pedir_avaliacao: false, reativar_cliente: false,
   tom: 70, formalidade: 40, usar_emojis: true, tamanho_resposta: "curtas", apresentacao: "",
+  personalidade: "padrao", foco_atendimento: "ambos", emoji_intensidade: "pouco",
+  usar_girias: false, chamar_por_nome: true, perguntar_uma_por_vez: true,
+  pode_brincar: false, assinar_mensagens: false, proatividade: 50,
+  velocidade_resposta: "humana", evitar_palavras: "", idioma: "pt-BR",
   agendamento_ativo: false, servicos_agendaveis: "", duracao_padrao: "30 min",
   horarios_disponiveis: "", antecedencia_min: "2 horas",
 };
+
 
 const PROVIDER_MODELS: Record<string, { value: string; label: string }[]> = {
   gemini: [
