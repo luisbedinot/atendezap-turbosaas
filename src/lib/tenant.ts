@@ -28,6 +28,7 @@ export type CompanyRow = {
   pais?: string | null;
   financeiro_ativo?: boolean | null;
   financeiro_dias_vencimento_padrao?: number | null;
+  selected_plan_slug?: string | null;
 };
 
 export type Membership = {
