@@ -73,18 +73,24 @@ export type Database = {
           antecedencia_min: string
           anthropic_api_key: string
           apresentacao: string
+          assinar_mensagens: boolean | null
+          chamar_por_nome: boolean | null
           como_vender: string
           company_id: string
           cupom: string
           descricao_negocio: string
           diferenciais: string
           duracao_padrao: string
+          emoji_intensidade: string | null
           estilo_comunicacao: string
+          evitar_palavras: string | null
           faq: string
+          foco_atendimento: string | null
           formalidade: number
           formas_pagamento: string
           horarios_atendimento: Json
           horarios_disponiveis: string
+          idioma: string | null
           mensagem_fora_horario: string
           nao_pode_fazer: string
           nome_agente: string
@@ -96,9 +102,13 @@ export type Database = {
           palavra_pausar: string
           papel_objetivo: string
           pedir_avaliacao: boolean
+          perguntar_uma_por_vez: boolean | null
+          personalidade: string | null
+          pode_brincar: boolean | null
           pode_fazer: string
           politicas: string
           posvenda_msg: string
+          proatividade: number | null
           produtos_servicos: string
           publico_alvo: string
           reativar_cliente: boolean
@@ -114,7 +124,9 @@ export type Database = {
           tom: number
           updated_at: string
           usar_emojis: boolean
+          usar_girias: boolean | null
           user_id: string
+          velocidade_resposta: string | null
         }
         Insert: {
           agendamento_ativo?: boolean
@@ -123,18 +135,24 @@ export type Database = {
           antecedencia_min?: string
           anthropic_api_key?: string
           apresentacao?: string
+          assinar_mensagens?: boolean | null
+          chamar_por_nome?: boolean | null
           como_vender?: string
           company_id: string
           cupom?: string
           descricao_negocio?: string
           diferenciais?: string
           duracao_padrao?: string
+          emoji_intensidade?: string | null
           estilo_comunicacao?: string
+          evitar_palavras?: string | null
           faq?: string
+          foco_atendimento?: string | null
           formalidade?: number
           formas_pagamento?: string
           horarios_atendimento?: Json
           horarios_disponiveis?: string
+          idioma?: string | null
           mensagem_fora_horario?: string
           nao_pode_fazer?: string
           nome_agente?: string
@@ -146,9 +164,13 @@ export type Database = {
           palavra_pausar?: string
           papel_objetivo?: string
           pedir_avaliacao?: boolean
+          perguntar_uma_por_vez?: boolean | null
+          personalidade?: string | null
+          pode_brincar?: boolean | null
           pode_fazer?: string
           politicas?: string
           posvenda_msg?: string
+          proatividade?: number | null
           produtos_servicos?: string
           publico_alvo?: string
           reativar_cliente?: boolean
@@ -164,7 +186,9 @@ export type Database = {
           tom?: number
           updated_at?: string
           usar_emojis?: boolean
+          usar_girias?: boolean | null
           user_id: string
+          velocidade_resposta?: string | null
         }
         Update: {
           agendamento_ativo?: boolean
@@ -173,18 +197,24 @@ export type Database = {
           antecedencia_min?: string
           anthropic_api_key?: string
           apresentacao?: string
+          assinar_mensagens?: boolean | null
+          chamar_por_nome?: boolean | null
           como_vender?: string
           company_id?: string
           cupom?: string
           descricao_negocio?: string
           diferenciais?: string
           duracao_padrao?: string
+          emoji_intensidade?: string | null
           estilo_comunicacao?: string
+          evitar_palavras?: string | null
           faq?: string
+          foco_atendimento?: string | null
           formalidade?: number
           formas_pagamento?: string
           horarios_atendimento?: Json
           horarios_disponiveis?: string
+          idioma?: string | null
           mensagem_fora_horario?: string
           nao_pode_fazer?: string
           nome_agente?: string
@@ -196,9 +226,13 @@ export type Database = {
           palavra_pausar?: string
           papel_objetivo?: string
           pedir_avaliacao?: boolean
+          perguntar_uma_por_vez?: boolean | null
+          personalidade?: string | null
+          pode_brincar?: boolean | null
           pode_fazer?: string
           politicas?: string
           posvenda_msg?: string
+          proatividade?: number | null
           produtos_servicos?: string
           publico_alvo?: string
           reativar_cliente?: boolean
@@ -214,7 +248,9 @@ export type Database = {
           tom?: number
           updated_at?: string
           usar_emojis?: boolean
+          usar_girias?: boolean | null
           user_id?: string
+          velocidade_resposta?: string | null
         }
         Relationships: []
       }
