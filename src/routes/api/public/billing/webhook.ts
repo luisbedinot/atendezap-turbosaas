@@ -128,6 +128,14 @@ async function applyEvent(evt: NormalizedBillingEvent) {
       .eq("id", companyId);
   }
 
+  // Recarrega créditos do plano quando assinatura ativa/renova
+  if (subStatus === "active" && planId) {
+    const { data: planRow } = await supabase.from("plan").select("slug").eq("id", planId).maybeSingle();
+    if (planRow?.slug) {
+      await supabase.rpc("topup_plan_credits", { _company_id: companyId, _plan_slug: planRow.slug });
+    }
+  }
+
   await supabase.from("billing_event_log").insert({
     ...logRow,
     matched_company_id: companyId,
