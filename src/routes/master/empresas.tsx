@@ -92,6 +92,19 @@ function EmpresasPage() {
     }
   }
 
+  async function doGrantCredits(c: any) {
+    const raw = prompt(`Créditos de IA para "${c.nome}".\n\nDigite quantidade (positivo adiciona, negativo remove):`, "100");
+    if (raw === null) return;
+    const qtd = Number(raw);
+    if (!qtd || isNaN(qtd)) return toast.error("Quantidade inválida");
+    try {
+      const r: any = await grantCredits({ data: { companyId: c.id, qtd, motivo: "ajuste_admin" } });
+      toast.success(`Saldo agora: ${r.saldo} créditos`);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao ajustar créditos");
+    }
+  }
+
   async function openDetails(companyId: string) {
     setDetail({ loading: true });
     setDetailLoading(true);
