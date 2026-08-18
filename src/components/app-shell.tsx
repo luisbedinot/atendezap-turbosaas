@@ -5,7 +5,7 @@ import {
   Inbox, Users, BarChart3, Settings, Contact, Zap, MessageCircle, Megaphone, Webhook, Wallet,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { brand, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
+import { brand, supportConfigured, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
 import { TrialBanner } from "@/components/trial-banner";
 import { CreditsBadge } from "@/components/credits-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -221,7 +221,7 @@ function Sidebar({
             <LogOut className="size-4" />
           </button>
         </div>
-        <a
+        {supportConfigured && <a
           href={supportWhatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -229,7 +229,7 @@ function Sidebar({
         >
           <MessageCircle className="size-3" />
           <span>Suporte: {supportWhatsappDisplay}</span>
-        </a>
+        </a>}
       </div>
     </aside>
   );

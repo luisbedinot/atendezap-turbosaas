@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { normalize, type NormalizedBillingEvent } from "@/lib/billing/normalize";
+import { createHash } from "node:crypto";
 
 type Provider = "kiwify" | "cakto" | "perfectpay";
 
@@ -46,7 +47,7 @@ async function findPlanByRef(supabase: any, ref: string | null): Promise<string 
   return byCheckout?.id ?? null;
 }
 
-async function applyEvent(evt: NormalizedBillingEvent) {
+async function applyEvent(evt: NormalizedBillingEvent, eventKey: string) {
   const supabase = await getAdmin();
 
   const logRow: any = {
@@ -55,19 +56,31 @@ async function applyEvent(evt: NormalizedBillingEvent) {
     external_id: evt.externalSubscriptionId,
     buyer_email: evt.buyerEmail,
     payload: evt as any,
+    event_key: eventKey,
   };
 
+  const { data: log, error: logError } = await supabase
+    .from("billing_event_log")
+    .insert(logRow)
+    .select("id")
+    .maybeSingle();
+  if (logError?.code === "23505") return { duplicate: true };
+  if (logError || !log) throw new Error(logError?.message || "Falha ao registrar evento de cobrança");
+  const finishLog = (patch: Record<string, unknown>) =>
+    supabase
+      .from("billing_event_log")
+      .update(patch as any)
+      .eq("id", log.id);
+
   if (!evt.buyerEmail) {
-    await supabase.from("billing_event_log").insert({ ...logRow, error: "sem email do comprador" });
-    return;
+    await finishLog({ error: "sem email do comprador" });
+    return { duplicate: false };
   }
 
   const companyId = await findCompanyByEmail(supabase, evt.buyerEmail);
   if (!companyId) {
-    await supabase
-      .from("billing_event_log")
-      .insert({ ...logRow, error: "empresa não encontrada para o email" });
-    return;
+    await finishLog({ error: "empresa não encontrada para o email" });
+    return { duplicate: false };
   }
 
   const planId = await findPlanByRef(supabase, evt.productRef);
@@ -96,13 +109,12 @@ async function applyEvent(evt: NormalizedBillingEvent) {
       companyStatus = "pendente";
       break;
     default:
-      await supabase.from("billing_event_log").insert({
-        ...logRow,
+      await finishLog({
         matched_company_id: companyId,
         processed: true,
         error: "evento ignorado",
       });
-      return;
+      return { duplicate: false };
   }
 
   const subPayload: any = {
@@ -136,11 +148,11 @@ async function applyEvent(evt: NormalizedBillingEvent) {
     }
   }
 
-  await supabase.from("billing_event_log").insert({
-    ...logRow,
+  await finishLog({
     matched_company_id: companyId,
     processed: true,
   });
+  return { duplicate: false };
 }
 
 export const Route = createFileRoute("/api/public/billing/webhook")({
@@ -149,14 +161,8 @@ export const Route = createFileRoute("/api/public/billing/webhook")({
       POST: async ({ request }) => {
         const url = new URL(request.url);
         const provider = (url.searchParams.get("provider") || "") as Provider;
-        const token = url.searchParams.get("token") || request.headers.get("x-webhook-token") || "";
-
         if (!["kiwify", "cakto", "perfectpay"].includes(provider)) {
           return new Response("provider inválido", { status: 400 });
-        }
-        const expected = process.env[tokenEnv(provider)];
-        if (!expected || token !== expected) {
-          return new Response("token inválido", { status: 401 });
         }
 
         let body: any = {};
@@ -172,10 +178,24 @@ export const Route = createFileRoute("/api/public/billing/webhook")({
           }
         }
 
+        const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
+        const token =
+          request.headers.get("x-webhook-token") ||
+          bearer ||
+          (typeof body?.token === "string" ? body.token : "") ||
+          (typeof body?.webhook_token === "string" ? body.webhook_token : "");
+        const expected = process.env[tokenEnv(provider)];
+        if (!expected || token !== expected) {
+          return new Response("token inválido", { status: 401 });
+        }
+
         try {
           const evt = normalize(provider, body);
-          await applyEvent(evt);
-          return Response.json({ ok: true });
+          const eventKey = createHash("sha256")
+            .update(`${provider}:${JSON.stringify(body)}`)
+            .digest("hex");
+          const result = await applyEvent(evt, eventKey);
+          return Response.json({ ok: true, duplicate: result.duplicate });
         } catch (e: any) {
           console.error("[billing.webhook]", provider, e);
           try {
@@ -186,7 +206,9 @@ export const Route = createFileRoute("/api/public/billing/webhook")({
               payload: body,
               error: String(e?.message || e),
             });
-          } catch {}
+          } catch (logError) {
+            console.error("[billing.webhook.log]", logError);
+          }
           return Response.json({ ok: false, error: String(e?.message || e) }, { status: 200 });
         }
       },

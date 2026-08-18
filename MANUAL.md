@@ -1,235 +1,176 @@
-# 📘 Manual do Clonador — AtendeZap AI
+# Manual de clonagem — AtendeZap
 
-Guia passo a passo para colocar sua cópia no ar. **Siga na ordem.** Onde tiver bloco `> PROMPT`, **copie e cole no chat do Lovable** exatamente como está.
+Este guia separa o que já vem no código do que cada clone precisa configurar. O app inclui painel, CRM, IA, campanhas, integrações e conexão por QR Code, mas **não inclui um servidor Evolution API nem credenciais externas**.
 
----
+## 1. Clonar e ativar o Lovable Cloud
 
-## ✅ Passo 1 — Ativar o backend (Lovable Cloud)
+1. Clone o projeto na Lovable.
+2. Ative o Lovable Cloud.
+3. Confirme que todas as migrations de `supabase/migrations` foram aplicadas.
+4. Verifique se as tabelas `company`, `company_user`, `user_roles`, `plan`, `subscription`, `agent_config`, `whatsapp_instances`, `mensagens`, `crm_cards`, `campaign` e `campaign_target` existem.
 
-O backend (banco, autenticação, storage) **não vem junto na clonagem**. Você precisa criar o seu.
+Em uma cópia nova, as migrations removem os identificadores do projeto original. O primeiro usuário real cadastrado passa a ser o super administrador do clone.
 
-**Cole no chat do Lovable:**
+## 2. Criar o primeiro administrador
 
-> **PROMPT 1:**
-> ```
-> Ative o Lovable Cloud neste projeto e rode todas as migrations existentes em supabase/migrations na ordem. Confirme quando todas as tabelas (company, company_user, user_roles, plan, agent_config, mensagens, whatsapp_instances, google_integration, crm_stage, crm_cards, etc.) estiverem criadas.
-> ```
+Faça isso antes de divulgar a URL:
 
-⏱ Aguarde ~30s. O Lovable vai criar o backend e aplicar todas as migrations.
+1. Abra `/entrar?modo=signup`.
+2. Cadastre o e-mail do administrador e crie uma senha com pelo menos 8 caracteres.
+3. Confirme o e-mail.
+4. Entre novamente com a mesma senha.
+5. Acesse `/master/painel`.
 
----
-
-## ✅ Passo 2 — Configurar os Secrets obrigatórios
-
-**Cole no chat:**
-
-> **PROMPT 2:**
-> ```
-> Preciso configurar os secrets do projeto. Abra o formulário para eu inserir os valores destes secrets:
-> - EVOLUTION_API_URL
-> - EVOLUTION_API_KEY
-> - GOOGLE_CLIENT_ID
-> - GOOGLE_CLIENT_SECRET
-> ```
-
-| Secret | Onde obter |
-|---|---|
-| `EVOLUTION_API_URL` | URL da sua instância Evolution API (ex: `https://evo.seudominio.com`) |
-| `EVOLUTION_API_KEY` | API key gerada no painel da Evolution |
-| `GOOGLE_CLIENT_ID` / `SECRET` | Google Cloud Console → Credenciais OAuth 2.0 |
-
-> `LOVABLE_API_KEY` já é injetado automaticamente. Paddle só se for usar cobrança automática.
-
----
-
-## ✅ Passo 3 — Tornar-se o Super Admin (Master)
-
-⚠️ **Isso tem que ser feito ANTES de qualquer outra pessoa se cadastrar.** O sistema promove automaticamente o **primeiro usuário** a `super_admin`.
-
-1. Abra a URL pública do seu projeto (canto superior direito do Lovable → "Open Preview")
-2. Clique em **"Entrar"** → **"Criar conta"**
-3. Cadastre com o e-mail que será o Master (ex: `admin@suamarca.com`)
-4. Confirme o e-mail (caixa de entrada)
-5. Faça login → acesse `/master/painel` → você é o Master ✅
-
-### Se errou (outra pessoa virou master antes)
-
-**Cole no chat:**
-
-> **PROMPT 3 (recuperação):**
-> ```
-> Rode esta query SQL no banco para me promover a super_admin:
->
-> INSERT INTO public.user_roles (user_id, role)
-> SELECT id, 'super_admin'::app_role FROM auth.users WHERE email = 'SEU@EMAIL.COM'
-> ON CONFLICT (user_id, role) DO NOTHING;
->
-> UPDATE public.app_config SET super_admin_emails = ARRAY['SEU@EMAIL.COM'] WHERE id = true;
-> ```
-> (substitua `SEU@EMAIL.COM` pelo seu e-mail real antes de enviar)
-
----
-
-## ✅ Passo 4 — Personalizar a marca
-
-**Cole no chat:**
-
-> **PROMPT 4:**
-> ```
-> Quero personalizar a marca do sistema. Abra o arquivo src/config/brand.ts e troque:
-> - nome do produto para "MEU PRODUTO"
-> - cor primária para #HEXAQUI
-> - logo (se eu enviar uma imagem depois)
-> Depois quero que você ajuste o favicon e o <title> da página em src/routes/__root.tsx.
-> ```
-
----
-
-## ✅ Passo 5 — Criar os Planos comerciais
-
-1. No app, vá em `/master/planos`
-2. Clique **"Novo plano"**
-3. Defina: nome, preço mensal, limite de mensagens/mês, nº de atendentes, features liberadas
-4. Crie pelo menos 1 plano "Trial" gratuito (7 dias) e 1 pago
-
----
-
-## ✅ Passo 6 — Criar a primeira empresa-cliente
-
-Em `/master/nova-empresa`:
-- Nome da empresa
-- E-mail do dono (owner)
-- Plano (do passo 5)
-- Sistema envia senha provisória por e-mail
-
-O cliente faz login → troca a senha → completa o **onboarding (4 passos)** → conecta WhatsApp via QR Code.
-
----
-
-## ✅ Passo 7 — (Opcional) Cobrança automática via Paddle
-
-Só faça se quiser cobrar cartão automaticamente.
-
-**Cole no chat:**
-
-> **PROMPT 7:**
-> ```
-> Quero ativar a cobrança automática via Paddle. Me ajude a:
-> 1. Configurar o secret PADDLE_LIVE_API_KEY (ou PADDLE_SANDBOX_API_KEY para testar)
-> 2. Configurar o webhook do Paddle apontando para /api/public/billing/webhook
-> 3. Mapear meus planos do passo 5 com os price IDs do Paddle
-> ```
-
----
-
-## ✅ Passo 8 — (Opcional) Integração Google Agenda
-
-Já está pronta no código. Só precisa do **Passo 2** ter sido feito + adicionar o redirect URI no Google Cloud Console:
-
-```
-https://atendezap.live/api/public/google-callback
-```
-
-Cada cliente conecta a própria conta em `/app/agente/avancado` → botão "Conectar Google Agenda".
-
----
-
-## ✅ Passo 9 — Publicar
-
-No topo do Lovable → botão **"Publish"** → confirme.
-
-Sua URL: `https://atendezap.live`
-Para domínio próprio: Project Settings → Domains.
-
----
-
-# 🗺️ Guia rápido de uso
-
-## Como Master (`/master/*`)
-| Tela | O que faz |
-|---|---|
-| **Painel** | KPIs gerais: MRR, empresas ativas, churn |
-| **Empresas** | Listar, suspender, **impersonar** (entrar como a empresa pra dar suporte) |
-| **Assinaturas** | Ver cobranças, marcar manual como paga |
-| **Planos** | Criar/editar planos comerciais e limites |
-| **Nova empresa** | Cadastro manual de cliente |
-| **Configurações** | Branding global, lista de super admins |
-
-## Como Cliente (`/app/*`)
-| Tela | O que faz |
-|---|---|
-| **Dashboard** | KPIs do dia, conversas em andamento |
-| **Conexão** | Escanear QR Code WhatsApp (⚠ não feche durante o scan) |
-| **Agente** | Tom de voz, conhecimento, horário |
-| **Agente Avançado** | Prompt customizado + Google Agenda |
-| **Conversas** | Inbox unificada, pausar IA por contato |
-| **CRM** | Kanban: Conversas → Negociando → Ganho/Perda |
-| **Contatos** | Base de leads, tags |
-| **Relatórios** | Conversões, tempo médio, ranking |
-| **Equipe** | Convidar atendentes (owner/admin/atendente) |
-| **Configurações** | Dados da empresa, identidade visual, plano |
-
----
-
-# ⚠️ Boas práticas WhatsApp (evitar banimento)
-
-Já implementado no código, mas oriente seus clientes:
-
-- ✅ **Aquecer chip novo** — 1 a 2 semanas só recebendo antes de disparar
-- ✅ **Não fazer disparo em massa** para contatos que nunca falaram (sistema bloqueia fora da janela de 24h)
-- ✅ **Respeitar opt-out** — palavras "parar", "cancelar", "stop" pausam a IA automaticamente
-- ✅ **Rate limit ativo** — 6 msgs/10min por contato, 20/min por empresa
-- ❌ Não use o sistema para spam frio — risco alto de banimento permanente do número
-
-Para volumes grandes ou clientes premium, considere migrar para a **WhatsApp Business Cloud API oficial** (sem risco de ban).
-
----
-
-# 🆘 Comandos SQL úteis
-
-Cole no chat:
-
-> **PROMPT SQL:**
-> ```
-> Rode esta query: <COLE A QUERY AQUI>
-> ```
+Se já existia um usuário antes da migration corretiva, autentique-se e execute uma única vez:
 
 ```sql
--- Ver todos os super admins
-SELECT u.email FROM auth.users u
-JOIN user_roles r ON r.user_id = u.id WHERE r.role = 'super_admin';
-
--- Resetar onboarding de uma empresa
-UPDATE company SET onboarding_completed = false WHERE id = '<uuid>';
-
--- Suspender empresa por inadimplência
-UPDATE company SET status_cobranca = 'suspenso' WHERE id = '<uuid>';
-
--- Reativar empresa
-UPDATE company SET status_cobranca = 'ativo' WHERE id = '<uuid>';
-
--- Listar empresas com nº de mensagens do mês
-SELECT c.nome, COUNT(m.id) AS msgs_mes
-FROM company c
-LEFT JOIN mensagens m ON m.company_id = c.id
-  AND m.created_at >= date_trunc('month', now())
-GROUP BY c.id ORDER BY msgs_mes DESC;
+select public.claim_super_admin_if_empty();
 ```
 
----
+Essa função só promove o usuário quando ainda não existe super administrador ou quando o e-mail está na lista autorizada.
 
-# ❓ FAQ
+## 3. Configurar o WhatsApp por QR Code
 
-**Posso mudar o nome do produto?** Sim, Passo 4 ou edite `src/config/brand.ts`.
+O QR Code depende de uma instalação externa da **Evolution API v2**. Cadastre estes secrets no backend da Lovable:
 
-**Como adicionar um novo super admin?** Use o PROMPT 3 com o e-mail dele (depois que ele já tiver criado conta).
+```text
+EVOLUTION_API_URL=https://evolution.seudominio.com
+EVOLUTION_API_KEY=sua-chave
+```
 
-**O QR Code do WhatsApp fica caindo.** Já corrigido — só conecte 1x. Se persistir, delete a instância em `/app/conexao` e reconecte.
+Requisitos:
 
-**Como faço backup do banco?** No chat: `"Me dê um dump SQL de todas as tabelas do schema public"`.
+- servidor Evolution com HTTPS;
+- integração `WHATSAPP-BAILEYS` habilitada;
+- rotas v2 de criação, conexão, estado, webhook, presença e envio;
+- acesso do servidor Evolution à URL pública do AtendeZap.
 
-**Posso revender?** Sim, este é o objetivo — você é dono da sua cópia.
+Depois:
 
----
+1. Entre como empresa.
+2. Abra **Conexão**.
+3. Clique em **Conectar WhatsApp**.
+4. No celular, abra WhatsApp → Aparelhos conectados → Conectar aparelho.
+5. Leia o QR Code e aguarde o status **Conectado**.
 
-Pronto. Em ~15 min seu SaaS está no ar. 🚀
+O app configura automaticamente um webhook com token exclusivo por instância. Não remova o parâmetro `t` da URL criada pelo sistema.
+
+## 4. Configurar a IA
+
+O gateway de IA da Lovable é usado como padrão. Se o projeto exigir uma chave explícita, cadastre `LOVABLE_API_KEY` nos secrets. Planos que liberam provedores externos também podem usar as chaves configuradas na tela avançada do agente.
+
+Antes de testar:
+
+1. Preencha nome do agente e da empresa.
+2. Informe produtos, serviços, regras e restrições.
+3. Configure horário de atendimento.
+4. Envie uma mensagem de texto para o número conectado.
+
+Áudios, documentos, imagens e vídeos sem legenda são identificados, mas não são transcritos nem interpretados nesta versão. A IA recebe uma indicação do tipo de mídia e pede a informação por texto.
+
+## 5. Personalizar cada clone
+
+Edite `src/config/brand.ts` para nome, slogan e cor. Configure também as variáveis públicas:
+
+```text
+VITE_SUPPORT_WHATSAPP=5511999999999
+VITE_SUPPORT_WHATSAPP_DISPLAY=(11) 99999-9999
+VITE_OG_IMAGE_URL=https://seu-dominio.com/og-image.png
+```
+
+No backend, `SUPPORT_WHATSAPP` é opcional e acrescenta o contato de suporte aos erros da Evolution. Se essas variáveis não forem definidas, o clone não exibe o número do projeto original.
+
+## 6. Planos e teste grátis
+
+Os planos ficam em `/master/planos`. O teste grátis cria uma assinatura `trialing` vinculada ao plano escolhido, portanto os limites de Pro ou Business são respeitados desde o início.
+
+Configure em cada plano:
+
+- preço;
+- dias de trial;
+- limites de mensagens, contatos, instâncias e usuários;
+- créditos mensais e de trial;
+- URL de checkout, quando houver cobrança externa.
+
+## 7. Webhooks de cobrança
+
+O projeto normaliza eventos de Kiwify, Cakto e Perfectpay. Use uma URL distinta por provedor:
+
+```text
+POST https://SEU-DOMINIO/api/public/billing/webhook?provider=kiwify
+POST https://SEU-DOMINIO/api/public/billing/webhook?provider=cakto
+POST https://SEU-DOMINIO/api/public/billing/webhook?provider=perfectpay
+```
+
+Cadastre o secret correspondente:
+
+```text
+KIWIFY_WEBHOOK_TOKEN
+CAKTO_WEBHOOK_TOKEN
+PERFECTPAY_WEBHOOK_TOKEN
+```
+
+Envie o token pelo header `x-webhook-token` ou `Authorization: Bearer ...`. Tokens na query string não são aceitos. O processamento possui chave idempotente para impedir que o mesmo payload recarregue créditos duas vezes.
+
+Associe cada plano ao identificador do produto presente na URL de checkout. Antes de liberar clientes, teste aprovação, renovação, falha, cancelamento e reembolso em sandbox.
+
+## 8. Worker das campanhas
+
+Sem um agendador, a campanha fica criada, mas não dispara automaticamente. Gere um valor longo e aleatório e cadastre:
+
+```text
+CAMPAIGN_WORKER_SECRET=valor-aleatorio-com-32-ou-mais-caracteres
+```
+
+Configure um cron confiável para chamar a cada minuto:
+
+```http
+POST /api/public/hooks/process-campaigns
+x-worker-secret: SEU_CAMPAIGN_WORKER_SECRET
+```
+
+O endpoint rejeita chamadas sem secret. Os destinatários são reservados atomicamente para evitar duplicidade quando duas execuções se sobrepõem.
+
+## 9. Google Agenda
+
+Cadastre:
+
+```text
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+GOOGLE_OAUTH_STATE_SECRET
+```
+
+`GOOGLE_OAUTH_STATE_SECRET` pode ser omitido no Lovable Cloud quando `SUPABASE_SERVICE_ROLE_KEY` já está disponível no servidor. Nunca use um valor público ou previsível.
+
+No Google Cloud Console, adicione exatamente o domínio do clone:
+
+```text
+https://SEU-DOMINIO/api/public/google-callback
+```
+
+O estado OAuth expira em 10 minutos e é validado por HMAC.
+
+## 10. Checklist antes de entregar
+
+- [ ] primeiro cadastro acessa `/master/painel`;
+- [ ] cadastro exige uma senha conhecida pelo usuário;
+- [ ] empresa em trial recebe o plano realmente escolhido;
+- [ ] QR Code conecta e o banco salva status `connected`;
+- [ ] mensagem recebida aparece no inbox;
+- [ ] IA responde e consome um crédito apenas quando há envio;
+- [ ] opt-out pausa a IA;
+- [ ] CRM atualiza o estágio;
+- [ ] campanha dispara pelo worker autenticado sem duplicar alvos;
+- [ ] webhook de pagamento duplicado não recarrega créditos novamente;
+- [ ] usuário `atendente` não altera plano, créditos, integrações ou tokens;
+- [ ] Google OAuth usa o domínio do clone;
+- [ ] número de suporte e imagem social pertencem ao dono do clone.
+
+## Uso responsável do WhatsApp
+
+- Não use listas frias nem contatos sem consentimento.
+- Respeite opt-out e a janela de atendimento aplicável.
+- Aqueça números novos gradualmente.
+- Monitore qualidade, bloqueios e falhas.
+- Para operações de maior risco ou escala, avalie a WhatsApp Business Platform oficial. Nenhuma integração elimina completamente o risco de bloqueio quando há abuso ou violação das políticas do WhatsApp.

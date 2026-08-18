@@ -41,7 +41,30 @@ export async function getCompanyPlan(companyId: string): Promise<CompanyPlan> {
 
   let row: any = sub?.plan ?? null;
 
-  // 2) Fallback: plano starter ativo
+  // 2) Compatibilidade com empresas criadas antes da assinatura trial passar
+  // a ser registrada: respeita o plano escolhido enquanto o trial estiver válido.
+  if (!row) {
+    const { data: company } = await supabaseAdmin
+      .from("company")
+      .select("selected_plan_slug, status_cobranca, trial_ate")
+      .eq("id", companyId)
+      .maybeSingle();
+    const trialValid =
+      company?.status_cobranca === "trial" &&
+      !!company?.trial_ate &&
+      new Date(company.trial_ate).getTime() > Date.now();
+    if (trialValid && company?.selected_plan_slug) {
+      const { data: selected } = await supabaseAdmin
+        .from("plan")
+        .select("slug, nome, limite_instancias, limite_mensagens, limite_usuarios, limite_contatos")
+        .eq("slug", company.selected_plan_slug)
+        .eq("ativo", true)
+        .maybeSingle();
+      row = selected;
+    }
+  }
+
+  // 3) Fallback final: plano starter ativo
   if (!row) {
     const { data: fallback } = await supabaseAdmin
       .from("plan")
@@ -56,7 +79,7 @@ export async function getCompanyPlan(companyId: string): Promise<CompanyPlan> {
     slug,
     nome: row?.nome || PLAN_LABEL[slug],
     limites: {
-      instancias: 1,
+      instancias: Number(row?.limite_instancias ?? 1),
       usuarios: Number(row?.limite_usuarios ?? 1),
       contatos: Number(row?.limite_contatos ?? 1000),
       mensagens: Number(row?.limite_mensagens ?? 1500),

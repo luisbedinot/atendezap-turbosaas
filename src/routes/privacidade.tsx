@@ -35,7 +35,7 @@ function PrivacidadePage() {
               <li><strong>Conteúdo:</strong> mensagens, contatos e mídias que você processa no Serviço.</li>
               <li><strong>Uso e telemetria:</strong> logs, IP, dispositivo, navegador.</li>
               <li><strong>Suporte:</strong> conteúdo de tickets e comunicações.</li>
-              <li><strong>Cobrança:</strong> tratada pela Paddle (MoR) — não armazenamos dados de cartão.</li>
+              <li><strong>Cobrança:</strong> tratada pelo provedor configurado — não armazenamos dados de cartão.</li>
             </ul>
           </section>
 
@@ -55,8 +55,8 @@ function PrivacidadePage() {
             <p className="mt-2">Compartilhamos dados apenas com:</p>
             <ul className="mt-2 list-disc pl-6 space-y-1">
               <li>
-                <strong>Paddle.com</strong> — atua como Merchant of Record para processar
-                pagamentos, assinaturas, impostos e faturamento.
+                <strong>Provedor de pagamentos configurado</strong> — processa pagamentos,
+                assinaturas e faturamento conforme a operação deste clone.
               </li>
               <li>Provedores de hospedagem, banco de dados e analytics (subprocessadores).</li>
               <li>Consultores profissionais (jurídico, contábil) quando necessário.</li>

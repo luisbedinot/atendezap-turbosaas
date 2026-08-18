@@ -69,17 +69,14 @@ function TermosPage() {
           <section>
             <h2 className="text-xl font-semibold text-slate-900">6. Pagamentos e assinaturas</h2>
             <p className="mt-2">
-              Nosso processo de pedidos é conduzido por nosso revendedor online Paddle.com.
-              <strong> Paddle.com é o Merchant of Record (MoR) de todos os nossos pedidos.</strong>
-              A Paddle realiza o atendimento ao cliente em questões de cobrança e processa
-              devoluções. Os termos completos de compra estão disponíveis em
-              {" "}
-              <a className="underline" href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener noreferrer">Paddle Buyer Terms</a>.
+              O processo de pedidos é conduzido pelo provedor de pagamentos configurado pelo
+              responsável por esta instalação. Os dados do provedor e as condições da compra
+              são apresentados no checkout antes da confirmação do pagamento.
             </p>
             <p className="mt-2">
               Assinaturas são renovadas automaticamente conforme a periodicidade contratada,
               até que sejam canceladas. Você pode gerenciar sua assinatura a qualquer momento
-              em paddle.net ou em sua conta.
+              pelo canal disponibilizado no checkout ou em sua conta.
             </p>
           </section>
 
@@ -128,8 +125,8 @@ function TermosPage() {
           <section>
             <h2 className="text-xl font-semibold text-slate-900">12. Contato</h2>
             <p className="mt-2">
-              Dúvidas sobre estes Termos: entre em contato pelos canais do Serviço ou via
-              paddle.net para questões de cobrança.
+              Dúvidas sobre estes Termos ou sobre cobrança devem ser enviadas pelos canais
+              de atendimento configurados pelo responsável por esta instalação.
             </p>
           </section>
         </div>

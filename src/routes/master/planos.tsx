@@ -95,7 +95,7 @@ function PlanosPage() {
       intervalo: editing.intervalo ?? "month",
       trial_days: Number(editing.trial_days ?? 0),
       limite_mensagens: Number(editing.limite_mensagens ?? 0),
-      limite_instancias: 1,
+      limite_instancias: Math.max(1, Number(editing.limite_instancias ?? 1)),
       limite_usuarios: Number(editing.limite_usuarios ?? 0),
       limite_contatos: Number(editing.limite_contatos ?? 0),
       features: featuresText.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -224,7 +224,16 @@ function PlanosPage() {
               <Field label="Dias de trial"><Input type="number" value={editing.trial_days ?? 0} onChange={(e) => setEditing({ ...editing, trial_days: Number(e.target.value) })} /></Field>
               <Field label="Ordem"><Input type="number" value={editing.ordem ?? 0} onChange={(e) => setEditing({ ...editing, ordem: Number(e.target.value) })} /></Field>
               <Field label="Limite msgs/mês"><Input type="number" value={editing.limite_mensagens ?? 0} onChange={(e) => setEditing({ ...editing, limite_mensagens: Number(e.target.value) })} /></Field>
-              <Field label="Limite instâncias"><Input type="number" value={1} disabled /></Field>
+              <Field label="Limite instâncias">
+                <Input
+                  type="number"
+                  min={1}
+                  value={editing.limite_instancias ?? 1}
+                  onChange={(e) =>
+                    setEditing({ ...editing, limite_instancias: Number(e.target.value) })
+                  }
+                />
+              </Field>
               <Field label="Limite usuários"><Input type="number" value={editing.limite_usuarios ?? 0} onChange={(e) => setEditing({ ...editing, limite_usuarios: Number(e.target.value) })} /></Field>
               <Field label="Limite contatos"><Input type="number" value={editing.limite_contatos ?? 0} onChange={(e) => setEditing({ ...editing, limite_contatos: Number(e.target.value) })} /></Field>
               <Field label="Features (uma por linha)" full>
