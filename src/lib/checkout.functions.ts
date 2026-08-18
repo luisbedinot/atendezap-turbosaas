@@ -25,24 +25,17 @@ export const createCheckoutCompany = createServerFn({ method: "POST" })
     if (existing?.company_id) return { companyId: existing.company_id as string };
 
     // Trial days: do plano escolhido (ou starter como fallback).
-    let trialDays = 3;
-    let planSlug = data.plano_slug;
-    if (planSlug) {
-      const { data: plan } = await supabaseAdmin
-        .from("plan")
-        .select("trial_days, slug")
-        .eq("slug", planSlug)
-        .maybeSingle();
-      if (plan?.trial_days != null) trialDays = Number(plan.trial_days) || trialDays;
-    } else {
-      const { data: starter } = await supabaseAdmin
-        .from("plan")
-        .select("trial_days, slug")
-        .eq("slug", "starter")
-        .maybeSingle();
-      if (starter?.trial_days != null) trialDays = Number(starter.trial_days) || trialDays;
-      planSlug = starter?.slug ?? null;
-    }
+    const requestedPlan = data.plano_slug || "starter";
+    const { data: plan, error: planErr } = await supabaseAdmin
+      .from("plan")
+      .select("id, trial_days, slug")
+      .eq("slug", requestedPlan)
+      .eq("ativo", true)
+      .maybeSingle();
+    if (planErr) throw planErr;
+    if (!plan) throw new Error("Plano selecionado não está disponível.");
+    const trialDays = Math.max(0, Number(plan.trial_days) || 0);
+    const planSlug = plan.slug;
 
     const slug = `${slugify(data.nome)}-${Math.random().toString(36).slice(2, 6)}`;
     const trialAte = new Date(Date.now() + trialDays * 86400000).toISOString();
@@ -70,7 +63,23 @@ export const createCheckoutCompany = createServerFn({ method: "POST" })
       role: "owner",
       ativo: true,
     });
-    if (memberErr) throw memberErr;
+    if (memberErr) {
+      await supabaseAdmin.from("company").delete().eq("id", company.id);
+      throw memberErr;
+    }
+
+    const { error: subscriptionErr } = await supabaseAdmin.from("subscription").insert({
+      company_id: company.id,
+      plan_id: plan.id,
+      status: "trialing",
+      trial_ends_at: trialAte,
+      current_period_end: trialAte,
+      metadata: { source: "self_service_trial" },
+    });
+    if (subscriptionErr) {
+      await supabaseAdmin.from("company").delete().eq("id", company.id);
+      throw subscriptionErr;
+    }
 
     return { companyId: company.id as string };
   });

@@ -32,12 +32,23 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
           const number = remoteJid.split("@")[0];
           const pushName: string | undefined = data?.pushName;
           const msg = data?.message ?? {};
+          const mediaFallback = msg.audioMessage
+            ? "[Áudio recebido — peça ao contato para enviar a informação por texto]"
+            : msg.documentMessage
+            ? `[Documento recebido${msg.documentMessage?.fileName ? `: ${msg.documentMessage.fileName}` : ""} — conteúdo não extraído]`
+            : msg.imageMessage
+            ? "[Imagem recebida sem legenda — peça uma breve descrição por texto]"
+            : msg.videoMessage
+            ? "[Vídeo recebido sem legenda — peça uma breve descrição por texto]"
+            : msg.stickerMessage
+            ? "[Figurinha recebida]"
+            : "";
           const text: string =
             msg.conversation ||
             msg.extendedTextMessage?.text ||
             msg.imageMessage?.caption ||
             msg.videoMessage?.caption ||
-            "";
+            mediaFallback;
           if (!text || !text.trim()) return new Response("no text", { status: 200 });
 
           const suppliedToken = new URL(request.url).searchParams.get("t") || request.headers.get("x-webhook-token") || "";
@@ -285,19 +296,8 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             messages.push({ role: "user", content: text });
           }
 
-          // Enforcement de créditos: cada resposta da IA consome 1 crédito.
-          // Se zerou, a IA não responde — exige assinatura/recarga.
           const { getCompanyPlan } = await import("@/lib/plan-limits.server");
           const { allowsProvider } = await import("@/lib/plan-features");
-          const { data: hasCredit } = await supabaseAdmin.rpc("consume_ai_credit", {
-            _company_id: companyId,
-            _ref: number,
-          });
-          if (!hasCredit) {
-            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
-            console.warn("[credits] créditos esgotados — IA não respondeu", companyId);
-            return new Response("no_credits", { status: 200 });
-          }
           const throttleReason = await getAiThrottleReason(supabaseAdmin, companyId, number);
           if (throttleReason) {
             await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
@@ -324,24 +324,31 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
             console.error("[ai]", e?.message);
           }
 
-          const { parts, stage, agendar } = parseAiOutput(rawReply, stages.map((s) => ({ nome: s.nome, tipo: s.tipo })));
-          const finalParts = sanitizeAiParts(responderEmPartes ? parts : [parts.join(" ")]);
-
-          // Cria evento no Google Agenda se a IA marcou [AGENDAR: ...]
-          if (agendar && googleIntegration?.conectado) {
-            try {
-              const { createCalendarEventForCompany } = await import("@/lib/google.server");
-              await createCalendarEventForCompany(supabaseAdmin, companyId, {
-                titulo: agendar.titulo,
-                inicio: agendar.inicio,
-                fim: agendar.fim,
-                descricao: `Agendado via WhatsApp — ${pushName || number}`,
-              });
-            } catch (e: any) {
-              console.error("[agendar]", e?.message);
-            }
+          if (!rawReply.trim()) {
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+            return new Response("ai_unavailable", { status: 200 });
           }
 
+          const { parts, stage, agendar } = parseAiOutput(rawReply, stages.map((s) => ({ nome: s.nome, tipo: s.tipo })));
+          const finalParts = sanitizeAiParts(responderEmPartes ? parts : [parts.join(" ")]);
+          if (finalParts.length === 0) {
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+            return new Response("ai_empty", { status: 200 });
+          }
+
+          // Reserva um crédito somente depois de passar pelos limites e a IA
+          // produzir uma resposta válida. Em falha total de envio, o crédito volta.
+          const { data: hasCredit } = await supabaseAdmin.rpc("consume_ai_credit", {
+            _company_id: companyId,
+            _ref: number,
+          });
+          if (!hasCredit) {
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+            console.warn("[credits] créditos esgotados — IA não respondeu", companyId);
+            return new Response("no_credits", { status: 200 });
+          }
+
+          let sentParts = 0;
           for (let i = 0; i < finalParts.length; i++) {
             const part = finalParts[i];
             if (!part) continue;
@@ -359,11 +366,36 @@ export const Route = createFileRoute("/api/public/whatsapp-webhook")({
                 autor: "ia",
                 texto: part,
               });
+              sentParts++;
               if (i < finalParts.length - 1) {
                 await new Promise((r) => setTimeout(r, 700 + Math.floor(Math.random() * 800)));
               }
             } catch (e: any) {
               console.error("[send]", e?.message);
+            }
+          }
+
+          if (sentParts === 0) {
+            await (supabaseAdmin as any).rpc("refund_ai_credit", {
+              _company_id: companyId,
+              _ref: number,
+            });
+            await upsertCard(supabaseAdmin, companyId, userId, number, pushName, text, stages);
+            return new Response("send_failed", { status: 200 });
+          }
+
+          // Só cria o compromisso depois que ao menos uma parte da confirmação foi enviada.
+          if (agendar && googleIntegration?.conectado) {
+            try {
+              const { createCalendarEventForCompany } = await import("@/lib/google.server");
+              await createCalendarEventForCompany(supabaseAdmin, companyId, {
+                titulo: agendar.titulo,
+                inicio: agendar.inicio,
+                fim: agendar.fim,
+                descricao: `Agendado via WhatsApp — ${pushName || number}`,
+              });
+            } catch (e: any) {
+              console.error("[agendar]", e?.message);
             }
           }
 

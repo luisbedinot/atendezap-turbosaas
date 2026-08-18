@@ -46,12 +46,6 @@ const PLAN_LABEL: Record<string, { nome: string; preco: string }> = {
 
 const emailSchema = z.string().email("E-mail inválido");
 
-function genStrongPassword() {
-  const arr = new Uint8Array(24);
-  crypto.getRandomValues(arr);
-  return "Az9!" + btoa(String.fromCharCode(...arr)).replace(/[+/=]/g, "x").slice(0, 28);
-}
-
 function EntrarPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/entrar" }) as Search;
@@ -85,6 +79,10 @@ function EntrarPage() {
     setLoading(true);
 
     if (needsPassword) {
+      if (password.length < 8) {
+        setLoading(false);
+        return toast.error("A senha precisa ter pelo menos 8 caracteres.");
+      }
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (error) return toast.error("Senha incorreta. Tente novamente ou recupere sua senha.");
@@ -92,10 +90,13 @@ function EntrarPage() {
       return routeAfterAuth();
     }
 
-    const generated = genStrongPassword();
+    if (password.length < 8) {
+      setLoading(false);
+      return toast.error("Crie uma senha com pelo menos 8 caracteres.");
+    }
     const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
       email,
-      password: generated,
+      password,
       options: { emailRedirectTo: window.location.origin + (search.plano ? `/app/checkout?plano=${search.plano}` : "/app/dashboard") },
     });
 
@@ -123,14 +124,10 @@ function EntrarPage() {
       return routeAfterAuth();
     }
 
-    const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password: generated });
     setLoading(false);
-    if (signInErr) {
-      toast.success("Enviamos um link de confirmação para o seu e-mail.");
-      return;
-    }
-    toast.success("Conta criada!");
-    routeAfterAuth();
+    toast.success("Enviamos um link de confirmação para o seu e-mail.", {
+      description: "Depois de confirmar, entre usando a senha que você acabou de criar.",
+    });
   }
 
   return (
@@ -249,7 +246,7 @@ function EntrarPage() {
                 <p className="text-sm text-muted-foreground mt-1.5 mb-6">
                   {needsPassword
                     ? "Você já tem conta — informe sua senha pra continuar."
-                    : "Só precisamos do seu e-mail. Criamos a conta na hora e te levamos pro próximo passo."}
+                    : "Informe seu e-mail e crie uma senha para acessar sua conta depois."}
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -267,17 +264,27 @@ function EntrarPage() {
                     />
                   </div>
 
-                  {needsPassword && (
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="pwd">Senha</Label>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="pwd">{needsPassword ? "Senha" : "Crie sua senha"}</Label>
+                      {needsPassword && (
                         <Link to="/esqueci-senha" className="text-[11.5px] font-medium text-muted-foreground hover:text-[color:var(--brand-text)] transition-colors">
                           Esqueci minha senha
                         </Link>
-                      </div>
-                      <Input id="pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus required className="h-11" />
+                      )}
                     </div>
-                  )}
+                    <Input
+                      id="pwd"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      minLength={8}
+                      autoComplete={needsPassword ? "current-password" : "new-password"}
+                      required
+                      className="h-11"
+                      placeholder={needsPassword ? "Sua senha" : "Mínimo de 8 caracteres"}
+                    />
+                  </div>
 
                   <Button
                     type="submit"

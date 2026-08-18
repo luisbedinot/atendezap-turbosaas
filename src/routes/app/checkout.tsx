@@ -309,7 +309,7 @@ function CheckoutPage() {
                     </div>
                     <p className="text-sm text-muted-foreground mb-5">
                       Plano selecionado: <span className="font-semibold text-foreground">{plano?.nome}</span> —{" "}
-                      {formatBRL(plano?.preco_cents ?? 0)}/mês. Pagamento por cartão, Pix ou boleto via Kiwify.
+                      {formatBRL(plano?.preco_cents ?? 0)}/mês. As formas de pagamento aparecem no checkout configurado.
                     </p>
                     <Button
                       onClick={pagarAgora}
@@ -344,7 +344,7 @@ function CheckoutPage() {
                   </>
                 )}
                 <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                  <ShieldCheck className="size-3.5" /> Pagamento seguro processado pela Kiwify.
+                  <ShieldCheck className="size-3.5" /> Pagamento processado pelo checkout configurado no plano.
                 </div>
               </Card>
             </div>

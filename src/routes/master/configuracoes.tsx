@@ -27,7 +27,7 @@ function ConfigPage() {
   const [novo, setNovo] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [tokens, setTokens] = useState<{ kiwify: string; cakto: string; perfectpay: string } | null>(null);
+  const [tokens, setTokens] = useState<{ kiwify: boolean; cakto: boolean; perfectpay: boolean } | null>(null);
   const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
@@ -61,9 +61,7 @@ function ConfigPage() {
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const url = (provider: "kiwify" | "cakto" | "perfectpay") =>
-    tokens?.[provider]
-      ? `${origin}/api/public/billing/webhook?provider=${provider}&token=${tokens[provider]}`
-      : "";
+    tokens?.[provider] ? `${origin}/api/public/billing/webhook?provider=${provider}` : "";
 
   async function copy(s: string) {
     try { await navigator.clipboard.writeText(s); toast.success("Copiado"); }
@@ -128,6 +126,7 @@ function ConfigPage() {
                 <ol className="list-decimal pl-4 space-y-0.5 text-muted-foreground">
                   <li>Painel Kiwify → <b>Apps</b> → <b>Webhooks</b> → <b>Nova URL</b>.</li>
                   <li>Cole a URL da Kiwify acima.</li>
+                  <li>Use o mesmo secret <code>KIWIFY_WEBHOOK_TOKEN</code> no campo token do webhook.</li>
                   <li>Marque os eventos: <code>compra aprovada</code>, <code>reembolso</code>, <code>chargeback</code>, <code>assinatura cancelada</code>, <code>assinatura renovada</code>.</li>
                   <li>Salve. Faça uma compra teste de R$1 para validar — ela deve aparecer em "Últimos eventos".</li>
                 </ol>
@@ -137,6 +136,7 @@ function ConfigPage() {
                 <ol className="list-decimal pl-4 space-y-0.5 text-muted-foreground">
                   <li>Painel Cakto → <b>Configurações</b> → <b>Webhooks</b> → <b>Adicionar</b>.</li>
                   <li>Cole a URL da Cakto acima.</li>
+                  <li>Configure o secret como header <code>x-webhook-token</code> (direto ou via bridge).</li>
                   <li>Selecione: <code>PURCHASE_APPROVED</code>, <code>SUBSCRIPTION_RENEWED</code>, <code>SUBSCRIPTION_CANCELED</code>, <code>REFUND</code>, <code>CHARGEBACK</code>.</li>
                   <li>Salve e dispare o teste pelo próprio painel.</li>
                 </ol>
@@ -146,6 +146,7 @@ function ConfigPage() {
                 <ol className="list-decimal pl-4 space-y-0.5 text-muted-foreground">
                   <li>Painel Perfectpay → <b>Ferramentas</b> → <b>Postback (Webhook)</b>.</li>
                   <li>Cole a URL da Perfectpay acima nos campos de <b>Aprovado, Cancelado, Estornado, Chargeback, Renovação</b>.</li>
+                  <li>Configure o secret como header <code>x-webhook-token</code> (direto ou via bridge).</li>
                   <li>Salve. Use o botão "Enviar teste" da Perfectpay.</li>
                 </ol>
               </div>

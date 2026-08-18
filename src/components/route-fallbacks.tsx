@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { Loader2, MessageSquareText } from "lucide-react";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
-import { brand, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
+import { brand, supportConfigured, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
 
 export function RoutePendingComponent() {
   return (
@@ -53,7 +53,7 @@ export function RouteErrorComponent({ error, reset }: { error: Error; reset: () 
             Ir para o início
           </a>
         </div>
-        <p className="mt-6 text-xs text-muted-foreground">
+        {supportConfigured && <p className="mt-6 text-xs text-muted-foreground">
           Precisa de ajuda?{" "}
           <a
             href={supportWhatsappUrl}
@@ -63,7 +63,7 @@ export function RouteErrorComponent({ error, reset }: { error: Error; reset: () 
           >
             Falar com suporte ({supportWhatsappDisplay})
           </a>
-        </p>
+        </p>}
       </div>
     </div>
   );

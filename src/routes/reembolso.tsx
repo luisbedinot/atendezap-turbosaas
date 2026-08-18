@@ -31,17 +31,13 @@ function ReembolsoPage() {
           <section>
             <h2 className="text-xl font-semibold text-slate-900">Como solicitar</h2>
             <p className="mt-2">
-              Os reembolsos são processados pelo nosso provedor de pagamentos,
-              <strong> Paddle</strong> (Merchant of Record). Para solicitar:
+              Os reembolsos são processados pelo provedor de pagamentos configurado pelo
+              responsável por esta instalação. Para solicitar:
             </p>
             <ol className="mt-2 list-decimal pl-6 space-y-1">
-              <li>
-                Acesse{" "}
-                <a className="underline" href="https://paddle.net" target="_blank" rel="noopener noreferrer">paddle.net</a>{" "}
-                e localize seu pedido pelo e-mail de compra.
-              </li>
-              <li>Solicite o reembolso diretamente pelo portal da Paddle.</li>
-              <li>Ou entre em contato com nosso suporte e encaminharemos o pedido.</li>
+              <li>Localize o comprovante ou pedido usando o e-mail da compra.</li>
+              <li>Entre em contato com o suporte informado nesta instalação.</li>
+              <li>O responsável encaminhará a solicitação ao provedor de pagamentos utilizado.</li>
             </ol>
           </section>
 
@@ -66,8 +62,7 @@ function ReembolsoPage() {
           <section>
             <h2 className="text-xl font-semibold text-slate-900">Contato</h2>
             <p className="mt-2">
-              Em caso de dúvidas, entre em contato com nosso suporte ou diretamente em
-              paddle.net.
+              Em caso de dúvidas, entre em contato com o suporte responsável por esta instalação.
             </p>
           </section>
         </div>

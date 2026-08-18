@@ -7,8 +7,10 @@ export const brand = {
   primaryOklch: "0.72 0.18 152",
 };
 
-// Suporte fixo — usado em rodapé, telas de erro e mensagens de falha.
-// Editar aqui troca em todos os pontos.
-export const supportWhatsapp = "5551982913030";
-export const supportWhatsappUrl = `https://wa.me/${supportWhatsapp}`;
-export const supportWhatsappDisplay = "(51) 98291-3030";
+// Cada clone configura o próprio suporte sem herdar o número do projeto original.
+export const supportWhatsapp = String(import.meta.env.VITE_SUPPORT_WHATSAPP || "").replace(/\D/g, "");
+export const supportConfigured = supportWhatsapp.length >= 10;
+export const supportWhatsappUrl = supportConfigured ? `https://wa.me/${supportWhatsapp}` : "/";
+export const supportWhatsappDisplay = supportConfigured
+  ? String(import.meta.env.VITE_SUPPORT_WHATSAPP_DISPLAY || supportWhatsapp)
+  : "";

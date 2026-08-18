@@ -1,8 +1,15 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+const STATE_TTL_MS = 10 * 60 * 1000;
+
+function stateSecret() {
+  const secret = process.env.GOOGLE_OAUTH_STATE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) throw new Error("GOOGLE_OAUTH_STATE_SECRET não configurado");
+  return secret;
+}
 
 export function signState(payload: string) {
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "fallback";
-  const sig = createHmac("sha256", secret).update(payload).digest("hex").slice(0, 16);
+  const sig = createHmac("sha256", stateSecret()).update(payload).digest("base64url");
   return `${payload}.${sig}`;
 }
 
@@ -10,12 +17,18 @@ export function verifyState(state: string): { companyId: string } | null {
   const parts = state.split(".");
   if (parts.length !== 2) return null;
   const [payload, sig] = parts;
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || "fallback";
-  const expected = createHmac("sha256", secret).update(payload).digest("hex").slice(0, 16);
-  if (sig !== expected) return null;
+  let expected: string;
+  try {
+    expected = createHmac("sha256", stateSecret()).update(payload).digest("base64url");
+  } catch {
+    return null;
+  }
+  const suppliedBuffer = Buffer.from(sig);
+  const expectedBuffer = Buffer.from(expected);
+  if (suppliedBuffer.length !== expectedBuffer.length || !timingSafeEqual(suppliedBuffer, expectedBuffer)) return null;
   try {
     const obj = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    if (!obj.companyId) return null;
+    if (!obj.companyId || !Number.isFinite(obj.t) || Math.abs(Date.now() - Number(obj.t)) > STATE_TTL_MS) return null;
     return { companyId: obj.companyId as string };
   } catch {
     return null;

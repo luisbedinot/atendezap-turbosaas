@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
-import { supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
+import { supportConfigured, supportWhatsappUrl, supportWhatsappDisplay } from "@/config/brand";
 
 function NotFoundComponent() {
   return (
@@ -31,12 +31,12 @@ function NotFoundComponent() {
             Go home
           </Link>
         </div>
-        <p className="mt-6 text-xs text-muted-foreground">
+        {supportConfigured && <p className="mt-6 text-xs text-muted-foreground">
           Precisa de ajuda?{" "}
           <a href={supportWhatsappUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
             Falar com suporte ({supportWhatsappDisplay})
           </a>
-        </p>
+        </p>}
       </div>
     </div>
   );
@@ -75,20 +75,22 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             Go home
           </a>
         </div>
-        <p className="mt-6 text-xs text-muted-foreground">
+        {supportConfigured && <p className="mt-6 text-xs text-muted-foreground">
           Precisa de ajuda?{" "}
           <a href={supportWhatsappUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
             Falar com suporte ({supportWhatsappDisplay})
           </a>
-        </p>
+        </p>}
       </div>
     </div>
   );
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
+  head: () => {
+    const ogImage = String(import.meta.env.VITE_OG_IMAGE_URL || "").trim();
+    return ({
+      meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "AtendeZap — Atendente de WhatsApp com IA + CRM Kanban" },
@@ -98,13 +100,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Conecte o WhatsApp, deixe a IA atender e organize seus leads em um kanban arrastável." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "AtendeZap — Atendente de WhatsApp com IA + CRM Kanban" },
       { name: "twitter:description", content: "Conecte o WhatsApp, deixe a IA atender e organize seus leads em um kanban arrastável." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/063e785c-e670-4910-86a1-b0bb141f6a96/id-preview-36807bb7--be429179-e739-4302-b8f8-67595d55c75d.lovable.app-1781545525627.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/063e785c-e670-4910-86a1-b0bb141f6a96/id-preview-36807bb7--be429179-e739-4302-b8f8-67595d55c75d.lovable.app-1781545525627.png" },
-    ],
-    links: [
+      ...(ogImage ? [
+        { property: "og:image", content: ogImage },
+        { name: "twitter:image", content: ogImage },
+      ] : []),
+      ],
+      links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -112,8 +115,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap",
       },
-    ],
-  }),
+      ],
+    });
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
